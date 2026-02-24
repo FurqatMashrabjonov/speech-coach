@@ -1,0 +1,442 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:speech_coach/app/theme/app_colors.dart';
+import 'package:speech_coach/app/theme/app_typography.dart';
+import 'package:speech_coach/core/extensions/context_extensions.dart';
+import 'package:speech_coach/core/extensions/string_extensions.dart';
+import 'package:speech_coach/shared/widgets/tappable.dart';
+import 'package:speech_coach/features/auth/presentation/providers/auth_provider.dart';
+import 'package:speech_coach/features/progress/presentation/providers/progress_provider.dart';
+import 'package:speech_coach/features/sharing/data/share_service.dart';
+
+class ProfileScreen extends ConsumerWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authStateProvider);
+    final progress = ref.watch(progressProvider);
+
+    return Scaffold(
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Column(
+            children: [
+              const SizedBox(height: 16),
+              // Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const SizedBox(width: 48),
+                  Text(
+                    'Profile',
+                    style: AppTypography.headlineLarge(),
+                  ),
+                  TextButton(
+                    onPressed: () => context.push('/settings'),
+                    child: Icon(
+                      Icons.settings_outlined,
+                      color: context.textSecondary,
+                      size: 24,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+
+              // Avatar + Level
+              authState.when(
+                data: (user) {
+                  final name = user?.displayName ?? 'User';
+                  final email = user?.email ?? '';
+
+                  return Column(
+                    children: [
+                      Stack(
+                        alignment: Alignment.bottomRight,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(3),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: AppColors.primary,
+                                width: 2.5,
+                              ),
+                            ),
+                            child: CircleAvatar(
+                              radius: 48,
+                              backgroundColor:
+                                  AppColors.primary.withValues(alpha: 0.14),
+                              child: Text(
+                                name.initials,
+                                style: AppTypography.displaySmall(
+                                    color: AppColors.primary),
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              'Lv.${progress.level}',
+                              style: AppTypography.labelSmall(
+                                  color: AppColors.white),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Text(name, style: AppTypography.headlineMedium()),
+                      const SizedBox(height: 2),
+                      Text(
+                        progress.levelTitle,
+                        style: AppTypography.bodySmall(
+                          color: AppColors.primary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        email,
+                        style: AppTypography.bodySmall(
+                          color: context.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ).animate().fadeIn(duration: 400.ms);
+                },
+                loading: () => const CircularProgressIndicator(),
+                error: (e, _) => Text('Error loading profile: $e'),
+              ),
+              const SizedBox(height: 24),
+
+              // Stats grid
+              Row(
+                children: [
+                  _StatCard(
+                    icon: Icons.emoji_events_rounded,
+                    value: '${progress.totalXp}',
+                    label: 'Total XP',
+                    color: AppColors.gold,
+                  ),
+                  const SizedBox(width: 10),
+                  _StatCard(
+                    icon: Icons.local_fire_department_rounded,
+                    value: '${progress.streak}',
+                    label: 'Day Streak',
+                    color: AppColors.secondary,
+                  ),
+                  const SizedBox(width: 10),
+                  _StatCard(
+                    icon: Icons.mic_rounded,
+                    value: '${progress.totalSessions}',
+                    label: 'Sessions',
+                    color: AppColors.primary,
+                  ),
+                  const SizedBox(width: 10),
+                  _StatCard(
+                    icon: Icons.timer_rounded,
+                    value: '${progress.totalMinutes}',
+                    label: 'Minutes',
+                    color: AppColors.skyBlue,
+                  ),
+                ],
+              ).animate().fadeIn(delay: 100.ms, duration: 400.ms),
+              const SizedBox(height: 20),
+
+              // Badges section
+              if (progress.badges.isNotEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: context.surface,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.workspace_premium_rounded,
+                            color: AppColors.gold,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Text('Badges', style: AppTypography.titleMedium()),
+                          const Spacer(),
+                          Text(
+                            '${progress.badges.length}',
+                            style: AppTypography.labelMedium(
+                              color: context.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: progress.badges.map((badge) {
+                          final label =
+                              _badgeLabels[badge] ?? badge.replaceAll('_', ' ');
+                          return Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.gold.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Text(
+                              label,
+                              style: AppTypography.labelSmall(
+                                  color: AppColors.gold),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                ).animate().fadeIn(delay: 150.ms, duration: 400.ms),
+              const SizedBox(height: 20),
+
+              // Share streak
+              if (progress.streak > 0)
+                Tappable(
+                  onTap: () => ShareService.shareStreakMilestone(
+                    streak: progress.streak,
+                  ),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          AppColors.secondary.withValues(alpha: 0.22),
+                          AppColors.primary.withValues(alpha: 0.22),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          Icons.share_rounded,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Share your ${progress.streak}-day streak!',
+                            style: AppTypography.bodyMedium(
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ),
+                        const Icon(
+                          Icons.chevron_right_rounded,
+                          color: AppColors.primary,
+                        ),
+                      ],
+                    ),
+                  ),
+                ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
+              const SizedBox(height: 20),
+
+              // Menu items
+              Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardTheme.color,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Column(
+                  children: [
+                    _ProfileMenuItem(
+                      icon: Icons.bar_chart_rounded,
+                      iconColor: AppColors.skyBlue,
+                      title: 'Analytics',
+                      onTap: () => context.go('/progress'),
+                    ),
+                    const Divider(height: 1, indent: 60),
+                    _ProfileMenuItem(
+                      icon: Icons.workspace_premium_rounded,
+                      iconColor: AppColors.gold,
+                      title: 'Upgrade to Pro',
+                      onTap: () => context.push('/paywall'),
+                    ),
+                    const Divider(height: 1, indent: 60),
+                    _ProfileMenuItem(
+                      icon: Icons.help_outline_rounded,
+                      iconColor: AppColors.secondary,
+                      title: 'Help & Support',
+                      onTap: () {},
+                    ),
+                    const Divider(height: 1, indent: 60),
+                    _ProfileMenuItem(
+                      icon: Icons.settings_outlined,
+                      iconColor: context.textSecondary,
+                      title: 'Settings',
+                      onTap: () => context.push('/settings'),
+                    ),
+                  ],
+                ),
+              ).animate().fadeIn(delay: 250.ms, duration: 400.ms),
+              const SizedBox(height: 24),
+
+              // Log out
+              Tappable(
+                onTap: () async {
+                  final confirmed = await showDialog<bool>(
+                    context: context,
+                    builder: (ctx) => AlertDialog(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      title: const Text('Sign Out'),
+                      content:
+                          const Text('Are you sure you want to sign out?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, true),
+                          child: Text(
+                            'Sign Out',
+                            style: TextStyle(color: AppColors.error),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirmed == true) {
+                    await ref
+                        .read(authNotifierProvider.notifier)
+                        .signOut();
+                  }
+                },
+                child: Text(
+                  'Log out',
+                  style: AppTypography.bodyLarge(color: AppColors.error),
+                ),
+              ),
+              const SizedBox(height: 32),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  static const _badgeLabels = {
+    'first_conversation': 'First Chat',
+    '5_day_streak': '5-Day Streak',
+    '10_day_streak': '10-Day Streak',
+    'perfect_clarity': 'Perfect Clarity',
+    'star_performer': 'Star Performer',
+    'dedicated_10': '10 Sessions',
+    'dedicated_50': '50 Sessions',
+    'interviews_5': 'Interview Pro',
+    'presentations_5': 'Presenter',
+    'public_speaking_5': 'Public Speaker',
+    'conversations_5': 'Conversationalist',
+    'debates_5': 'Debater',
+    'storytelling_5': 'Storyteller',
+  };
+}
+
+class _StatCard extends StatelessWidget {
+  final IconData icon;
+  final String value;
+  final String label;
+  final Color color;
+
+  const _StatCard({
+    required this.icon,
+    required this.value,
+    required this.label,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.14),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 20),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: AppTypography.titleLarge(color: color),
+            ),
+            Text(
+              label,
+              style: AppTypography.labelSmall(
+                color: context.textSecondary,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfileMenuItem extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final VoidCallback onTap;
+
+  const _ProfileMenuItem({
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      leading: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(
+          color: iconColor.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        child: Icon(icon, color: iconColor, size: 20),
+      ),
+      title: Text(
+        title,
+        style: AppTypography.bodyLarge(),
+      ),
+      trailing: Icon(
+        Icons.chevron_right_rounded,
+        color: context.textTertiary,
+      ),
+      onTap: onTap,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
+    );
+  }
+}

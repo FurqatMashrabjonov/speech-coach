@@ -1,0 +1,90 @@
+{
+  "project_info": {
+    "project_number": "542607824855",
+    "project_id": "fitness-154e6",
+    "storage_bucket": "fitness-154e6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:542607824855:android:9cf0bd880a7fbb5043dd92",
+        "android_client_info": {
+          "package_name": "com.speechmaster.speech_coach"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "542607824855-etcgv9qcqta2ev8mu4ofjv6l9ng5i1rd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.speechmaster.speech_coach",
+            "certificate_hash": "c856e958d6c04e82a806dbd4e83d87a19546fd2f"
+          }
+        },
+        {
+          "client_id": "542607824855-4vsj22g0m7rsfl3n6hdq7f95p5v5o3qt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXJBXLGIHSpDXwd_q4gk-QsKp6Hf-L9gA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "542607824855-4vsj22g0m7rsfl3n6hdq7f95p5v5o3qt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "542607824855-vpr0g29qv1j4g9ttbl4ns2fiuiodsllb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.speechmaster.speechCoach"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:542607824855:android:0aefe50f716c5c3a43dd92",
+        "android_client_info": {
+          "package_name": "com.test.gemini_live_test"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "542607824855-4vsj22g0m7rsfl3n6hdq7f95p5v5o3qt.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXJBXLGIHSpDXwd_q4gk-QsKp6Hf-L9gA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "542607824855-4vsj22g0m7rsfl3n6hdq7f95p5v5o3qt.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "542607824855-vpr0g29qv1j4g9ttbl4ns2fiuiodsllb.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.speechmaster.speechCoach"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

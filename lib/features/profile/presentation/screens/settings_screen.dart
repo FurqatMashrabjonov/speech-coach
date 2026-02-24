@@ -1,0 +1,163 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:speech_coach/app/theme/app_colors.dart';
+import 'package:speech_coach/app/theme/app_typography.dart';
+import 'package:speech_coach/core/extensions/context_extensions.dart';
+import 'package:speech_coach/shared/providers/theme_provider.dart';
+
+class SettingsScreen extends ConsumerWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final themeMode = ref.watch(themeModeProvider);
+
+    return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_rounded, size: 22),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: const Text('Settings'),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          _SettingsSection(
+            title: 'Appearance',
+            children: [
+              ListTile(
+                leading: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.dark_mode_outlined,
+                      color: AppColors.primary, size: 20),
+                ),
+                title: const Text('Dark Mode'),
+                trailing: Switch.adaptive(
+                  value: themeMode == ThemeMode.dark,
+                  activeTrackColor: AppColors.success,
+                  onChanged: (_) {
+                    ref.read(themeModeProvider.notifier).toggle();
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _SettingsSection(
+            title: 'Audio',
+            children: [
+              ListTile(
+                leading: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: AppColors.secondary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.mic_outlined,
+                      color: AppColors.secondary, size: 20),
+                ),
+                title: const Text('Microphone Quality'),
+                subtitle: const Text('High'),
+                trailing: Icon(Icons.chevron_right_rounded,
+                    color: context.textTertiary),
+                onTap: () {},
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _SettingsSection(
+            title: 'About',
+            children: [
+              ListTile(
+                leading: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: AppColors.skyBlue.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.info_outline_rounded,
+                      color: AppColors.skyBlue, size: 20),
+                ),
+                title: const Text('Version'),
+                subtitle: const Text('1.0.0'),
+              ),
+              ListTile(
+                leading: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: AppColors.gold.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.description_outlined,
+                      color: AppColors.gold, size: 20),
+                ),
+                title: const Text('Privacy Policy'),
+                trailing: Icon(Icons.chevron_right_rounded,
+                    color: context.textTertiary),
+                onTap: () {},
+              ),
+              ListTile(
+                leading: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: AppColors.lavender.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Icon(Icons.gavel_outlined,
+                      color: AppColors.primaryDark, size: 20),
+                ),
+                title: const Text('Terms of Service'),
+                trailing: Icon(Icons.chevron_right_rounded,
+                    color: context.textTertiary),
+                onTap: () {},
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SettingsSection extends StatelessWidget {
+  final String title;
+  final List<Widget> children;
+
+  const _SettingsSection({
+    required this.title,
+    required this.children,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: AppTypography.titleMedium(
+            color: context.textSecondary,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardTheme.color,
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(children: children),
+        ),
+      ],
+    );
+  }
+}
