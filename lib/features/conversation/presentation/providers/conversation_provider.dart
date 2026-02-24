@@ -129,8 +129,12 @@ class ConversationNotifier extends StateNotifier<ConversationState> {
   final List<int> _turnAudioBuffer = [];
   // Buffer for user speech transcription (from inputTranscription)
   String _pendingUserTranscription = '';
-  // Guard: suppress mic→Gemini while AI audio is playing to prevent echo
+
+  // Echo prevention: track AI speaking state and audio bytes for timing
   bool _isAiSpeaking = false;
+  bool _micIsActive = false;
+  int _turnAudioBytesSent = 0; // bytes fed to SoLoud this turn
+  Timer? _micResumeTimer;
 
   ConversationNotifier(this._service, this.category)
       : super(const ConversationState());
@@ -259,10 +263,9 @@ class ConversationNotifier extends StateNotifier<ConversationState> {
       await _startAudioPlayback();
 
       // Trigger AI to speak first (greeting)
+      // Don't start mic yet — wait until AI finishes greeting
+      _isAiSpeaking = true;
       await _service.sendText('Hello');
-
-      // Start mic after AI has been triggered so greeting isn't interrupted
-      _startMicStream();
 
       state = state.copyWith(status: ConversationStatus.aiSpeaking);
     } catch (e) {
@@ -277,6 +280,7 @@ class ConversationNotifier extends StateNotifier<ConversationState> {
   /// Starts continuous mic audio streaming to Gemini via per-chunk sendAudioRealtime.
   /// VAD on the server automatically detects when the user speaks/stops.
   Future<void> _startMicStream() async {
+    if (_micIsActive || state.isMicMuted || _closed) return;
     try {
       final stream = await _recorder.startStream(
         RecordConfig(
@@ -292,15 +296,32 @@ class ConversationNotifier extends StateNotifier<ConversationState> {
         ),
       );
 
+      _micIsActive = true;
+
       // Send each audio chunk individually via sendAudioRealtime
       _micSubscription = stream.listen((data) {
-        if (!_isAiSpeaking) {
+        if (!_closed) {
           _service.sendAudioRealtime(Uint8List.fromList(data));
         }
       });
     } catch (e) {
       debugPrint('Mic stream error: $e');
+      _micIsActive = false;
     }
+  }
+
+  /// Hard-stop the mic recorder. No audio reaches Gemini after this.
+  Future<void> _stopMicStream() async {
+    _micResumeTimer?.cancel();
+    _micResumeTimer = null;
+
+    if (!_micIsActive) return;
+    await _micSubscription?.cancel();
+    _micSubscription = null;
+    try {
+      await _recorder.stop();
+    } catch (_) {}
+    _micIsActive = false;
   }
 
   /// Toggle mic mute/unmute. When muted, stops the recorder so no audio
@@ -314,17 +335,15 @@ class ConversationNotifier extends StateNotifier<ConversationState> {
     }
 
     if (!state.isMicMuted) {
-      // Mute: stop recorder and cancel subscription
-      await _micSubscription?.cancel();
-      _micSubscription = null;
-      try {
-        await _recorder.stop();
-      } catch (_) {}
+      // Mute: stop recorder
+      await _stopMicStream();
       state = state.copyWith(isMicMuted: true);
     } else {
-      // Unmute: restart mic stream
-      await _startMicStream();
+      // Unmute: restart mic stream (only if AI is not speaking)
       state = state.copyWith(isMicMuted: false);
+      if (!_isAiSpeaking) {
+        await _startMicStream();
+      }
     }
   }
 
@@ -369,8 +388,11 @@ class ConversationNotifier extends StateNotifier<ConversationState> {
     if (msg is LiveServerContent) {
       // Audio chunks from model turn — feed directly to SoLoud stream
       if (msg.modelTurn != null) {
-        if (state.status != ConversationStatus.aiSpeaking) {
+        if (!_isAiSpeaking) {
           _isAiSpeaking = true;
+          _turnAudioBytesSent = 0;
+          // Hard-stop mic the moment AI starts talking
+          _stopMicStream();
           state = state.copyWith(status: ConversationStatus.aiSpeaking);
         }
         for (final part in msg.modelTurn!.parts) {
@@ -378,6 +400,7 @@ class ConversationNotifier extends StateNotifier<ConversationState> {
               part.mimeType.startsWith('audio')) {
             // Save for the message bubble
             _turnAudioBuffer.addAll(part.bytes);
+            _turnAudioBytesSent += part.bytes.length;
             // Feed directly to SoLoud — no WAV wrapping, no buffering
             if (_audioStream != null) {
               SoLoud.instance.addAudioDataStream(
@@ -432,9 +455,6 @@ class ConversationNotifier extends StateNotifier<ConversationState> {
   }
 
   Future<void> _onAiTurnComplete() async {
-    // Re-enable mic audio to Gemini now that AI is done speaking
-    _isAiSpeaking = false;
-
     // Signal end of data for this stream segment
     if (_audioStream != null) {
       SoLoud.instance.setDataIsEnded(_audioStream!);
@@ -475,18 +495,31 @@ class ConversationNotifier extends StateNotifier<ConversationState> {
     if (_audioStream != null) {
       await _startAudioPlayback();
     }
+
+    // Calculate how long the remaining audio will play through the speaker.
+    // SoLoud plays at 24kHz mono 16-bit = 48000 bytes/sec.
+    // turnComplete fires when Gemini finishes SENDING, but SoLoud may still
+    // be playing buffered audio. Wait for it to drain + safety margin.
+    final remainingMs = (_turnAudioBytesSent / 48000 * 1000).round();
+    // Use at least 400ms to account for speaker tail + device latency
+    final delayMs = remainingMs.clamp(400, 3000);
+    _turnAudioBytesSent = 0;
+
+    _micResumeTimer?.cancel();
+    _micResumeTimer = Timer(Duration(milliseconds: delayMs), () {
+      _isAiSpeaking = false;
+      if (!_closed && !state.isMicMuted && mounted) {
+        _startMicStream();
+      }
+    });
   }
 
   Future<void> endConversation() async {
     _closed = true;
     _timer?.cancel();
+    _micResumeTimer?.cancel();
 
-    await _micSubscription?.cancel();
-    _micSubscription = null;
-    try {
-      await _recorder.stop();
-    } catch (_) {}
-
+    await _stopMicStream();
     await _stopAudioStream();
     await _service.close();
 
@@ -515,6 +548,7 @@ class ConversationNotifier extends StateNotifier<ConversationState> {
   void dispose() {
     _closed = true;
     _timer?.cancel();
+    _micResumeTimer?.cancel();
     _micSubscription?.cancel();
     _recorder.dispose();
     _stopAudioStream();
