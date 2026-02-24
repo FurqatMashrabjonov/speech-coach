@@ -139,6 +139,7 @@ class _TextChatScreenState extends ConsumerState<TextChatScreen> {
         'scenarioId': state.scenarioId ?? '',
         'scenarioTitle': state.scenarioTitle ?? widget.category,
         'category': widget.category,
+        'transcript': state.fullTranscript,
       },
     );
   }

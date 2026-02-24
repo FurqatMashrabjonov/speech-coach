@@ -9,6 +9,8 @@ import 'package:speech_coach/features/auth/presentation/screens/splash_screen.da
 import 'package:speech_coach/features/conversation/presentation/screens/conversation_screen.dart';
 import 'package:speech_coach/features/text_chat/presentation/screens/text_chat_screen.dart';
 import 'package:speech_coach/features/feedback/presentation/screens/score_card_screen.dart';
+import 'package:speech_coach/features/history/presentation/screens/session_detail_screen.dart';
+import 'package:speech_coach/features/history/presentation/screens/session_history_screen.dart';
 import 'package:speech_coach/features/home/presentation/screens/home_screen.dart';
 import 'package:speech_coach/features/onboarding/presentation/screens/onboarding_flow_screen.dart';
 import 'package:speech_coach/features/paywall/presentation/screens/paywall_screen.dart';
@@ -162,6 +164,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               scenarioId: extra['scenarioId'] as String,
               scenarioTitle: extra['scenarioTitle'] as String,
               category: extra['category'] as String,
+              transcript: extra['transcript'] as String? ?? '',
             ),
             transitionsBuilder: (context, animation, secondaryAnimation, child) {
               return SlideTransition(
@@ -196,6 +199,46 @@ final routerProvider = Provider<GoRouter>((ref) {
             );
           },
         ),
+      ),
+      // Session history
+      GoRoute(
+        path: '/history',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          child: const SessionHistoryScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1, 0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              )),
+              child: child,
+            );
+          },
+        ),
+      ),
+      GoRoute(
+        path: '/history/:sessionId',
+        pageBuilder: (context, state) {
+          final sessionId = state.pathParameters['sessionId']!;
+          return CustomTransitionPage(
+            child: SessionDetailScreen(sessionId: sessionId),
+            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+              return SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(1, 0),
+                  end: Offset.zero,
+                ).animate(CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOutCubic,
+                )),
+                child: child,
+              );
+            },
+          );
+        },
       ),
       // Existing session routes
       GoRoute(

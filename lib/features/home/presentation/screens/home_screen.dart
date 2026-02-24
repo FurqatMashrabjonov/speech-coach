@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:speech_coach/app/theme/app_colors.dart';
 import 'package:speech_coach/app/theme/app_typography.dart';
 import 'package:speech_coach/core/extensions/context_extensions.dart';
+import 'package:speech_coach/features/history/presentation/providers/session_history_provider.dart';
+import 'package:speech_coach/features/history/domain/session_history_entity.dart';
 import 'package:speech_coach/features/paywall/data/usage_service.dart';
 import 'package:speech_coach/shared/widgets/skeleton.dart';
 import 'package:speech_coach/shared/widgets/tappable.dart';
@@ -12,7 +14,7 @@ import 'package:speech_coach/features/progress/presentation/providers/progress_p
 import 'package:speech_coach/features/progress/presentation/widgets/xp_bar.dart';
 import 'package:speech_coach/features/scenarios/presentation/providers/scenario_provider.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
 
   static const _categories = [
@@ -25,9 +27,23 @@ class HomeScreen extends ConsumerWidget {
   ];
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(sessionHistoryProvider.notifier).loadSessions();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final progress = ref.watch(progressProvider);
     final usageService = ref.watch(usageServiceProvider);
+    final historyState = ref.watch(sessionHistoryProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -148,6 +164,19 @@ class HomeScreen extends ConsumerWidget {
                   .slideY(begin: 0.1),
               const SizedBox(height: 24),
 
+              // Recent sessions
+              if (historyState.status == SessionHistoryStatus.loaded &&
+                  historyState.sessions.isNotEmpty)
+                _RecentSessionsSection(
+                  sessions: historyState.sessions.take(3).toList(),
+                )
+                    .animate()
+                    .fadeIn(delay: 220.ms, duration: 400.ms)
+                    .slideY(begin: 0.1),
+              if (historyState.status == SessionHistoryStatus.loaded &&
+                  historyState.sessions.isNotEmpty)
+                const SizedBox(height: 24),
+
               // Categories
               Text(
                 'Practice Scenarios',
@@ -163,8 +192,8 @@ class HomeScreen extends ConsumerWidget {
               const SizedBox(height: 16),
 
               // Category list
-              ...List.generate(_categories.length, (index) {
-                final (name, icon, color) = _categories[index];
+              ...List.generate(HomeScreen._categories.length, (index) {
+                final (name, icon, color) = HomeScreen._categories[index];
                 final scenarios = ref.read(scenariosByCategoryProvider(name));
                 return _CategoryTile(
                   name: name,
@@ -413,6 +442,130 @@ class HomeSkeleton extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class _RecentSessionsSection extends StatelessWidget {
+  final List<SessionHistoryEntry> sessions;
+
+  const _RecentSessionsSection({required this.sessions});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Recent Sessions',
+              style: AppTypography.headlineSmall(),
+            ),
+            Tappable(
+              onTap: () => context.push('/history'),
+              child: Text(
+                'See All',
+                style: AppTypography.labelMedium(color: AppColors.primary),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        ...sessions.map((session) => _RecentSessionTile(session: session)),
+      ],
+    );
+  }
+}
+
+class _RecentSessionTile extends StatelessWidget {
+  final SessionHistoryEntry session;
+
+  const _RecentSessionTile({required this.session});
+
+  Color get _scoreColor {
+    if (session.overallScore >= 80) return AppColors.success;
+    if (session.overallScore >= 50) return AppColors.warning;
+    return AppColors.error;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Tappable(
+      onTap: () => context.push('/history/${session.id}'),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardTheme.color ?? context.card,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: context.divider, width: 0.5),
+        ),
+        child: Row(
+          children: [
+            // Score
+            SizedBox(
+              width: 40,
+              height: 40,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: CircularProgressIndicator(
+                      value: session.overallScore / 100,
+                      strokeWidth: 3,
+                      backgroundColor: context.divider,
+                      color: _scoreColor,
+                      strokeCap: StrokeCap.round,
+                    ),
+                  ),
+                  Text(
+                    '${session.overallScore}',
+                    style: AppTypography.labelMedium(color: _scoreColor),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    session.scenarioTitle,
+                    style: AppTypography.titleMedium(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    _formatDate(session.createdAt),
+                    style: AppTypography.labelSmall(
+                      color: context.textTertiary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 20,
+              color: context.textTertiary,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final diff = now.difference(date);
+    if (diff.inDays == 0) return 'Today';
+    if (diff.inDays == 1) return 'Yesterday';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    return '${date.month}/${date.day}';
   }
 }
 

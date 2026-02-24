@@ -6,153 +6,108 @@ import 'package:screenshot/screenshot.dart';
 import 'package:speech_coach/app/theme/app_colors.dart';
 import 'package:speech_coach/app/theme/app_typography.dart';
 import 'package:speech_coach/core/extensions/context_extensions.dart';
-import 'package:speech_coach/features/feedback/domain/feedback_entity.dart';
-import 'package:speech_coach/shared/widgets/tappable.dart';
-import 'package:speech_coach/features/feedback/presentation/providers/feedback_provider.dart';
+import 'package:speech_coach/features/history/data/session_history_repository.dart';
+import 'package:speech_coach/features/history/domain/session_history_entity.dart';
 import 'package:speech_coach/features/feedback/presentation/widgets/radar_chart.dart';
 import 'package:speech_coach/features/feedback/presentation/widgets/score_bar.dart';
-import 'package:speech_coach/features/history/presentation/providers/session_history_provider.dart';
-import 'package:speech_coach/features/progress/presentation/providers/progress_provider.dart';
 import 'package:speech_coach/features/sharing/data/share_service.dart';
+import 'package:speech_coach/shared/widgets/tappable.dart';
 
-class ScoreCardScreen extends ConsumerStatefulWidget {
-  final String scenarioId;
-  final String scenarioTitle;
-  final String category;
-  final String transcript;
+final _sessionDetailProvider =
+    FutureProvider.family<SessionHistoryEntry?, String>((ref, id) async {
+  final repository = ref.read(sessionHistoryRepositoryProvider);
+  return repository.getSession(id);
+});
 
-  const ScoreCardScreen({
-    super.key,
-    required this.scenarioId,
-    required this.scenarioTitle,
-    required this.category,
-    this.transcript = '',
-  });
-
-  @override
-  ConsumerState<ScoreCardScreen> createState() => _ScoreCardScreenState();
-}
-
-class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
+class SessionDetailScreen extends ConsumerWidget {
+  final String sessionId;
   final _screenshotController = ScreenshotController();
-  bool _xpAwarded = false;
-  bool _sessionSaved = false;
+
+  SessionDetailScreen({super.key, required this.sessionId});
 
   @override
-  Widget build(BuildContext context) {
-    final feedbackState = ref.watch(feedbackProvider);
-
-    // Award XP and save session when feedback is loaded
-    if (feedbackState.status == FeedbackStatus.loaded &&
-        feedbackState.feedback != null &&
-        !_xpAwarded) {
-      _xpAwarded = true;
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        ref.read(progressProvider.notifier).addSession(feedbackState.feedback!);
-
-        // Save session to Firestore
-        if (!_sessionSaved) {
-          _sessionSaved = true;
-          ref.read(saveSessionProvider).save(
-                scenarioId: widget.scenarioId,
-                scenarioTitle: widget.scenarioTitle,
-                category: widget.category,
-                feedback: feedbackState.feedback!,
-                transcript: widget.transcript,
-              );
-        }
-      });
-    }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final asyncSession = ref.watch(_sessionDetailProvider(sessionId));
 
     return Scaffold(
       body: SafeArea(
-        child: switch (feedbackState.status) {
-          FeedbackStatus.idle || FeedbackStatus.loading => _buildLoading(),
-          FeedbackStatus.loaded => _buildScoreCard(feedbackState.feedback!),
-          FeedbackStatus.error => _buildError(feedbackState.error),
-        },
-      ),
-    );
-  }
-
-  Widget _buildLoading() {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const CircularProgressIndicator(
-            color: AppColors.primary,
-            strokeWidth: 3,
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'Analyzing your performance...',
-            style: AppTypography.bodyMedium(
-              color: context.textSecondary,
+        child: asyncSession.when(
+          loading: () => const Center(
+            child: CircularProgressIndicator(
+              color: AppColors.primary,
+              strokeWidth: 3,
             ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'This may take a few seconds',
-            style: AppTypography.bodySmall(
-              color: context.textTertiary,
-            ),
-          ),
-        ],
-      ).animate().fadeIn(duration: 400.ms),
-    );
-  }
-
-  Widget _buildError(String? error) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.error_outline_rounded,
-              size: 48,
-              color: AppColors.error.withValues(alpha: 0.6),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Could not analyze conversation',
-              style: AppTypography.headlineSmall(),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              error ?? 'Something went wrong',
-              textAlign: TextAlign.center,
-              style: AppTypography.bodyMedium(
-                color: context.textSecondary,
+          error: (e, _) => Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.error_outline_rounded,
+                    size: 48,
+                    color: AppColors.error.withValues(alpha: 0.6),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Could not load session',
+                    style: AppTypography.headlineSmall(),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    e.toString(),
+                    textAlign: TextAlign.center,
+                    style: AppTypography.bodyMedium(
+                      color: context.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Tappable(
+                    onTap: () => context.pop(),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        'Go Back',
+                        style:
+                            AppTypography.labelLarge(color: AppColors.white),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 24),
-            Tappable(
-              onTap: () => context.go('/home'),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(999),
-                ),
+          ),
+          data: (session) {
+            if (session == null) {
+              return Center(
                 child: Text(
-                  'Go Home',
-                  style: AppTypography.labelLarge(color: AppColors.white),
+                  'Session not found',
+                  style: AppTypography.bodyMedium(
+                    color: context.textSecondary,
+                  ),
                 ),
-              ),
-            ),
-          ],
+              );
+            }
+            return _buildDetail(context, ref, session);
+          },
         ),
       ),
     );
   }
 
-  Widget _buildScoreCard(ConversationFeedback feedback) {
+  Widget _buildDetail(
+    BuildContext context,
+    WidgetRef ref,
+    SessionHistoryEntry session,
+  ) {
     return Column(
       children: [
         // App bar
@@ -161,17 +116,20 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
           child: Row(
             children: [
               Tappable(
-                onTap: () => context.go('/home'),
-                child: const Icon(Icons.close_rounded, size: 24),
+                onTap: () => context.pop(),
+                child: const Icon(Icons.arrow_back_rounded, size: 24),
               ),
-              const Spacer(),
-              Text(
-                'Score Card',
-                style: AppTypography.headlineSmall(),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  session.scenarioTitle,
+                  style: AppTypography.headlineSmall(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-              const Spacer(),
               Tappable(
-                onTap: () => _shareScoreCard(feedback),
+                onTap: () => _shareScoreCard(context, session),
                 child: Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
@@ -192,8 +150,9 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
                       const SizedBox(width: 4),
                       Text(
                         'Share',
-                        style:
-                            AppTypography.labelMedium(color: AppColors.primary),
+                        style: AppTypography.labelMedium(
+                          color: AppColors.primary,
+                        ),
                       ),
                     ],
                   ),
@@ -214,12 +173,7 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
                 child: Column(
                   children: [
                     const SizedBox(height: 8),
-                    // Scenario info
-                    Text(
-                      widget.scenarioTitle,
-                      style: AppTypography.titleLarge(),
-                    ).animate().fadeIn(duration: 400.ms),
-                    const SizedBox(height: 4),
+                    // Category badge
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 12,
@@ -230,32 +184,42 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Text(
-                        widget.category,
+                        session.category,
                         style: AppTypography.labelSmall(
                           color: AppColors.primary,
                         ),
                       ),
+                    ).animate().fadeIn(duration: 400.ms),
+                    const SizedBox(height: 4),
+                    // Date
+                    Text(
+                      _formatFullDate(session.createdAt),
+                      style: AppTypography.bodySmall(
+                        color: context.textTertiary,
+                      ),
                     ).animate().fadeIn(delay: 100.ms, duration: 400.ms),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 20),
 
                     // Overall score circle
-                    _OverallScoreCircle(score: feedback.overallScore)
+                    _OverallScoreCircle(score: session.overallScore)
                         .animate()
                         .fadeIn(delay: 200.ms, duration: 600.ms)
                         .scale(begin: const Offset(0.8, 0.8)),
                     const SizedBox(height: 8),
                     Text(
-                      '+${feedback.xpEarned} XP',
-                      style: AppTypography.titleMedium(color: AppColors.primary),
+                      '+${session.xpEarned} XP',
+                      style: AppTypography.titleMedium(
+                        color: AppColors.primary,
+                      ),
                     ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
                     const SizedBox(height: 24),
 
                     // Radar chart
                     ScoreRadarChart(
-                      clarity: feedback.clarity,
-                      confidence: feedback.confidence,
-                      engagement: feedback.engagement,
-                      relevance: feedback.relevance,
+                      clarity: session.clarity,
+                      confidence: session.confidence,
+                      engagement: session.engagement,
+                      relevance: session.relevance,
                       size: 220,
                     ).animate().fadeIn(delay: 500.ms, duration: 600.ms),
                     const SizedBox(height: 24),
@@ -277,22 +241,22 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
                           const SizedBox(height: 12),
                           ScoreBar(
                             label: 'Clarity',
-                            score: feedback.clarity,
+                            score: session.clarity,
                             animationDelay: 0,
                           ),
                           ScoreBar(
                             label: 'Confidence',
-                            score: feedback.confidence,
+                            score: session.confidence,
                             animationDelay: 100,
                           ),
                           ScoreBar(
                             label: 'Engagement',
-                            score: feedback.engagement,
+                            score: session.engagement,
                             animationDelay: 200,
                           ),
                           ScoreBar(
                             label: 'Relevance',
-                            score: feedback.relevance,
+                            score: session.relevance,
                             animationDelay: 300,
                           ),
                         ],
@@ -315,7 +279,7 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
                               style: AppTypography.titleMedium()),
                           const SizedBox(height: 8),
                           Text(
-                            feedback.summary,
+                            session.summary,
                             style: AppTypography.bodyMedium(
                               color: context.textSecondary,
                             ),
@@ -326,23 +290,32 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
                     const SizedBox(height: 16),
 
                     // Strengths
-                    if (feedback.strengths.isNotEmpty)
+                    if (session.strengths.isNotEmpty)
                       _FeedbackList(
                         title: 'Strengths',
-                        items: feedback.strengths,
+                        items: session.strengths,
                         icon: Icons.check_circle_rounded,
                         iconColor: AppColors.success,
                       ).animate().fadeIn(delay: 800.ms, duration: 400.ms),
-                    const SizedBox(height: 16),
+                    if (session.strengths.isNotEmpty)
+                      const SizedBox(height: 16),
 
                     // Improvements
-                    if (feedback.improvements.isNotEmpty)
+                    if (session.improvements.isNotEmpty)
                       _FeedbackList(
                         title: 'Areas to Improve',
-                        items: feedback.improvements,
+                        items: session.improvements,
                         icon: Icons.arrow_upward_rounded,
                         iconColor: AppColors.warning,
                       ).animate().fadeIn(delay: 900.ms, duration: 400.ms),
+                    if (session.improvements.isNotEmpty)
+                      const SizedBox(height: 16),
+
+                    // Transcript
+                    if (session.transcript.isNotEmpty)
+                      _TranscriptSection(transcript: session.transcript)
+                          .animate()
+                          .fadeIn(delay: 1000.ms, duration: 400.ms),
                     const SizedBox(height: 24),
                   ],
                 ),
@@ -350,82 +323,32 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
             ),
           ),
         ),
-
-        // Bottom buttons
-        Container(
-          padding: EdgeInsets.fromLTRB(
-            20,
-            12,
-            20,
-            MediaQuery.of(context).padding.bottom + 12,
-          ),
-          decoration: BoxDecoration(
-            color: Theme.of(context).scaffoldBackgroundColor,
-            border: Border(
-              top: BorderSide(color: context.divider, width: 0.5),
-            ),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Tappable(
-                  onTap: () => context.go('/home'),
-                  child: Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: context.surface,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Done',
-                        style: AppTypography.button(
-                          color: context.textPrimary,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Tappable(
-                  onTap: () {
-                    context.go(
-                      '/scenarios/${Uri.encodeComponent(widget.category)}',
-                    );
-                  },
-                  child: Container(
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: AppColors.primary,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Center(
-                      child: Text(
-                        'Practice Again',
-                        style: AppTypography.button(color: AppColors.white),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
       ],
     );
   }
 
-  Future<void> _shareScoreCard(ConversationFeedback feedback) async {
+  Future<void> _shareScoreCard(
+    BuildContext context,
+    SessionHistoryEntry session,
+  ) async {
     final image = await _screenshotController.capture();
     if (image != null) {
       await ShareService.shareScoreCardImage(
         imageBytes: image,
-        scenarioTitle: widget.scenarioTitle,
-        overallScore: feedback.overallScore,
+        scenarioTitle: session.scenarioTitle,
+        overallScore: session.overallScore,
       );
     }
+  }
+
+  String _formatFullDate(DateTime date) {
+    const months = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ];
+    final h = date.hour.toString().padLeft(2, '0');
+    final m = date.minute.toString().padLeft(2, '0');
+    return '${months[date.month - 1]} ${date.day}, ${date.year} at $h:$m';
   }
 }
 
@@ -544,6 +467,84 @@ class _FeedbackList extends StatelessWidget {
               ),
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TranscriptSection extends StatelessWidget {
+  final String transcript;
+
+  const _TranscriptSection({required this.transcript});
+
+  @override
+  Widget build(BuildContext context) {
+    final lines = transcript
+        .split('\n')
+        .where((line) => line.trim().isNotEmpty)
+        .toList();
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: context.surface,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.chat_rounded, size: 18, color: AppColors.primary),
+              const SizedBox(width: 8),
+              Text('Transcript', style: AppTypography.titleMedium()),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...lines.map((line) {
+            final isUser = line.startsWith('You:');
+            final isAi = line.startsWith('AI:');
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (isUser || isAi)
+                    Container(
+                      width: 28,
+                      height: 28,
+                      margin: const EdgeInsets.only(right: 8),
+                      decoration: BoxDecoration(
+                        color: isUser
+                            ? AppColors.primary.withValues(alpha: 0.14)
+                            : AppColors.lavender.withValues(alpha: 0.3),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        isUser ? Icons.person_rounded : Icons.auto_awesome,
+                        size: 14,
+                        color:
+                            isUser ? AppColors.primary : AppColors.lavender,
+                      ),
+                    ),
+                  Expanded(
+                    child: Text(
+                      isUser
+                          ? line.substring(4).trim()
+                          : isAi
+                              ? line.substring(3).trim()
+                              : line,
+                      style: AppTypography.bodyMedium(
+                        color: context.textSecondary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
         ],
       ),
     );
