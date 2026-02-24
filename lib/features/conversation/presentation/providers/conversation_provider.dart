@@ -129,6 +129,8 @@ class ConversationNotifier extends StateNotifier<ConversationState> {
   final List<int> _turnAudioBuffer = [];
   // Buffer for user speech transcription (from inputTranscription)
   String _pendingUserTranscription = '';
+  // Guard: suppress mic→Gemini while AI audio is playing to prevent echo
+  bool _isAiSpeaking = false;
 
   ConversationNotifier(this._service, this.category)
       : super(const ConversationState());
@@ -277,16 +279,24 @@ class ConversationNotifier extends StateNotifier<ConversationState> {
   Future<void> _startMicStream() async {
     try {
       final stream = await _recorder.startStream(
-        const RecordConfig(
+        RecordConfig(
           encoder: AudioEncoder.pcm16bits,
           sampleRate: 16000,
           numChannels: 1,
+          echoCancel: true,
+          noiseSuppress: true,
+          autoGain: true,
+          androidConfig: AndroidRecordConfig(
+            audioSource: AndroidAudioSource.voiceCommunication,
+          ),
         ),
       );
 
       // Send each audio chunk individually via sendAudioRealtime
       _micSubscription = stream.listen((data) {
-        _service.sendAudioRealtime(Uint8List.fromList(data));
+        if (!_isAiSpeaking) {
+          _service.sendAudioRealtime(Uint8List.fromList(data));
+        }
       });
     } catch (e) {
       debugPrint('Mic stream error: $e');
@@ -360,6 +370,7 @@ class ConversationNotifier extends StateNotifier<ConversationState> {
       // Audio chunks from model turn — feed directly to SoLoud stream
       if (msg.modelTurn != null) {
         if (state.status != ConversationStatus.aiSpeaking) {
+          _isAiSpeaking = true;
           state = state.copyWith(status: ConversationStatus.aiSpeaking);
         }
         for (final part in msg.modelTurn!.parts) {
@@ -421,6 +432,9 @@ class ConversationNotifier extends StateNotifier<ConversationState> {
   }
 
   Future<void> _onAiTurnComplete() async {
+    // Re-enable mic audio to Gemini now that AI is done speaking
+    _isAiSpeaking = false;
+
     // Signal end of data for this stream segment
     if (_audioStream != null) {
       SoLoud.instance.setDataIsEnded(_audioStream!);

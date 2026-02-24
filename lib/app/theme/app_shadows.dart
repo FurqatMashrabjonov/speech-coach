@@ -37,7 +37,7 @@ class AppShadows {
 
   static List<BoxShadow> get glow => [
         BoxShadow(
-          color: const Color(0xFFB5A2FF).withValues(alpha: 0.3),
+          color: const Color(0xFFE8793A).withValues(alpha: 0.25),
           blurRadius: 20,
           offset: const Offset(0, 4),
         ),

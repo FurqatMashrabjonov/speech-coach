@@ -3,84 +3,84 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  // Primary
-  static const primary = Color(0xFFB5A2FF);
-  static const primaryLight = Color(0xFFD4CCFF);
-  static const primaryDark = Color(0xFF8B7BDB);
+  // Primary - Warm Terracotta/Orange
+  static const primary = Color(0xFFE8793A);
+  static const primaryLight = Color(0xFFFADCC8);
+  static const primaryDark = Color(0xFFC96830);
 
-  // Secondary (Pink/Rose)
-  static const secondary = Color(0xFFFD7ED5);
-  static const secondaryLight = Color(0xFFFDBEF4);
+  // Secondary - Soft Peach (used sparingly)
+  static const secondary = Color(0xFFE8793A);
+  static const secondaryLight = Color(0xFFFBE8D8);
 
-  // Accent (Lime green)
-  static const accent = Color(0xFFC9EA00);
-  static const accentLight = Color(0xFFE8F7A1);
+  // Accent - Warm Amber
+  static const accent = Color(0xFFE8A849);
+  static const accentLight = Color(0xFFFBE8D8);
 
-  // Extended palette
-  static const lime = Color(0xFFC9EA00);
-  static const skyBlue = Color(0xFF39B4F7);
-  static const gold = Color(0xFFFFD84D);
-  static const lavender = Color(0xFFC9C1F4);
-  static const softPink = Color(0xFFFDBEF4);
+  // Extended palette - Warm tones only
+  static const lime = Color(0xFFE8A849);
+  static const skyBlue = Color(0xFFD4845A);
+  static const gold = Color(0xFFE8A849);
+  static const lavender = Color(0xFFF2C4A0);
+  static const softPink = Color(0xFFFBE8D8);
 
   // Success / Warning / Error
-  static const success = Color(0xFF4CAF50);
-  static const warning = Color(0xFFFF9800);
-  static const error = Color(0xFFFF3B30);
+  static const success = Color(0xFF5A9A5C);
+  static const warning = Color(0xFFE8A849);
+  static const error = Color(0xFFD44C3F);
 
-  // Neutrals - Light
+  // Neutrals - Light (warm-tinted)
   static const white = Color(0xFFFFFFFF);
-  static const backgroundLight = Color(0xFFFFFFFF);
-  static const surfaceLight = Color(0xFFF0EFF5);
+  static const backgroundLight = Color(0xFFFAF8F5);
+  static const surfaceLight = Color(0xFFF2EEEA);
   static const cardLight = Color(0xFFFFFFFF);
-  static const dividerLight = Color(0xFFDFDEE6);
-  static const textPrimaryLight = Color(0xFF1A1A1A);
-  static const textSecondaryLight = Color(0xFF8E8E93);
-  static const textTertiaryLight = Color(0xFF9898A0);
+  static const dividerLight = Color(0xFFE8E4DF);
+  static const textPrimaryLight = Color(0xFF1A1715);
+  static const textSecondaryLight = Color(0xFF8E8880);
+  static const textTertiaryLight = Color(0xFFA8A29E);
 
-  // Neutrals - Dark (purple-tinted)
-  static const backgroundDark = Color(0xFF13111A);
-  static const surfaceDark = Color(0xFF1E1B2E);
-  static const cardDark = Color(0xFF2A2640);
-  static const dividerDark = Color(0xFF3A3555);
-  static const textPrimaryDark = Color(0xFFF1F1F6);
-  static const textSecondaryDark = Color(0xFF9CA3AF);
-  static const textTertiaryDark = Color(0xFF6B7280);
+  // Neutrals - Dark (warm-tinted)
+  static const backgroundDark = Color(0xFF161412);
+  static const surfaceDark = Color(0xFF211E1B);
+  static const cardDark = Color(0xFF2C2825);
+  static const dividerDark = Color(0xFF3D3833);
+  static const textPrimaryDark = Color(0xFFF5F0EB);
+  static const textSecondaryDark = Color(0xFFA8A098);
+  static const textTertiaryDark = Color(0xFF706860);
 
-  // Gradients
+  // Gradients - Subtle, single-family
   static const primaryGradient = LinearGradient(
-    colors: [primary, secondary],
+    colors: [Color(0xFFE8793A), Color(0xFFD4845A)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const darkGradient = LinearGradient(
-    colors: [Color(0xFF13111A), Color(0xFF1E1B2E)],
+    colors: [Color(0xFF161412), Color(0xFF211E1B)],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
 
   static const cardGradient = LinearGradient(
-    colors: [primary, secondary],
+    colors: [Color(0xFFE8793A), Color(0xFFD4845A)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const accentGradient = LinearGradient(
-    colors: [lime, skyBlue],
+    colors: [Color(0xFFE8A849), Color(0xFFE8793A)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  // Category colors
-  static const categoryPresentations = Color(0xFFB5A2FF);
-  static const categoryInterviews = Color(0xFF39B4F7);
-  static const categoryPublicSpeaking = Color(0xFFFD7ED5);
-  static const categoryConversations = Color(0xFFC9EA00);
-  static const categoryDebates = Color(0xFFFFD84D);
-  static const categoryStorytelling = Color(0xFFC9C1F4);
+  // Category colors - Subtle warm variations
+  static const categoryPresentations = Color(0xFFE8793A);
+  static const categoryInterviews = Color(0xFFD4845A);
+  static const categoryPublicSpeaking = Color(0xFFE0956A);
+  static const categoryConversations = Color(0xFFC8956E);
+  static const categoryDebates = Color(0xFFE8A849);
+  static const categoryStorytelling = Color(0xFFD4A87A);
 
   // Legacy aliases
-  static const streakOrange = Color(0xFFFF9800);
-  static const streakYellow = Color(0xFFFFEB3B);
+  static const streakOrange = Color(0xFFE8793A);
+  static const streakYellow = Color(0xFFE8A849);
 }
