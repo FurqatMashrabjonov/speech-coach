@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:speech_coach/features/feedback/domain/feedback_entity.dart';
 import 'package:speech_coach/features/progress/data/progress_repository.dart';
 import 'package:speech_coach/features/progress/domain/progress_entity.dart';
+import 'package:speech_coach/features/widgets/data/widget_service.dart';
 import 'package:speech_coach/shared/providers/user_provider.dart';
 
 final progressRepositoryProvider = Provider<ProgressRepository>((ref) {
@@ -109,6 +110,9 @@ class ProgressNotifier extends StateNotifier<UserProgress> {
     );
 
     await _repository.save(state);
+
+    // Update home screen widgets
+    WidgetService.updateWidgetData(state);
   }
 }
 

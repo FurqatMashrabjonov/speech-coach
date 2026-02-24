@@ -2,23 +2,82 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:speech_coach/app/theme/app_colors.dart';
 import 'package:speech_coach/app/theme/app_typography.dart';
 import 'package:speech_coach/core/extensions/context_extensions.dart';
+import 'package:speech_coach/features/paywall/presentation/providers/subscription_provider.dart';
 import 'package:speech_coach/shared/widgets/tappable.dart';
 
+/// Paywall screen that shows RevenueCat's remote paywall when available,
+/// or falls back to a custom UI when no offering is configured yet.
 class PaywallScreen extends ConsumerWidget {
   const PaywallScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final sub = ref.watch(subscriptionProvider);
+
+    ref.listen<SubscriptionState>(subscriptionProvider, (prev, next) {
+      if (next.error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(next.error!)),
+        );
+      }
+      if (prev?.isPro != true && next.isPro) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Welcome to Pro! Enjoy unlimited access.')),
+        );
+        context.pop();
+      }
+    });
+
+    // If RevenueCat has packages configured, show the remote PaywallView.
+    // Otherwise, show our custom fallback UI.
+    final hasRemoteOffering = sub.availablePackages.isNotEmpty;
+
+    if (hasRemoteOffering) {
+      return Scaffold(
+        body: SafeArea(
+          child: PaywallView(
+            onDismiss: () => context.pop(),
+            onRestoreCompleted: (_) {
+              // Pro status syncs automatically via the listener
+            },
+            onPurchaseCompleted: (_, storeTransaction) {
+              // Pro status syncs automatically via the listener
+            },
+          ),
+        ),
+      );
+    }
+
+    return _CustomPaywallFallback(sub: sub, ref: ref);
+  }
+}
+
+/// Custom paywall UI used as fallback before RevenueCat products are set up.
+class _CustomPaywallFallback extends StatelessWidget {
+  final SubscriptionState sub;
+  final WidgetRef ref;
+
+  const _CustomPaywallFallback({required this.sub, required this.ref});
+
+  @override
+  Widget build(BuildContext context) {
+    final monthlyPkg = sub.monthlyPackage;
+    final yearlyPkg = sub.yearlyPackage;
+    final lifetimePkg = sub.lifetimePackage;
+
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
             // Close button
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Row(
                 children: [
                   Tappable(
@@ -132,16 +191,18 @@ class PaywallScreen extends ConsumerWidget {
                         Expanded(
                           child: _PricingCard(
                             title: 'Monthly',
-                            price: '\$9.99',
+                            price: monthlyPkg?.storeProduct.priceString ??
+                                '\$9.99',
                             period: '/month',
                             isPopular: false,
+                            isLoading: sub.isPurchasing,
                             onTap: () {
-                              // TODO: RevenueCat integration
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Coming soon!'),
-                                ),
-                              );
+                              final pkg = monthlyPkg;
+                              if (pkg != null) {
+                                ref
+                                    .read(subscriptionProvider.notifier)
+                                    .purchase(pkg);
+                              }
                             },
                           ),
                         ),
@@ -149,16 +210,19 @@ class PaywallScreen extends ConsumerWidget {
                         Expanded(
                           child: _PricingCard(
                             title: 'Yearly',
-                            price: '\$59.99',
+                            price: yearlyPkg?.storeProduct.priceString ??
+                                '\$59.99',
                             period: '/year',
                             savings: 'Save 50%',
                             isPopular: true,
+                            isLoading: sub.isPurchasing,
                             onTap: () {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Coming soon!'),
-                                ),
-                              );
+                              final pkg = yearlyPkg;
+                              if (pkg != null) {
+                                ref
+                                    .read(subscriptionProvider.notifier)
+                                    .purchase(pkg);
+                              }
                             },
                           ),
                         ),
@@ -168,13 +232,16 @@ class PaywallScreen extends ConsumerWidget {
 
                     // Lifetime deal
                     Tappable(
-                      onTap: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Coming soon!'),
-                          ),
-                        );
-                      },
+                      onTap: sub.isPurchasing
+                          ? null
+                          : () {
+                              final pkg = lifetimePkg;
+                              if (pkg != null) {
+                                ref
+                                    .read(subscriptionProvider.notifier)
+                                    .purchase(pkg);
+                              }
+                            },
                       child: Container(
                         width: double.infinity,
                         padding: const EdgeInsets.all(16),
@@ -191,21 +258,46 @@ class PaywallScreen extends ConsumerWidget {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              '\$49.99 one-time',
+                              lifetimePkg?.storeProduct.priceString ??
+                                  '\$49.99 one-time',
                               style: AppTypography.displaySmall(
                                   color: AppColors.white),
                             ),
                             Text(
                               'Limited time offer',
                               style: AppTypography.labelSmall(
-                                color: AppColors.white.withValues(alpha: 0.8),
+                                color:
+                                    AppColors.white.withValues(alpha: 0.8),
                               ),
                             ),
                           ],
                         ),
                       ),
                     ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 24),
+
+                    // Restore Purchases
+                    TextButton(
+                      onPressed: sub.isRestoring
+                          ? null
+                          : () => ref
+                              .read(subscriptionProvider.notifier)
+                              .restore(),
+                      child: sub.isRestoring
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child:
+                                  CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : Text(
+                              'Restore Purchases',
+                              style: AppTypography.bodySmall(
+                                color: context.textSecondary,
+                              ),
+                            ),
+                    ),
+                    const SizedBox(height: 8),
 
                     // Social proof
                     Text(
@@ -293,6 +385,7 @@ class _PricingCard extends StatelessWidget {
   final String period;
   final String? savings;
   final bool isPopular;
+  final bool isLoading;
   final VoidCallback onTap;
 
   const _PricingCard({
@@ -301,58 +394,64 @@ class _PricingCard extends StatelessWidget {
     required this.period,
     this.savings,
     required this.isPopular,
+    this.isLoading = false,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return Tappable(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: isPopular
-              ? AppColors.primary.withValues(alpha: 0.14)
-              : context.surface,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isPopular ? AppColors.primary : context.divider,
-            width: isPopular ? 2 : 1,
-          ),
-        ),
-        child: Column(
-          children: [
-            if (isPopular)
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                margin: const EdgeInsets.only(bottom: 8),
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  'Most Popular',
-                  style: AppTypography.labelSmall(color: AppColors.white),
-                ),
-              ),
-            Text(title, style: AppTypography.labelMedium()),
-            const SizedBox(height: 4),
-            Text(price, style: AppTypography.headlineLarge()),
-            Text(
-              period,
-              style: AppTypography.labelSmall(
-                color: context.textSecondary,
-              ),
+      onTap: isLoading ? null : onTap,
+      child: Opacity(
+        opacity: isLoading ? 0.6 : 1.0,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: isPopular
+                ? AppColors.primary.withValues(alpha: 0.14)
+                : context.surface,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: isPopular ? AppColors.primary : context.divider,
+              width: isPopular ? 2 : 1,
             ),
-            if (savings != null) ...[
+          ),
+          child: Column(
+            children: [
+              if (isPopular)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 10, vertical: 2),
+                  margin: const EdgeInsets.only(bottom: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(
+                    'Most Popular',
+                    style:
+                        AppTypography.labelSmall(color: AppColors.white),
+                  ),
+                ),
+              Text(title, style: AppTypography.labelMedium()),
               const SizedBox(height: 4),
+              Text(price, style: AppTypography.headlineLarge()),
               Text(
-                savings!,
-                style: AppTypography.labelSmall(color: AppColors.success),
+                period,
+                style: AppTypography.labelSmall(
+                  color: context.textSecondary,
+                ),
               ),
+              if (savings != null) ...[
+                const SizedBox(height: 4),
+                Text(
+                  savings!,
+                  style:
+                      AppTypography.labelSmall(color: AppColors.success),
+                ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );

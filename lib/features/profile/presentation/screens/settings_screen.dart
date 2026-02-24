@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:speech_coach/app/theme/app_colors.dart';
 import 'package:speech_coach/app/theme/app_typography.dart';
 import 'package:speech_coach/core/extensions/context_extensions.dart';
+import 'package:speech_coach/features/paywall/presentation/providers/subscription_provider.dart';
 import 'package:speech_coach/shared/providers/theme_provider.dart';
 
 class SettingsScreen extends ConsumerWidget {
@@ -11,6 +12,7 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
+    final sub = ref.watch(subscriptionProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -68,6 +70,40 @@ class SettingsScreen extends ConsumerWidget {
                 trailing: Icon(Icons.chevron_right_rounded,
                     color: context.textTertiary),
                 onTap: () {},
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _SettingsSection(
+            title: 'Subscription',
+            children: [
+              ListTile(
+                leading: Container(
+                  width: 36,
+                  height: 36,
+                  decoration: BoxDecoration(
+                    color: AppColors.gold.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    sub.isPro
+                        ? Icons.workspace_premium_rounded
+                        : Icons.star_outline_rounded,
+                    color: AppColors.gold,
+                    size: 20,
+                  ),
+                ),
+                title: Text(sub.isPro ? 'Manage Subscription' : 'Upgrade to Pro'),
+                subtitle: Text(sub.isPro ? 'Pro' : 'Free'),
+                trailing: Icon(Icons.chevron_right_rounded,
+                    color: context.textTertiary),
+                onTap: () {
+                  if (sub.isPro) {
+                    ref.read(subscriptionProvider.notifier).showCustomerCenter();
+                  } else {
+                    ref.read(subscriptionProvider.notifier).showPaywall();
+                  }
+                },
               ),
             ],
           ),

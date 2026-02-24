@@ -8,6 +8,7 @@ import 'package:speech_coach/core/extensions/context_extensions.dart';
 import 'package:speech_coach/core/extensions/string_extensions.dart';
 import 'package:speech_coach/shared/widgets/tappable.dart';
 import 'package:speech_coach/features/auth/presentation/providers/auth_provider.dart';
+import 'package:speech_coach/features/paywall/presentation/providers/subscription_provider.dart';
 import 'package:speech_coach/features/progress/presentation/providers/progress_provider.dart';
 import 'package:speech_coach/features/sharing/data/share_service.dart';
 
@@ -18,6 +19,7 @@ class ProfileScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authStateProvider);
     final progress = ref.watch(progressProvider);
+    final sub = ref.watch(subscriptionProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -272,10 +274,18 @@ class ProfileScreen extends ConsumerWidget {
                     ),
                     const Divider(height: 1, indent: 60),
                     _ProfileMenuItem(
-                      icon: Icons.workspace_premium_rounded,
+                      icon: sub.isPro
+                          ? Icons.workspace_premium_rounded
+                          : Icons.workspace_premium_outlined,
                       iconColor: AppColors.gold,
-                      title: 'Upgrade to Pro',
-                      onTap: () => context.push('/paywall'),
+                      title: sub.isPro ? 'Manage Subscription' : 'Upgrade to Pro',
+                      onTap: () {
+                        if (sub.isPro) {
+                          ref.read(subscriptionProvider.notifier).showCustomerCenter();
+                        } else {
+                          context.push('/paywall');
+                        }
+                      },
                     ),
                     const Divider(height: 1, indent: 60),
                     _ProfileMenuItem(

@@ -4,7 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:speech_coach/app/app.dart';
+import 'package:speech_coach/features/progress/data/progress_repository.dart';
+import 'package:speech_coach/features/widgets/data/widget_service.dart';
 import 'package:speech_coach/firebase_options.dart';
+import 'package:speech_coach/features/paywall/data/revenue_cat_service.dart';
 import 'package:speech_coach/shared/providers/user_provider.dart';
 
 void main() async {
@@ -18,6 +21,9 @@ void main() async {
   // Initialize SharedPreferences
   final prefs = await SharedPreferences.getInstance();
 
+  // Initialize RevenueCat
+  await RevenueCatService().init();
+
   // Set preferred orientations
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -30,6 +36,11 @@ void main() async {
       statusBarColor: Colors.transparent,
     ),
   );
+
+  // Sync home screen widget data
+  final progressRepo = ProgressRepository(prefs);
+  final progress = progressRepo.load();
+  WidgetService.updateWidgetData(progress);
 
   runApp(
     ProviderScope(

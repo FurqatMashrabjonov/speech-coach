@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg_dark"
+    android:padding="16dp"
+    android:id="@+id/stats_widget_root">
+
+    <!-- Row 1: Streak + Level -->
+    <TextView
+        android:id="@+id/streak_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:text="🔥 0 day streak"
+        android:textColor="#FFFFFF"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/level_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentTop="true"
+        android:text="Lvl 1"
+        android:textColor="#B5A2FF"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <!-- Row 2: Level title -->
+    <TextView
+        android:id="@+id/level_title_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/level_text"
+        android:layout_marginTop="2dp"
+        android:text="Beginner"
+        android:textColor="#9E9AAF"
+        android:textSize="12sp" />
+
+    <!-- Row 3: XP + Sessions -->
+    <TextView
+        android:id="@+id/xp_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/streak_text"
+        android:layout_marginTop="12dp"
+        android:text="0 XP"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/sessions_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/level_title_text"
+        android:layout_marginTop="6dp"
+        android:text="0 sessions"
+        android:textColor="#FFFFFF"
+        android:textSize="14sp" />
+
+    <!-- Row 4: Progress bar -->
+    <TextView
+        android:id="@+id/progress_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/progress_bar"
+        android:layout_alignParentStart="true"
+        android:layout_marginBottom="4dp"
+        android:text="→ Lvl 2"
+        android:textColor="#9E9AAF"
+        android:textSize="11sp" />
+
+    <ProgressBar
+        android:id="@+id/progress_bar"
+        style="@android:style/Widget.ProgressBar.Horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_alignParentBottom="true"
+        android:max="100"
+        android:progress="0"
+        android:progressDrawable="@drawable/widget_progress_drawable"
+        android:background="@drawable/widget_progress_bg" />
+
+</RelativeLayout>
