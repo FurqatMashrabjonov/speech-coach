@@ -12,6 +12,7 @@ import 'package:speech_coach/shared/widgets/skeleton.dart';
 import 'package:speech_coach/shared/widgets/tappable.dart';
 import 'package:speech_coach/features/progress/presentation/providers/progress_provider.dart';
 import 'package:speech_coach/features/progress/presentation/widgets/xp_bar.dart';
+import 'package:speech_coach/features/progress/domain/progress_entity.dart';
 import 'package:speech_coach/features/scenarios/presentation/providers/scenario_provider.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
@@ -24,10 +25,24 @@ class HomeScreen extends ConsumerStatefulWidget {
     ('Conversations', Icons.chat_bubble_outline_rounded, AppColors.categoryConversations),
     ('Debates', Icons.forum_rounded, AppColors.categoryDebates),
     ('Storytelling', Icons.auto_stories_rounded, AppColors.categoryStorytelling),
+    ('Phone Anxiety', Icons.phone_in_talk_rounded, AppColors.categoryPhoneAnxiety),
+    ('Dating & Social', Icons.favorite_outline_rounded, AppColors.categoryDating),
+    ('Conflict & Boundaries', Icons.shield_outlined, AppColors.categoryConflict),
+    ('Social Situations', Icons.groups_rounded, AppColors.categorySocial),
   ];
 
   @override
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+bool _isWrappedAvailable(UserProgress progress) {
+  final now = DateTime.now();
+  if (now.day > 7) return false;
+  final lastMonth = now.month > 1
+      ? DateTime(now.year, now.month - 1)
+      : DateTime(now.year - 1, 12);
+  return progress.sessionHistory.any(
+      (s) => s.date.year == lastMonth.year && s.date.month == lastMonth.month);
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
@@ -157,10 +172,26 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                     .fadeIn(delay: 150.ms, duration: 400.ms),
               const SizedBox(height: 20),
 
+              // Voice Wrapped banner (days 1-7 of month)
+              if (_isWrappedAvailable(progress))
+                _WrappedBanner()
+                    .animate()
+                    .fadeIn(delay: 200.ms, duration: 400.ms)
+                    .slideY(begin: 0.1),
+              if (_isWrappedAvailable(progress))
+                const SizedBox(height: 12),
+
               // Quick start card
               _QuickStartCard()
                   .animate()
                   .fadeIn(delay: 200.ms, duration: 400.ms)
+                  .slideY(begin: 0.1),
+              const SizedBox(height: 12),
+
+              // Filler Word Challenge
+              _FillerChallengeCard()
+                  .animate()
+                  .fadeIn(delay: 210.ms, duration: 400.ms)
                   .slideY(begin: 0.1),
               const SizedBox(height: 24),
 
@@ -315,6 +346,10 @@ class _QuickStartCategorySheet extends StatelessWidget {
     ('Conversations', Icons.chat_bubble_outline_rounded, AppColors.categoryConversations),
     ('Debates', Icons.forum_rounded, AppColors.categoryDebates),
     ('Storytelling', Icons.auto_stories_rounded, AppColors.categoryStorytelling),
+    ('Phone Anxiety', Icons.phone_in_talk_rounded, AppColors.categoryPhoneAnxiety),
+    ('Dating & Social', Icons.favorite_outline_rounded, AppColors.categoryDating),
+    ('Conflict & Boundaries', Icons.shield_outlined, AppColors.categoryConflict),
+    ('Social Situations', Icons.groups_rounded, AppColors.categorySocial),
   ];
 
   @override
@@ -628,6 +663,127 @@ class _CategoryTile extends StatelessWidget {
             Icon(
               Icons.chevron_right_rounded,
               color: context.textTertiary,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _FillerChallengeCard extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Tappable(
+      onTap: () => context.push('/filler-challenge'),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              AppColors.accent.withValues(alpha: 0.22),
+              AppColors.error.withValues(alpha: 0.14),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: BoxDecoration(
+                gradient: AppColors.accentGradient,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: const Icon(
+                Icons.whatshot_rounded,
+                color: AppColors.white,
+                size: 26,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Filler Word Challenge',
+                    style: AppTypography.titleLarge(),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'How long can you speak without "um"?',
+                    style: AppTypography.bodySmall(
+                      color: context.textSecondary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              width: 36,
+              height: 36,
+              decoration: const BoxDecoration(
+                color: AppColors.accent,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.arrow_forward_rounded,
+                color: AppColors.white,
+                size: 18,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _WrappedBanner extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Tappable(
+      onTap: () => context.push('/voice-wrapped'),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: AppColors.primaryGradient,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Row(
+          children: [
+            const Icon(
+              Icons.auto_awesome_rounded,
+              color: AppColors.white,
+              size: 24,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Monthly Wrapped Ready!',
+                    style: AppTypography.titleMedium(color: AppColors.white),
+                  ),
+                  Text(
+                    'See your voice recap',
+                    style: AppTypography.bodySmall(
+                      color: AppColors.white.withValues(alpha: 0.8),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.chevron_right_rounded,
+              color: AppColors.white,
             ),
           ],
         ),

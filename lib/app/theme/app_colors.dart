@@ -79,6 +79,10 @@ class AppColors {
   static const categoryConversations = Color(0xFFC8956E);
   static const categoryDebates = Color(0xFFE8A849);
   static const categoryStorytelling = Color(0xFFD4A87A);
+  static const categoryPhoneAnxiety = Color(0xFFD47A5A);
+  static const categoryDating = Color(0xFFE09A7A);
+  static const categoryConflict = Color(0xFFC4785C);
+  static const categorySocial = Color(0xFFD4A070);
 
   // Legacy aliases
   static const streakOrange = Color(0xFFE8793A);

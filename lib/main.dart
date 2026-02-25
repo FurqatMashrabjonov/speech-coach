@@ -7,6 +7,7 @@ import 'package:speech_coach/app/app.dart';
 import 'package:speech_coach/features/progress/data/progress_repository.dart';
 import 'package:speech_coach/features/widgets/data/widget_service.dart';
 import 'package:speech_coach/firebase_options.dart';
+import 'package:speech_coach/features/notifications/data/notification_service.dart';
 import 'package:speech_coach/features/paywall/data/revenue_cat_service.dart';
 import 'package:speech_coach/shared/providers/user_provider.dart';
 
@@ -23,6 +24,9 @@ void main() async {
 
   // Initialize RevenueCat
   await RevenueCatService().init();
+
+  // Initialize Notifications
+  await NotificationService.init();
 
   // Set preferred orientations
   await SystemChrome.setPreferredOrientations([

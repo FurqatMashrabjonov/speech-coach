@@ -38,6 +38,14 @@ class Scenario {
         return AppColors.categoryDebates;
       case 'Storytelling':
         return AppColors.categoryStorytelling;
+      case 'Phone Anxiety':
+        return AppColors.categoryPhoneAnxiety;
+      case 'Dating & Social':
+        return AppColors.categoryDating;
+      case 'Conflict & Boundaries':
+        return AppColors.categoryConflict;
+      case 'Social Situations':
+        return AppColors.categorySocial;
       default:
         return AppColors.primary;
     }
@@ -57,6 +65,14 @@ class Scenario {
         return Icons.forum_rounded;
       case 'Storytelling':
         return Icons.auto_stories_rounded;
+      case 'Phone Anxiety':
+        return Icons.phone_in_talk_rounded;
+      case 'Dating & Social':
+        return Icons.favorite_outline_rounded;
+      case 'Conflict & Boundaries':
+        return Icons.shield_outlined;
+      case 'Social Situations':
+        return Icons.groups_rounded;
       default:
         return Icons.mic_rounded;
     }

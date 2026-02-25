@@ -22,6 +22,11 @@ import 'package:speech_coach/features/scenarios/presentation/screens/scenario_li
 import 'package:speech_coach/features/session/presentation/screens/feedback_screen.dart';
 import 'package:speech_coach/features/session/presentation/screens/recording_screen.dart';
 import 'package:speech_coach/features/session/presentation/screens/session_setup_screen.dart';
+import 'package:speech_coach/features/speaker_dna/presentation/screens/speaker_dna_quiz_screen.dart';
+import 'package:speech_coach/features/speaker_dna/presentation/screens/speaker_dna_result_screen.dart';
+import 'package:speech_coach/features/filler_challenge/presentation/screens/filler_challenge_screen.dart';
+import 'package:speech_coach/features/filler_challenge/presentation/screens/filler_result_screen.dart';
+import 'package:speech_coach/features/voice_wrapped/presentation/screens/voice_wrapped_screen.dart';
 import 'package:speech_coach/shared/widgets/bottom_nav_bar.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -35,6 +40,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           state.matchedLocation == '/register' ||
           state.matchedLocation == '/onboarding' ||
           state.matchedLocation == '/onboarding-flow' ||
+          state.matchedLocation == '/speaker-dna-quiz' ||
           state.matchedLocation == '/splash';
 
       if (isLoggedIn && isAuthRoute && state.matchedLocation != '/splash') {
@@ -351,6 +357,99 @@ final routerProvider = Provider<GoRouter>((ref) {
             },
           );
         },
+      ),
+      // Speaker DNA
+      GoRoute(
+        path: '/speaker-dna-quiz',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          child: const SpeakerDNAQuizScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1, 0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              )),
+              child: child,
+            );
+          },
+        ),
+      ),
+      GoRoute(
+        path: '/speaker-dna-result',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          child: const SpeakerDNAResultScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1, 0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              )),
+              child: child,
+            );
+          },
+        ),
+      ),
+      // Filler Challenge
+      GoRoute(
+        path: '/filler-challenge',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          child: const FillerChallengeScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 1),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              )),
+              child: child,
+            );
+          },
+        ),
+      ),
+      GoRoute(
+        path: '/filler-result',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          child: const FillerResultScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 1),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              )),
+              child: child,
+            );
+          },
+        ),
+      ),
+      // Voice Wrapped
+      GoRoute(
+        path: '/voice-wrapped',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          child: const VoiceWrappedScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 1),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              )),
+              child: child,
+            );
+          },
+        ),
       ),
       // Conversation (with optional scenario params)
       GoRoute(

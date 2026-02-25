@@ -35,6 +35,10 @@ class AppConstants {
     'Conversations',
     'Debates',
     'Storytelling',
+    'Phone Anxiety',
+    'Dating & Social',
+    'Conflict & Boundaries',
+    'Social Situations',
   ];
 
   // SharedPreferences keys

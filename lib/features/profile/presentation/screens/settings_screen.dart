@@ -5,6 +5,13 @@ import 'package:speech_coach/app/theme/app_typography.dart';
 import 'package:speech_coach/core/extensions/context_extensions.dart';
 import 'package:speech_coach/features/paywall/presentation/providers/subscription_provider.dart';
 import 'package:speech_coach/shared/providers/theme_provider.dart';
+import 'package:speech_coach/shared/providers/user_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+final micQualityProvider = StateProvider<String>((ref) {
+  final prefs = ref.read(sharedPreferencesProvider);
+  return prefs.getString('mic_quality') ?? 'High';
+});
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -13,6 +20,7 @@ class SettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
     final sub = ref.watch(subscriptionProvider);
+    final micQuality = ref.watch(micQualityProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -66,10 +74,10 @@ class SettingsScreen extends ConsumerWidget {
                       color: AppColors.secondary, size: 20),
                 ),
                 title: const Text('Microphone Quality'),
-                subtitle: const Text('High'),
+                subtitle: Text(micQuality),
                 trailing: Icon(Icons.chevron_right_rounded,
                     color: context.textTertiary),
-                onTap: () {},
+                onTap: () => _showMicQualitySheet(context, ref, micQuality),
               ),
             ],
           ),
@@ -139,7 +147,10 @@ class SettingsScreen extends ConsumerWidget {
                 title: const Text('Privacy Policy'),
                 trailing: Icon(Icons.chevron_right_rounded,
                     color: context.textTertiary),
-                onTap: () {},
+                onTap: () => launchUrl(
+                  Uri.parse('https://speechmaster.app/privacy'),
+                  mode: LaunchMode.externalApplication,
+                ),
               ),
               ListTile(
                 leading: Container(
@@ -155,11 +166,59 @@ class SettingsScreen extends ConsumerWidget {
                 title: const Text('Terms of Service'),
                 trailing: Icon(Icons.chevron_right_rounded,
                     color: context.textTertiary),
-                onTap: () {},
+                onTap: () => launchUrl(
+                  Uri.parse('https://speechmaster.app/terms'),
+                  mode: LaunchMode.externalApplication,
+                ),
               ),
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  void _showMicQualitySheet(
+      BuildContext context, WidgetRef ref, String current) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 36,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: context.divider,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text('Microphone Quality', style: AppTypography.titleMedium()),
+              const SizedBox(height: 8),
+              for (final quality in ['Low', 'Medium', 'High'])
+                ListTile(
+                  title: Text(quality),
+                  trailing: current == quality
+                      ? const Icon(Icons.check_rounded,
+                          color: AppColors.primary)
+                      : null,
+                  onTap: () async {
+                    ref.read(micQualityProvider.notifier).state = quality;
+                    final prefs = ref.read(sharedPreferencesProvider);
+                    await prefs.setString('mic_quality', quality);
+                    if (ctx.mounted) Navigator.pop(ctx);
+                  },
+                ),
+            ],
+          ),
+        ),
       ),
     );
   }

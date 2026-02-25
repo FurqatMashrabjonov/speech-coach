@@ -1,5 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:speech_coach/features/feedback/domain/feedback_entity.dart';
+import 'package:speech_coach/features/notifications/data/notification_service.dart';
+import 'package:speech_coach/features/progress/data/progress_remote_repository.dart';
 import 'package:speech_coach/features/progress/data/progress_repository.dart';
 import 'package:speech_coach/features/progress/domain/progress_entity.dart';
 import 'package:speech_coach/features/widgets/data/widget_service.dart';
@@ -12,13 +14,33 @@ final progressRepositoryProvider = Provider<ProgressRepository>((ref) {
 
 class ProgressNotifier extends StateNotifier<UserProgress> {
   final ProgressRepository _repository;
+  final ProgressRemoteRepository _remoteRepository;
 
-  ProgressNotifier(this._repository) : super(const UserProgress()) {
-    _load();
+  ProgressNotifier(this._repository, this._remoteRepository)
+      : super(const UserProgress()) {
+    _loadAndSync();
   }
 
-  void _load() {
-    state = _repository.load();
+  Future<void> _loadAndSync() async {
+    // Load local first (fast)
+    final local = _repository.load();
+    state = local;
+
+    // Then try to merge with cloud
+    try {
+      final remote = await _remoteRepository.load();
+      if (remote != null) {
+        final merged = ProgressRemoteRepository.merge(local, remote);
+        state = merged;
+        await _repository.save(merged);
+        await _remoteRepository.save(merged);
+      } else {
+        // No remote data yet — push local to cloud
+        await _remoteRepository.save(local);
+      }
+    } catch (_) {
+      // Offline — just use local
+    }
   }
 
   Future<void> addSession(ConversationFeedback feedback) async {
@@ -87,9 +109,11 @@ class ProgressNotifier extends StateNotifier<UserProgress> {
 
     // Check category-specific badges
     final categorySessions = state.sessionHistory
-        .where((s) => s.category == feedback.category)
-        .length + 1;
-    final categoryBadge = '${feedback.category.toLowerCase().replaceAll(' ', '_')}_5';
+            .where((s) => s.category == feedback.category)
+            .length +
+        1;
+    final categoryBadge =
+        '${feedback.category.toLowerCase().replaceAll(' ', '_')}_5';
     if (categorySessions >= 5 && !newBadges.contains(categoryBadge)) {
       newBadges.add(categoryBadge);
     }
@@ -111,13 +135,25 @@ class ProgressNotifier extends StateNotifier<UserProgress> {
 
     await _repository.save(state);
 
+    // Sync to Firestore
+    await _remoteRepository.save(state);
+
     // Update home screen widgets
     WidgetService.updateWidgetData(state);
+
+    // Cancel streak reminder since user practiced today
+    await NotificationService.cancelAll();
+
+    // Schedule next reminder if user has a streak going
+    if (newStreak > 0) {
+      await NotificationService.scheduleStreakReminder(newStreak);
+    }
   }
 }
 
 final progressProvider =
     StateNotifierProvider<ProgressNotifier, UserProgress>((ref) {
   final repository = ref.read(progressRepositoryProvider);
-  return ProgressNotifier(repository);
+  final remoteRepository = ref.read(progressRemoteRepositoryProvider);
+  return ProgressNotifier(repository, remoteRepository);
 });

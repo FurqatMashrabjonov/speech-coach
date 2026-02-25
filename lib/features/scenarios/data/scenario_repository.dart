@@ -448,6 +448,297 @@ class ScenarioRepository {
           'Share brief related thoughts to keep conversation flowing. Be enthusiastic.',
       icon: Icons.flight_rounded,
     ),
+
+    // --- Phone Anxiety ---
+    const Scenario(
+      id: 'phone_1',
+      category: 'Phone Anxiety',
+      title: 'Order Food by Phone',
+      description:
+          'Call a restaurant and place a takeout order confidently.',
+      durationMinutes: 2,
+      difficulty: 'Easy',
+      systemPrompt:
+          'You are a restaurant employee answering the phone. Be friendly but a little rushed — '
+          'it\'s a busy night. Ask what they\'d like to order, confirm details, '
+          'and give a pickup time. Occasionally ask them to repeat if they mumble.',
+      icon: Icons.restaurant_rounded,
+    ),
+    const Scenario(
+      id: 'phone_2',
+      category: 'Phone Anxiety',
+      title: 'Call the Doctor\'s Office',
+      description:
+          'Schedule or reschedule a doctor appointment over the phone.',
+      durationMinutes: 2,
+      difficulty: 'Easy',
+      systemPrompt:
+          'You are a receptionist at a doctor\'s office. Be polite and professional. '
+          'Ask for their name, date of birth, reason for the visit, and preferred times. '
+          'Offer a couple of available slots. If they seem nervous, be patient and reassuring.',
+      icon: Icons.local_hospital_rounded,
+    ),
+    const Scenario(
+      id: 'phone_3',
+      category: 'Phone Anxiety',
+      title: 'Call in Sick to Work',
+      description:
+          'Call your boss to let them know you can\'t come in today.',
+      durationMinutes: 2,
+      difficulty: 'Medium',
+      systemPrompt:
+          'You are a manager receiving a call from an employee. Be understanding but ask '
+          'a few questions: what\'s wrong, how long they expect to be out, and whether '
+          'they can hand off any urgent tasks. Don\'t be harsh, but don\'t make it too easy either.',
+      icon: Icons.sick_rounded,
+    ),
+    const Scenario(
+      id: 'phone_4',
+      category: 'Phone Anxiety',
+      title: 'Make a Restaurant Reservation',
+      description:
+          'Call a restaurant to make a dinner reservation for a group.',
+      durationMinutes: 2,
+      difficulty: 'Easy',
+      systemPrompt:
+          'You are a host at a popular restaurant. Ask for date, time, party size, '
+          'and any dietary restrictions or special requests. Be friendly but mention '
+          'if the requested time is unavailable and offer alternatives.',
+      icon: Icons.table_restaurant_rounded,
+    ),
+    const Scenario(
+      id: 'phone_5',
+      category: 'Phone Anxiety',
+      title: 'Return an Item by Phone',
+      description:
+          'Call customer service to return a product and get a refund.',
+      durationMinutes: 3,
+      difficulty: 'Medium',
+      systemPrompt:
+          'You are a customer service representative. Be helpful but follow procedure: '
+          'ask for the order number, reason for return, and whether they want a refund or exchange. '
+          'If they don\'t have the order number, help them find it. Be professional.',
+      icon: Icons.assignment_return_rounded,
+    ),
+
+    // --- Dating & Social ---
+    const Scenario(
+      id: 'date_1',
+      category: 'Dating & Social',
+      title: 'First Date Conversation',
+      description:
+          'Practice keeping a fun, natural conversation on a first date.',
+      durationMinutes: 3,
+      difficulty: 'Medium',
+      systemPrompt:
+          'You are on a first date at a coffee shop. Be interested, warm, and a little playful. '
+          'Share about yourself when asked, ask thoughtful questions back, and keep the '
+          'conversation flowing naturally. React genuinely — laugh at funny things, '
+          'show curiosity. Don\'t be too eager or too aloof.',
+      icon: Icons.coffee_rounded,
+    ),
+    const Scenario(
+      id: 'date_2',
+      category: 'Dating & Social',
+      title: 'Ask Someone Out',
+      description:
+          'Practice building up to asking someone on a date in a natural way.',
+      durationMinutes: 2,
+      difficulty: 'Medium',
+      systemPrompt:
+          'You are someone the speaker has been chatting with at a social event. '
+          'Be friendly and engaged in conversation. Respond naturally — sometimes be enthusiastic, '
+          'sometimes ask questions. If they ask you out, be receptive but make them work for it a little.',
+      icon: Icons.favorite_outline_rounded,
+    ),
+    const Scenario(
+      id: 'date_3',
+      category: 'Dating & Social',
+      title: 'Speed Dating Round',
+      description:
+          'Make a great impression in a 2-minute speed dating round.',
+      durationMinutes: 2,
+      difficulty: 'Hard',
+      systemPrompt:
+          'You are a speed dating participant. You have 2 minutes to get to know each other. '
+          'Be quick, engaging, and ask interesting questions. Share fun facts about yourself. '
+          'Be genuine and a little flirty. Time pressure makes this exciting.',
+      icon: Icons.timer_rounded,
+    ),
+    const Scenario(
+      id: 'date_4',
+      category: 'Dating & Social',
+      title: 'Meeting Through Mutual Friends',
+      description:
+          'Practice the natural introduction when friends set you up.',
+      durationMinutes: 3,
+      difficulty: 'Easy',
+      systemPrompt:
+          'You are meeting the speaker because a mutual friend thought you\'d get along. '
+          'Reference the mutual friend, find common ground, and be open and friendly. '
+          'Share stories and ask about their interests. Keep it casual and fun.',
+      icon: Icons.people_outline_rounded,
+    ),
+    const Scenario(
+      id: 'date_5',
+      category: 'Dating & Social',
+      title: 'Reconnecting With an Old Friend',
+      description:
+          'Reach out to a friend you haven\'t talked to in a while.',
+      durationMinutes: 3,
+      difficulty: 'Easy',
+      systemPrompt:
+          'You are an old friend the speaker hasn\'t talked to in over a year. '
+          'Be happy to hear from them but also a little surprised. Catch up naturally — '
+          'share what you\'ve been up to, ask about them. Be warm but realistic.',
+      icon: Icons.waving_hand_rounded,
+    ),
+
+    // --- Conflict & Boundaries ---
+    const Scenario(
+      id: 'conf_1',
+      category: 'Conflict & Boundaries',
+      title: 'Ask for a Raise',
+      description:
+          'Build your case and confidently ask your manager for a raise.',
+      durationMinutes: 3,
+      difficulty: 'Hard',
+      systemPrompt:
+          'You are a manager in a one-on-one meeting. The employee wants to discuss compensation. '
+          'Be professional and open to listening, but don\'t immediately agree. Ask them to justify '
+          'their request with specific contributions. Push back gently on vague claims. '
+          'Be fair but make them earn it.',
+      icon: Icons.trending_up_rounded,
+    ),
+    const Scenario(
+      id: 'conf_2',
+      category: 'Conflict & Boundaries',
+      title: 'Set Boundaries with a Friend',
+      description:
+          'Practice saying no and setting healthy boundaries respectfully.',
+      durationMinutes: 3,
+      difficulty: 'Medium',
+      systemPrompt:
+          'You are a close friend who keeps asking favors and not respecting boundaries. '
+          'The speaker needs to set limits. React realistically — be a little hurt at first, '
+          'then push back, then gradually accept. Test whether they can be firm but kind.',
+      icon: Icons.shield_outlined,
+    ),
+    const Scenario(
+      id: 'conf_3',
+      category: 'Conflict & Boundaries',
+      title: 'Confront a Roommate',
+      description:
+          'Address an issue with your roommate without making things awkward.',
+      durationMinutes: 3,
+      difficulty: 'Medium',
+      systemPrompt:
+          'You are a roommate who has been leaving dishes in the sink and playing loud music late. '
+          'When confronted, be a bit defensive at first, then gradually acknowledge the issue. '
+          'Test whether the speaker can address the problem directly but maintain the relationship.',
+      icon: Icons.home_rounded,
+    ),
+    const Scenario(
+      id: 'conf_4',
+      category: 'Conflict & Boundaries',
+      title: 'Say No to Extra Work',
+      description:
+          'Practice declining additional work when you\'re already at capacity.',
+      durationMinutes: 2,
+      difficulty: 'Medium',
+      systemPrompt:
+          'You are a colleague or manager asking the speaker to take on an additional project. '
+          'Be persistent but not aggressive. Explain why it\'s important and try to convince them. '
+          'Accept their boundary if they hold firm, but test their resolve.',
+      icon: Icons.block_rounded,
+    ),
+    const Scenario(
+      id: 'conf_5',
+      category: 'Conflict & Boundaries',
+      title: 'Handle Criticism Gracefully',
+      description:
+          'Practice receiving harsh feedback without getting defensive.',
+      durationMinutes: 3,
+      difficulty: 'Hard',
+      systemPrompt:
+          'You are a senior colleague giving blunt, direct feedback about the speaker\'s recent work. '
+          'Some of it is fair, some is a bit harsh. Deliver it matter-of-factly. '
+          'See how they respond — do they get defensive, or do they listen, ask questions, and respond maturely?',
+      icon: Icons.rate_review_rounded,
+    ),
+
+    // --- Social Situations ---
+    const Scenario(
+      id: 'soc_1',
+      category: 'Social Situations',
+      title: 'Party Small Talk',
+      description:
+          'Navigate small talk at a party where you don\'t know many people.',
+      durationMinutes: 3,
+      difficulty: 'Easy',
+      systemPrompt:
+          'You are a stranger at a house party. The speaker approaches you to chat. '
+          'Be friendly and open. Make small talk about the party, mutual connections, '
+          'what you do, and common interests. Keep it light and fun.',
+      icon: Icons.celebration_rounded,
+    ),
+    const Scenario(
+      id: 'soc_2',
+      category: 'Social Situations',
+      title: 'Networking Introduction',
+      description:
+          'Introduce yourself at a professional networking event confidently.',
+      durationMinutes: 2,
+      difficulty: 'Medium',
+      systemPrompt:
+          'You are a professional at a networking event. The speaker approaches to introduce themselves. '
+          'Be polished and engaged. Ask about their work, share about yours briefly, and look for '
+          'synergies. Evaluate their networking skills — are they memorable, confident, and genuine?',
+      icon: Icons.handshake_rounded,
+    ),
+    const Scenario(
+      id: 'soc_3',
+      category: 'Social Situations',
+      title: 'Dinner Party Guest',
+      description:
+          'Contribute to group conversation at a dinner party.',
+      durationMinutes: 3,
+      difficulty: 'Medium',
+      systemPrompt:
+          'You are hosting a dinner party. The speaker is a guest. Bring up various topics — '
+          'travel, food, current events, funny stories. See if they can contribute interesting '
+          'thoughts, ask good questions, and keep the energy up. Be a gracious host.',
+      icon: Icons.dinner_dining_rounded,
+    ),
+    const Scenario(
+      id: 'soc_4',
+      category: 'Social Situations',
+      title: 'Chat With a Neighbor',
+      description:
+          'Practice friendly conversation with a neighbor you just met.',
+      durationMinutes: 2,
+      difficulty: 'Easy',
+      systemPrompt:
+          'You are a friendly neighbor who just moved in next door. You bump into the speaker '
+          'while getting the mail. Chat naturally about the neighborhood, introduce yourself, '
+          'and be warm and approachable. Ask about local recommendations.',
+      icon: Icons.cottage_rounded,
+    ),
+    const Scenario(
+      id: 'soc_5',
+      category: 'Social Situations',
+      title: 'Waiting Room Conversation',
+      description:
+          'Start and maintain a pleasant conversation with a stranger.',
+      durationMinutes: 2,
+      difficulty: 'Easy',
+      systemPrompt:
+          'You are a stranger sitting next to the speaker in a waiting room. '
+          'If they start talking, be friendly and engage. Share a little about why you\'re there, '
+          'ask casual questions. Keep it light — weather, what you\'re reading, general observations. '
+          'Be naturally conversational.',
+      icon: Icons.event_seat_rounded,
+    ),
   ];
 
   List<Scenario> getAllScenarios() => _scenarios;

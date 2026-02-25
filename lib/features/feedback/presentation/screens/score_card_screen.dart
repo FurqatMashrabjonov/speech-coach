@@ -13,7 +13,13 @@ import 'package:speech_coach/features/feedback/presentation/widgets/radar_chart.
 import 'package:speech_coach/features/feedback/presentation/widgets/score_bar.dart';
 import 'package:speech_coach/features/history/presentation/providers/session_history_provider.dart';
 import 'package:speech_coach/features/progress/presentation/providers/progress_provider.dart';
+import 'package:speech_coach/features/roast/data/roast_service.dart';
+import 'package:speech_coach/features/roast/presentation/providers/roast_provider.dart';
+import 'package:speech_coach/features/roast/presentation/widgets/roast_card.dart';
+import 'package:speech_coach/features/roast/presentation/widgets/roast_intensity_picker.dart';
 import 'package:speech_coach/features/sharing/data/share_service.dart';
+import 'package:in_app_review/in_app_review.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ScoreCardScreen extends ConsumerStatefulWidget {
   final String scenarioId;
@@ -37,6 +43,7 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
   final _screenshotController = ScreenshotController();
   bool _xpAwarded = false;
   bool _sessionSaved = false;
+  bool _reviewChecked = false;
 
   @override
   Widget build(BuildContext context) {
@@ -60,6 +67,12 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
                 feedback: feedbackState.feedback!,
                 transcript: widget.transcript,
               );
+        }
+
+        // Request in-app review if conditions met
+        if (!_reviewChecked) {
+          _reviewChecked = true;
+          _maybeRequestReview(feedbackState.feedback!);
         }
       });
     }
@@ -387,7 +400,22 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
                   ),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: 8),
+              Tappable(
+                onTap: () => _showRoastPicker(feedback),
+                child: Container(
+                  height: 50,
+                  width: 50,
+                  decoration: BoxDecoration(
+                    color: AppColors.error.withValues(alpha: 0.14),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Center(
+                    child: Text('\u{1F525}', style: TextStyle(fontSize: 22)),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
               Expanded(
                 child: Tappable(
                   onTap: () {
@@ -414,6 +442,90 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Future<void> _maybeRequestReview(ConversationFeedback feedback) async {
+    if (feedback.overallScore < 75) return;
+
+    final progress = ref.read(progressProvider);
+    if (progress.totalSessions < 5) return;
+
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.getBool('has_requested_review') == true) return;
+
+    final inAppReview = InAppReview.instance;
+    if (await inAppReview.isAvailable()) {
+      await prefs.setBool('has_requested_review', true);
+      await inAppReview.requestReview();
+    }
+  }
+
+  void _showRoastPicker(ConversationFeedback feedback) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => RoastIntensityPicker(
+        onSelected: (intensity) {
+          ref.read(roastProvider.notifier).generateRoast(
+                transcript: widget.transcript,
+                overallScore: feedback.overallScore,
+                clarity: feedback.clarity,
+                confidence: feedback.confidence,
+                engagement: feedback.engagement,
+                relevance: feedback.relevance,
+                intensity: intensity,
+              );
+          _showRoastResult();
+        },
+      ),
+    );
+  }
+
+  void _showRoastResult() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (_) => Consumer(
+        builder: (context, ref, _) {
+          final roastState = ref.watch(roastProvider);
+          if (roastState.status == RoastStatus.loading) {
+            return const SizedBox(
+              height: 200,
+              child: Center(
+                child: CircularProgressIndicator(color: AppColors.primary),
+              ),
+            );
+          }
+          if (roastState.status == RoastStatus.loaded &&
+              roastState.roast != null) {
+            return RoastCard(
+              roastText: roastState.roast!,
+              intensity: roastState.intensity ?? RoastIntensity.honest,
+              scenarioTitle: widget.scenarioTitle,
+            );
+          }
+          if (roastState.status == RoastStatus.error) {
+            return SizedBox(
+              height: 200,
+              child: Center(
+                child: Text(
+                  'Roast failed. Even the AI was speechless.',
+                  style: AppTypography.bodyMedium(
+                    color: context.textSecondary,
+                  ),
+                ),
+              ),
+            );
+          }
+          return const SizedBox.shrink();
+        },
+      ),
     );
   }
 

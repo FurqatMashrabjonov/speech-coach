@@ -11,6 +11,8 @@ import 'package:speech_coach/features/auth/presentation/providers/auth_provider.
 import 'package:speech_coach/features/paywall/presentation/providers/subscription_provider.dart';
 import 'package:speech_coach/features/progress/presentation/providers/progress_provider.dart';
 import 'package:speech_coach/features/sharing/data/share_service.dart';
+import 'package:speech_coach/features/speaker_dna/presentation/providers/speaker_dna_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
@@ -20,6 +22,7 @@ class ProfileScreen extends ConsumerWidget {
     final authState = ref.watch(authStateProvider);
     final progress = ref.watch(progressProvider);
     final sub = ref.watch(subscriptionProvider);
+    final dnaState = ref.watch(speakerDNAProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -113,6 +116,39 @@ class ProfileScreen extends ConsumerWidget {
                           color: context.textSecondary,
                         ),
                       ),
+                      if (dnaState.dna != null) ...[
+                        const SizedBox(height: 8),
+                        Tappable(
+                          onTap: () => context.push('/speaker-dna-result'),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withValues(alpha: 0.14),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.fingerprint_rounded,
+                                  color: AppColors.primary,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  dnaState.dna!.archetype,
+                                  style: AppTypography.labelSmall(
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ).animate().fadeIn(duration: 400.ms);
                 },
@@ -267,6 +303,15 @@ class ProfileScreen extends ConsumerWidget {
                 child: Column(
                   children: [
                     _ProfileMenuItem(
+                      icon: Icons.fingerprint_rounded,
+                      iconColor: AppColors.primary,
+                      title: dnaState.dna != null
+                          ? 'Retake Speaker DNA'
+                          : 'Take Speaker DNA Quiz',
+                      onTap: () => context.push('/speaker-dna-quiz'),
+                    ),
+                    const Divider(height: 1, indent: 60),
+                    _ProfileMenuItem(
                       icon: Icons.bar_chart_rounded,
                       iconColor: AppColors.skyBlue,
                       title: 'Analytics',
@@ -292,7 +337,9 @@ class ProfileScreen extends ConsumerWidget {
                       icon: Icons.help_outline_rounded,
                       iconColor: AppColors.secondary,
                       title: 'Help & Support',
-                      onTap: () {},
+                      onTap: () => launchUrl(
+                        Uri.parse('mailto:support@speechmaster.app'),
+                      ),
                     ),
                     const Divider(height: 1, indent: 60),
                     _ProfileMenuItem(

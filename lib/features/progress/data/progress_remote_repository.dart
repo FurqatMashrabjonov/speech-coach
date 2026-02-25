@@ -1,0 +1,115 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:speech_coach/features/progress/domain/progress_entity.dart';
+
+class ProgressRemoteRepository {
+  final FirebaseFirestore _firestore;
+  final FirebaseAuth _auth;
+
+  ProgressRemoteRepository({
+    FirebaseFirestore? firestore,
+    FirebaseAuth? auth,
+  })  : _firestore = firestore ?? FirebaseFirestore.instance,
+        _auth = auth ?? FirebaseAuth.instance;
+
+  DocumentReference<Map<String, dynamic>>? get _progressDoc {
+    final uid = _auth.currentUser?.uid;
+    if (uid == null) return null;
+    return _firestore.collection('users').doc(uid).collection('data').doc('progress');
+  }
+
+  Future<void> save(UserProgress progress) async {
+    final doc = _progressDoc;
+    if (doc == null) return;
+
+    try {
+      await doc.set({
+        'totalXp': progress.totalXp,
+        'level': progress.level,
+        'levelTitle': progress.levelTitle,
+        'streak': progress.streak,
+        'longestStreak': progress.longestStreak,
+        'totalSessions': progress.totalSessions,
+        'totalMinutes': progress.totalMinutes,
+        'lastSessionDate': progress.lastSessionDate?.toIso8601String(),
+        'badges': progress.badges,
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+    } catch (e) {
+      debugPrint('Failed to save progress to Firestore: $e');
+    }
+  }
+
+  Future<UserProgress?> load() async {
+    final doc = _progressDoc;
+    if (doc == null) return null;
+
+    try {
+      final snapshot = await doc.get();
+      if (!snapshot.exists || snapshot.data() == null) return null;
+
+      final data = snapshot.data()!;
+      return UserProgress(
+        totalXp: (data['totalXp'] as num?)?.toInt() ?? 0,
+        level: (data['level'] as num?)?.toInt() ?? 1,
+        levelTitle: data['levelTitle'] as String? ?? 'Beginner',
+        streak: (data['streak'] as num?)?.toInt() ?? 0,
+        longestStreak: (data['longestStreak'] as num?)?.toInt() ?? 0,
+        totalSessions: (data['totalSessions'] as num?)?.toInt() ?? 0,
+        totalMinutes: (data['totalMinutes'] as num?)?.toInt() ?? 0,
+        lastSessionDate: data['lastSessionDate'] != null
+            ? DateTime.tryParse(data['lastSessionDate'] as String)
+            : null,
+        badges: List<String>.from(data['badges'] as List? ?? []),
+      );
+    } catch (e) {
+      debugPrint('Failed to load progress from Firestore: $e');
+      return null;
+    }
+  }
+
+  /// Merge local and remote progress, taking the higher/better values.
+  /// sessionHistory is NOT included in remote — it stays local only
+  /// (detailed records are already in users/{uid}/sessions).
+  static UserProgress merge(UserProgress local, UserProgress remote) {
+    final mergedXp = local.totalXp > remote.totalXp ? local.totalXp : remote.totalXp;
+    final (mergedLevel, mergedTitle) = UserProgress.calculateLevel(mergedXp);
+
+    // Union of badges
+    final mergedBadges = {...local.badges, ...remote.badges}.toList();
+
+    // Pick the more recent lastSessionDate
+    DateTime? mergedLastSession;
+    if (local.lastSessionDate != null && remote.lastSessionDate != null) {
+      mergedLastSession = local.lastSessionDate!.isAfter(remote.lastSessionDate!)
+          ? local.lastSessionDate
+          : remote.lastSessionDate;
+    } else {
+      mergedLastSession = local.lastSessionDate ?? remote.lastSessionDate;
+    }
+
+    return local.copyWith(
+      totalXp: mergedXp,
+      level: mergedLevel,
+      levelTitle: mergedTitle,
+      streak: local.streak > remote.streak ? local.streak : remote.streak,
+      longestStreak: local.longestStreak > remote.longestStreak
+          ? local.longestStreak
+          : remote.longestStreak,
+      totalSessions: local.totalSessions > remote.totalSessions
+          ? local.totalSessions
+          : remote.totalSessions,
+      totalMinutes: local.totalMinutes > remote.totalMinutes
+          ? local.totalMinutes
+          : remote.totalMinutes,
+      lastSessionDate: mergedLastSession,
+      badges: mergedBadges,
+    );
+  }
+}
+
+final progressRemoteRepositoryProvider = Provider<ProgressRemoteRepository>(
+  (ref) => ProgressRemoteRepository(),
+);

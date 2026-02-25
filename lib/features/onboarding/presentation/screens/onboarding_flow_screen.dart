@@ -221,7 +221,13 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
     final prefs = ref.read(sharedPreferencesProvider);
     await prefs.setBool(AppConstants.keyOnboardingCompleted, true);
     if (mounted) {
-      context.go('/home');
+      // Route to Speaker DNA quiz if not already taken
+      final hasDNA = prefs.getString('speaker_dna') != null;
+      if (hasDNA) {
+        context.go('/home');
+      } else {
+        context.go('/speaker-dna-quiz');
+      }
     }
   }
 }
