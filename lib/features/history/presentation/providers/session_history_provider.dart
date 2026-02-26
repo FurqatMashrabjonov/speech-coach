@@ -108,3 +108,49 @@ final saveSessionProvider = Provider<SessionSaver>((ref) {
   final repository = ref.read(sessionHistoryRepositoryProvider);
   return SessionSaver(repository);
 });
+
+class PendingSessionSaver {
+  final SessionHistoryRepository _repository;
+
+  PendingSessionSaver(this._repository);
+
+  Future<String> savePending({
+    required String scenarioId,
+    required String scenarioTitle,
+    required String category,
+    required String transcript,
+    required int durationSeconds,
+    required String scenarioPrompt,
+  }) {
+    return _repository.savePendingSession(
+      scenarioId: scenarioId,
+      scenarioTitle: scenarioTitle,
+      category: category,
+      transcript: transcript,
+      durationSeconds: durationSeconds,
+      scenarioPrompt: scenarioPrompt,
+    );
+  }
+
+  Future<void> completeFeedback({
+    required String sessionId,
+    required ConversationFeedback feedback,
+  }) {
+    return _repository.updateSessionWithFeedback(
+      sessionId: sessionId,
+      overallScore: feedback.overallScore,
+      clarity: feedback.clarity,
+      confidence: feedback.confidence,
+      engagement: feedback.engagement,
+      relevance: feedback.relevance,
+      summary: feedback.summary,
+      strengths: feedback.strengths,
+      improvements: feedback.improvements,
+      xpEarned: feedback.xpEarned,
+    );
+  }
+}
+
+final pendingSessionSaverProvider = Provider<PendingSessionSaver>((ref) {
+  return PendingSessionSaver(ref.read(sessionHistoryRepositoryProvider));
+});

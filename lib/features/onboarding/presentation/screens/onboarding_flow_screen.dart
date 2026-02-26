@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:record/record.dart';
 import 'package:speech_coach/app/constants/app_constants.dart';
 import 'package:speech_coach/app/theme/app_colors.dart';
+import 'package:speech_coach/app/theme/app_images.dart';
 import 'package:speech_coach/app/theme/app_typography.dart';
 import 'package:speech_coach/core/extensions/context_extensions.dart';
 import 'package:speech_coach/shared/providers/user_provider.dart';
@@ -29,6 +30,7 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
       title: 'Practice Real Conversations',
       description:
           'Talk with AI personas that respond in real-time voice. Practice interviews, debates, presentations, and more.',
+      imagePath: AppImages.mascotWelcome,
     ),
     _OnboardingPage(
       icon: Icons.insights_rounded,
@@ -36,6 +38,7 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
       title: 'Get AI Feedback',
       description:
           'Receive detailed score cards after each session. Track clarity, confidence, engagement, and relevance.',
+      imagePath: AppImages.mascotAnalyze,
     ),
     _OnboardingPage(
       icon: Icons.trending_up_rounded,
@@ -43,6 +46,7 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
       title: 'Track Your Progress',
       description:
           'Earn XP, maintain streaks, unlock badges, and watch your speaking skills improve over time.',
+      imagePath: AppImages.mascotCelebrate,
     ),
   ];
 
@@ -162,22 +166,37 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              color: page.iconColor.withValues(alpha: 0.22),
-              borderRadius: BorderRadius.circular(30),
-            ),
-            child: Icon(
-              page.icon,
-              color: page.iconColor,
-              size: 48,
-            ),
-          ).animate().fadeIn(duration: 400.ms).scale(
-                begin: const Offset(0.8, 0.8),
-                curve: Curves.easeOutBack,
+          if (page.imagePath != null)
+            Image.asset(
+              page.imagePath!,
+              width: 240,
+              height: 240,
+              errorBuilder: (_, __, ___) => Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  color: page.iconColor.withValues(alpha: 0.22),
+                  borderRadius: BorderRadius.circular(30),
+                ),
+                child: Icon(page.icon, color: page.iconColor, size: 48),
               ),
+            ).animate().fadeIn(duration: 400.ms).scale(
+                  begin: const Offset(0.8, 0.8),
+                  curve: Curves.easeOutBack,
+                )
+          else
+            Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                color: page.iconColor.withValues(alpha: 0.22),
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Icon(page.icon, color: page.iconColor, size: 48),
+            ).animate().fadeIn(duration: 400.ms).scale(
+                  begin: const Offset(0.8, 0.8),
+                  curve: Curves.easeOutBack,
+                ),
           const SizedBox(height: 32),
           Text(
             page.title,
@@ -237,11 +256,13 @@ class _OnboardingPage {
   final Color iconColor;
   final String title;
   final String description;
+  final String? imagePath;
 
   const _OnboardingPage({
     required this.icon,
     required this.iconColor,
     required this.title,
     required this.description,
+    this.imagePath,
   });
 }

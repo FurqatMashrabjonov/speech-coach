@@ -48,10 +48,12 @@ class ProgressNotifier extends StateNotifier<UserProgress> {
     final newTotalXp = state.totalXp + xp;
     final (newLevel, newLevelTitle) = UserProgress.calculateLevel(newTotalXp);
 
-    // Calculate streak
+    // Calculate streak (with streak freeze support)
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     int newStreak = state.streak;
+    int newStreakFreezes = state.streakFreezes;
+    DateTime? newLastFreezeDate = state.lastFreezeDate;
 
     if (state.lastSessionDate != null) {
       final lastDate = DateTime(
@@ -62,6 +64,11 @@ class ProgressNotifier extends StateNotifier<UserProgress> {
       final diff = today.difference(lastDate).inDays;
       if (diff == 1) {
         newStreak = state.streak + 1;
+      } else if (diff == 2 && state.streakFreezes > 0) {
+        // Streak freeze: missed exactly 1 day with freeze available
+        newStreak = state.streak + 1;
+        newStreakFreezes = state.streakFreezes - 1;
+        newLastFreezeDate = today;
       } else if (diff > 1) {
         newStreak = 1;
       }
@@ -131,6 +138,8 @@ class ProgressNotifier extends StateNotifier<UserProgress> {
       lastSessionDate: now,
       badges: newBadges,
       sessionHistory: [...state.sessionHistory, record],
+      streakFreezes: newStreakFreezes,
+      lastFreezeDate: newLastFreezeDate,
     );
 
     await _repository.save(state);
@@ -148,6 +157,28 @@ class ProgressNotifier extends StateNotifier<UserProgress> {
     if (newStreak > 0) {
       await NotificationService.scheduleStreakReminder(newStreak);
     }
+  }
+
+  /// Grants a streak freeze (e.g., for Pro users monthly)
+  Future<void> grantStreakFreeze() async {
+    state = state.copyWith(
+      streakFreezes: state.streakFreezes + 1,
+    );
+    await _repository.save(state);
+    await _remoteRepository.save(state);
+  }
+
+  /// Returns true if daily goal was just completed on this session
+  bool get dailyGoalJustCompleted {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final todaySessions = state.sessionHistory
+        .where((s) {
+          final d = DateTime(s.date.year, s.date.month, s.date.day);
+          return d == today;
+        })
+        .length;
+    return todaySessions == 1; // Exactly 1 means just completed
   }
 }
 

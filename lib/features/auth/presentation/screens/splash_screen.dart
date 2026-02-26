@@ -69,7 +69,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 .scale(begin: const Offset(0.5, 0.5)),
             const SizedBox(height: 24),
             Text(
-              'SpeechMaster',
+              'Speechy AI',
               style: AppTypography.displayLarge(color: context.textPrimary),
             ).animate().fadeIn(delay: 300.ms, duration: 600.ms),
             const SizedBox(height: 8),

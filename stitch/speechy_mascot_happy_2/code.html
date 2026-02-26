@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Practice Category Selection</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "primary": "#e87a3b",
+              "primary-hover": "#d6692a",
+              "background-warm": "#FAF8F5",
+              "neutral-warm": "#887063",
+              "surface-card": "#ffffff",
+              "card-1": "#FDF2E9",
+              "card-2": "#E8F4FA",
+              "card-3": "#F0E9FD",
+              "card-4": "#EAFBF2",
+              "card-5": "#FFF8E1",
+              "card-6": "#FCECEC",
+            },
+            fontFamily: {
+              "display": ["Plus Jakarta Sans", "sans-serif"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "1.5rem", "xl": "2rem", "2xl": "2.5rem"},
+            boxShadow: {
+              'soft': '0 8px 30px -4px rgba(232, 122, 59, 0.08)',
+              'card': '0 4px 12px rgba(0,0,0,0.03)',
+            }
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+      }
+      .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+      }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-warm font-display min-h-screen flex flex-col items-center justify-center text-slate-900">
+<div class="relative flex h-full min-h-screen w-full max-w-md flex-col bg-background-warm overflow-hidden shadow-2xl mx-auto">
+<div class="flex items-center px-6 pt-12 pb-4 justify-between z-10">
+<div>
+<h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">Practice</h1>
+<p class="text-neutral-warm text-sm font-medium mt-1">Choose a category to start</p>
+</div>
+<div class="size-10 rounded-full bg-white shadow-sm flex items-center justify-center border border-stone-100">
+<span class="material-symbols-outlined text-primary">search</span>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto scrollbar-hide px-6 pb-24">
+<div class="mb-6">
+<div class="w-full bg-primary rounded-2xl p-5 text-white shadow-lg shadow-primary/20 relative overflow-hidden group cursor-pointer">
+<div class="absolute right-[-20px] bottom-[-20px] opacity-20 transform group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-[140px]">bolt</span>
+</div>
+<div class="relative z-10">
+<div class="bg-white/20 w-fit px-2 py-1 rounded-md text-xs font-bold mb-2 backdrop-blur-sm">DAILY CHALLENGE</div>
+<h3 class="text-xl font-bold mb-1">Impromptu Speech</h3>
+<p class="text-white/90 text-sm mb-4 max-w-[70%]">Speak for 1 min on a random topic.</p>
+<button class="bg-white text-primary px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-1 active:scale-95 transition-transform">
+                            Start Now <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<h2 class="text-lg font-bold text-slate-800 mb-4">Categories</h2>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-card-1 p-4 rounded-2xl shadow-card hover:shadow-md transition-all active:scale-[0.98] cursor-pointer group">
+<div class="h-24 w-full bg-white/60 rounded-xl mb-3 flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-5xl text-orange-400 group-hover:scale-110 transition-transform">podium</span>
+</div>
+<h3 class="font-bold text-slate-900">Presentations</h3>
+<p class="text-xs text-neutral-warm mt-1">12 Scenarios</p>
+</div>
+<div class="bg-card-2 p-4 rounded-2xl shadow-card hover:shadow-md transition-all active:scale-[0.98] cursor-pointer group">
+<div class="h-24 w-full bg-white/60 rounded-xl mb-3 flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-5xl text-sky-400 group-hover:scale-110 transition-transform">handshake</span>
+</div>
+<h3 class="font-bold text-slate-900">Interviews</h3>
+<p class="text-xs text-neutral-warm mt-1">24 Questions</p>
+</div>
+<div class="bg-card-3 p-4 rounded-2xl shadow-card hover:shadow-md transition-all active:scale-[0.98] cursor-pointer group">
+<div class="h-24 w-full bg-white/60 rounded-xl mb-3 flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-5xl text-purple-400 group-hover:scale-110 transition-transform">campaign</span>
+</div>
+<h3 class="font-bold text-slate-900">Public Speaking</h3>
+<p class="text-xs text-neutral-warm mt-1">8 Exercises</p>
+</div>
+<div class="bg-card-4 p-4 rounded-2xl shadow-card hover:shadow-md transition-all active:scale-[0.98] cursor-pointer group">
+<div class="h-24 w-full bg-white/60 rounded-xl mb-3 flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-5xl text-emerald-400 group-hover:scale-110 transition-transform">forum</span>
+</div>
+<h3 class="font-bold text-slate-900">Conversation</h3>
+<p class="text-xs text-neutral-warm mt-1">Social skills</p>
+</div>
+<div class="bg-card-5 p-4 rounded-2xl shadow-card hover:shadow-md transition-all active:scale-[0.98] cursor-pointer group">
+<div class="h-24 w-full bg-white/60 rounded-xl mb-3 flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-5xl text-amber-400 group-hover:scale-110 transition-transform">gavel</span>
+</div>
+<h3 class="font-bold text-slate-900">Debates</h3>
+<p class="text-xs text-neutral-warm mt-1">Logic &amp; Tone</p>
+</div>
+<div class="bg-card-6 p-4 rounded-2xl shadow-card hover:shadow-md transition-all active:scale-[0.98] cursor-pointer group">
+<div class="h-24 w-full bg-white/60 rounded-xl mb-3 flex items-center justify-center overflow-hidden">
+<span class="material-symbols-outlined text-5xl text-rose-400 group-hover:scale-110 transition-transform">trending_up</span>
+</div>
+<h3 class="font-bold text-slate-900">Sales Pitch</h3>
+<p class="text-xs text-neutral-warm mt-1">Persuasion</p>
+</div>
+</div>
+</div>
+<div class="absolute bottom-0 w-full flex gap-2 border-t border-stone-200 bg-white/95 backdrop-blur-md px-6 pb-6 pt-3 z-20">
+<a class="flex flex-1 flex-col items-center justify-end gap-1 text-neutral-warm group hover:text-primary transition-colors" href="#">
+<div class="flex h-8 items-center justify-center transition-transform group-active:scale-90">
+<span class="material-symbols-outlined text-[24px] font-normal" style="font-variation-settings: 'FILL' 0;">home</span>
+</div>
+<p class="text-xs font-medium leading-normal tracking-[0.015em]">Home</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1 rounded-full text-primary group" href="#">
+<div class="flex h-8 items-center justify-center transition-transform group-active:scale-90">
+<span class="material-symbols-outlined text-[28px]">mic</span>
+</div>
+<p class="text-xs font-bold leading-normal tracking-[0.015em]">Practice</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1 text-neutral-warm group hover:text-primary transition-colors" href="#">
+<div class="flex h-8 items-center justify-center transition-transform group-active:scale-90">
+<span class="material-symbols-outlined text-[24px] font-normal" style="font-variation-settings: 'FILL' 0;">bar_chart</span>
+</div>
+<p class="text-xs font-medium leading-normal tracking-[0.015em]">Stats</p>
+</a>
+<a class="flex flex-1 flex-col items-center justify-end gap-1 text-neutral-warm group hover:text-primary transition-colors" href="#">
+<div class="flex h-8 items-center justify-center transition-transform group-active:scale-90">
+<span class="material-symbols-outlined text-[24px] font-normal" style="font-variation-settings: 'FILL' 0;">person</span>
+</div>
+<p class="text-xs font-medium leading-normal tracking-[0.015em]">Profile</p>
+</a>
+</div>
+</div>
+
+</body></html>

@@ -9,6 +9,8 @@ class UserProgress {
   final DateTime? lastSessionDate;
   final List<String> badges;
   final List<SessionRecord> sessionHistory;
+  final int streakFreezes;
+  final DateTime? lastFreezeDate;
 
   const UserProgress({
     this.totalXp = 0,
@@ -21,6 +23,8 @@ class UserProgress {
     this.lastSessionDate,
     this.badges = const [],
     this.sessionHistory = const [],
+    this.streakFreezes = 0,
+    this.lastFreezeDate,
   });
 
   UserProgress copyWith({
@@ -34,6 +38,8 @@ class UserProgress {
     DateTime? lastSessionDate,
     List<String>? badges,
     List<SessionRecord>? sessionHistory,
+    int? streakFreezes,
+    DateTime? lastFreezeDate,
   }) {
     return UserProgress(
       totalXp: totalXp ?? this.totalXp,
@@ -46,6 +52,8 @@ class UserProgress {
       lastSessionDate: lastSessionDate ?? this.lastSessionDate,
       badges: badges ?? this.badges,
       sessionHistory: sessionHistory ?? this.sessionHistory,
+      streakFreezes: streakFreezes ?? this.streakFreezes,
+      lastFreezeDate: lastFreezeDate ?? this.lastFreezeDate,
     );
   }
 
@@ -107,6 +115,8 @@ class UserProgress {
       'lastSessionDate': lastSessionDate?.toIso8601String(),
       'badges': badges,
       'sessionHistory': sessionHistory.map((s) => s.toMap()).toList(),
+      'streakFreezes': streakFreezes,
+      'lastFreezeDate': lastFreezeDate?.toIso8601String(),
     };
   }
 
@@ -126,6 +136,10 @@ class UserProgress {
       sessionHistory: (map['sessionHistory'] as List? ?? [])
           .map((s) => SessionRecord.fromMap(s as Map<String, dynamic>))
           .toList(),
+      streakFreezes: (map['streakFreezes'] as num?)?.toInt() ?? 0,
+      lastFreezeDate: map['lastFreezeDate'] != null
+          ? DateTime.parse(map['lastFreezeDate'] as String)
+          : null,
     );
   }
 }

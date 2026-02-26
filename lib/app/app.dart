@@ -13,7 +13,7 @@ class SpeechCoachApp extends ConsumerWidget {
     final themeMode = ref.watch(themeModeProvider);
 
     return MaterialApp.router(
-      title: 'SpeechMaster',
+      title: 'Speechy AI',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,

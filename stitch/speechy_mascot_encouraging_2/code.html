@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SpeechMaster - Dashboard</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#e87a3b",
+                        "primary-light": "#fbdccb",
+                        "primary-dark": "#d66626",
+                        "secondary": "#f4c665", 
+                        "success": "#5A9A5C",
+                        "success-light": "#e3f1e3",
+                        "background-light": "#fffaf7",
+                        "background-dark": "#211711",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#2d241f",
+                        "text-main": "#3d2b23",
+                        "text-muted": "#887063",
+                    },
+                    fontFamily: {
+                        "sans": ["Plus Jakarta Sans", "sans-serif"],
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "1.5rem", "xl": "2rem", "2xl": "2.5rem", "full": "9999px"},
+                    boxShadow: {
+                        "soft": "0 8px 30px rgba(232, 122, 59, 0.08)",
+                        "card": "0 4px 20px rgba(61, 43, 35, 0.04)"
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            min-height: max(844px, 100dvh);
+            -webkit-tap-highlight-color: transparent;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-text-main dark:text-white min-h-screen flex flex-col antialiased selection:bg-primary selection:text-white">
+<div class="mx-auto flex h-full min-h-screen w-full max-w-md flex-col overflow-hidden bg-background-light dark:bg-background-dark shadow-2xl sm:rounded-xl sm:border sm:border-gray-200 dark:sm:border-gray-800 my-0 sm:my-8 relative">
+<div class="px-6 pt-6 pb-2 flex flex-col bg-background-light dark:bg-background-dark z-10">
+<div class="flex items-center justify-between mb-4">
+<div class="flex items-center gap-2">
+<div class="h-10 w-10 rounded-full bg-primary-light dark:bg-primary/20 flex items-center justify-center overflow-hidden border-2 border-white dark:border-white/10 shadow-sm">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBd925RcAbIPKA1uvXA6cm6P8T3a3Y2HeXwbLG-3lk8oOdudbIsvMNiiAj6ks3OoIshGpPHsSKfX3udMObAuVfEdjrDod8vTbqm7NbYHVsCK8ErGJbWQ913X02pi_WSCp_V3Jb6_2H2XJ1gl5yGnFT3DS6fP4Xp0agMv5zoi92nkrzf5zQmt3MfQ8iIGre25oSY0i4ApaKw3jk5CYG25MJr_6-VK0nPJw81B7GMsyPIeZt7qMiBdXtttjb-wQrzWwTXhAOSnX7j_q2w"/>
+</div>
+<div class="flex flex-col">
+<span class="text-xs font-bold text-text-muted uppercase tracking-wider">Good Morning</span>
+<span class="text-lg font-bold text-text-main dark:text-white leading-none">Alex</span>
+</div>
+</div>
+<button class="relative p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-2xl text-text-main dark:text-white">notifications</span>
+<span class="absolute top-2 right-2 h-2.5 w-2.5 rounded-full bg-primary border-2 border-background-light dark:border-background-dark"></span>
+</button>
+</div>
+<div class="flex flex-col items-center mt-2 mb-4">
+<div class="relative w-40 h-40 mb-2">
+<div class="absolute inset-0 bg-secondary/20 rounded-full blur-2xl transform scale-90 translate-y-2"></div>
+<div class="relative z-10 w-full h-full bg-contain bg-center bg-no-repeat drop-shadow-lg transform hover:scale-105 transition-transform duration-500 ease-out cursor-pointer" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA9FbQxVtR2XZy6bib3_xwVkq7a1wioEIJHNpeOj2qrCMxt7QBV0TqJ88C-OCnUWnb1i6KnbU3TK5B3DsEJTmqiKJnoj_OzNW83pUSWCOuuFWlYi8ZRMbSpdJTGvHlA1lUuKga0zTAzQzBGkw7f9hsniZThSUWjE1M1K3OOoBKkjwl9LFqF3kHF7x4QmJJO9sW-civBb9blf2E7McpsEGw7ek-C-O2STGMHud6snXYbeE9xhKJb2J6G4ickNI2Qto4sw4EfC2cUl19a');">
+</div>
+<div class="absolute -top-2 -right-6 bg-white dark:bg-surface-dark px-4 py-2 rounded-2xl rounded-bl-none shadow-soft border border-gray-100 dark:border-white/5 animate-bounce" style="animation-duration: 3s;">
+<p class="text-sm font-bold text-primary">Ready to speak?</p>
+</div>
+</div>
+<h1 class="text-2xl font-extrabold text-center text-text-main dark:text-white">Let's find your voice!</h1>
+<p class="text-text-muted dark:text-gray-400 text-sm mt-1">Consistency is key to fluency.</p>
+</div>
+</div>
+<div class="flex-1 overflow-y-auto px-6 pb-28 hide-scrollbar">
+<div class="relative bg-white dark:bg-surface-dark rounded-2xl p-5 shadow-card border border-gray-100 dark:border-white/5 mb-6 overflow-hidden group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-success-light/50 dark:bg-success/10 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none"></div>
+<div class="flex items-start justify-between relative z-10">
+<div class="flex-1 pr-4">
+<div class="flex items-center gap-2 mb-1">
+<span class="material-symbols-outlined text-success text-xl">flag</span>
+<h3 class="font-bold text-text-main dark:text-white">Daily Goal</h3>
+</div>
+<p class="text-xs text-text-muted mb-4 dark:text-gray-400">15 mins of practice remaining</p>
+<div class="flex items-center gap-3 mb-2">
+<div class="flex-1 h-3 bg-gray-100 dark:bg-gray-800 rounded-full overflow-hidden">
+<div class="h-full bg-success rounded-full w-[65%] relative overflow-hidden">
+<div class="absolute inset-0 bg-white/20 w-full h-full animate-[shimmer_2s_infinite]"></div>
+</div>
+</div>
+<span class="text-xs font-bold text-success">65%</span>
+</div>
+<button class="mt-2 text-xs font-bold text-primary hover:text-primary-dark flex items-center gap-1 transition-colors">
+                        Continue Practicing 
+                        <span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</div>
+<div class="w-16 h-16 bg-contain bg-center bg-no-repeat flex-shrink-0 opacity-90 group-hover:scale-110 transition-transform duration-300" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA9FbQxVtR2XZy6bib3_xwVkq7a1wioEIJHNpeOj2qrCMxt7QBV0TqJ88C-OCnUWnb1i6KnbU3TK5B3DsEJTmqiKJnoj_OzNW83pUSWCOuuFWlYi8ZRMbSpdJTGvHlA1lUuKga0zTAzQzBGkw7f9hsniZThSUWjE1M1K3OOoBKkjwl9LFqF3kHF7x4QmJJO9sW-civBb9blf2E7McpsEGw7ek-C-O2STGMHud6snXYbeE9xhKJb2J6G4ickNI2Qto4sw4EfC2cUl19a'); filter: hue-rotate(15deg);">
+</div>
+</div>
+</div>
+<div class="mb-6">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-bold text-lg text-text-main dark:text-white">Quick Start</h3>
+<button class="text-xs font-semibold text-primary">View All</button>
+</div>
+<div class="grid grid-cols-2 gap-3">
+<button class="flex flex-col p-4 bg-primary/5 dark:bg-white/5 rounded-2xl border border-primary/10 dark:border-white/5 hover:bg-primary/10 hover:border-primary/30 transition-all text-left group">
+<div class="w-10 h-10 rounded-full bg-white dark:bg-white/10 flex items-center justify-center text-primary mb-3 shadow-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">mic</span>
+</div>
+<span class="text-sm font-bold text-text-main dark:text-white mb-1">Freestyle</span>
+<span class="text-xs text-text-muted dark:text-gray-400">Record yourself</span>
+</button>
+<button class="flex flex-col p-4 bg-secondary/10 dark:bg-white/5 rounded-2xl border border-secondary/20 dark:border-white/5 hover:bg-secondary/20 hover:border-secondary/40 transition-all text-left group">
+<div class="w-10 h-10 rounded-full bg-white dark:bg-white/10 flex items-center justify-center text-yellow-600 dark:text-yellow-400 mb-3 shadow-sm group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">school</span>
+</div>
+<span class="text-sm font-bold text-text-main dark:text-white mb-1">Daily Lesson</span>
+<span class="text-xs text-text-muted dark:text-gray-400">Business English</span>
+</button>
+<button class="col-span-2 flex items-center p-4 bg-white dark:bg-surface-dark rounded-2xl border border-gray-100 dark:border-white/5 shadow-card hover:shadow-soft transition-all text-left group">
+<div class="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center text-purple-600 dark:text-purple-300 mr-3 shadow-sm flex-shrink-0">
+<span class="material-symbols-outlined">graphic_eq</span>
+</div>
+<div class="flex-1">
+<span class="block text-sm font-bold text-text-main dark:text-white">Pronunciation Check</span>
+<span class="block text-xs text-text-muted dark:text-gray-400">Last activity: 2 hours ago</span>
+</div>
+<span class="material-symbols-outlined text-gray-300 group-hover:text-primary transition-colors">play_circle</span>
+</button>
+</div>
+</div>
+<div>
+<h3 class="font-bold text-lg text-text-main dark:text-white mb-3">Your Progress</h3>
+<div class="bg-white dark:bg-surface-dark rounded-2xl p-4 shadow-card border border-gray-100 dark:border-white/5 flex items-center justify-around">
+<div class="flex flex-col items-center">
+<span class="text-2xl font-bold text-text-main dark:text-white">5</span>
+<span class="text-[10px] uppercase font-bold text-text-muted tracking-wider">Streak</span>
+</div>
+<div class="w-px h-8 bg-gray-100 dark:bg-white/10"></div>
+<div class="flex flex-col items-center">
+<span class="text-2xl font-bold text-text-main dark:text-white">12</span>
+<span class="text-[10px] uppercase font-bold text-text-muted tracking-wider">Words</span>
+</div>
+<div class="w-px h-8 bg-gray-100 dark:bg-white/10"></div>
+<div class="flex flex-col items-center">
+<span class="text-2xl font-bold text-text-main dark:text-white">85%</span>
+<span class="text-[10px] uppercase font-bold text-text-muted tracking-wider">Accuracy</span>
+</div>
+</div>
+</div>
+</div>
+<div class="absolute bottom-0 left-0 w-full bg-surface-light dark:bg-[#1a120d] border-t border-gray-100 dark:border-white/5 px-6 pb-8 pt-2 z-20 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
+<div class="flex items-center justify-between relative">
+<a class="flex flex-col items-center gap-1 group py-2 px-1" href="#">
+<span class="material-symbols-outlined text-[28px] text-primary font-variation-settings-fill transition-colors">home</span>
+<span class="text-[10px] font-bold text-primary transition-colors">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 group py-2 px-1" href="#">
+<span class="material-symbols-outlined text-[28px] text-text-muted dark:text-gray-500 group-hover:text-primary transition-colors">grid_view</span>
+<span class="text-[10px] font-medium text-text-muted dark:text-gray-500 group-hover:text-primary transition-colors">Topics</span>
+</a>
+<div class="relative -top-8">
+<button class="flex h-16 w-16 items-center justify-center rounded-full bg-primary text-white shadow-xl shadow-primary/30 hover:bg-primary-dark hover:scale-105 active:scale-95 transition-all">
+<span class="material-symbols-outlined text-3xl">mic</span>
+</button>
+</div>
+<a class="flex flex-col items-center gap-1 group py-2 px-1" href="#">
+<span class="material-symbols-outlined text-[28px] text-text-muted dark:text-gray-500 group-hover:text-primary transition-colors">bar_chart</span>
+<span class="text-[10px] font-medium text-text-muted dark:text-gray-500 group-hover:text-primary transition-colors">Stats</span>
+</a>
+<a class="flex flex-col items-center gap-1 group py-2 px-1" href="#">
+<span class="material-symbols-outlined text-[28px] text-text-muted dark:text-gray-500 group-hover:text-primary transition-colors">person</span>
+<span class="text-[10px] font-medium text-text-muted dark:text-gray-500 group-hover:text-primary transition-colors">Profile</span>
+</a>
+</div>
+</div>
+</div>
+
+</body></html>

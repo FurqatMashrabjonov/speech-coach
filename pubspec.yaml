@@ -1,5 +1,5 @@
 name: speech_coach
-description: "SpeechMaster - Your AI Speaking Coach"
+description: "Speechy AI - Your AI Speaking Coach"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -80,5 +80,8 @@ flutter:
 
   assets:
     - assets/images/
+    - assets/images/mascot/
+    - assets/images/characters/
+    - assets/images/categories/
     - assets/icons/
     - assets/animations/

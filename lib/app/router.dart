@@ -18,6 +18,7 @@ import 'package:speech_coach/features/profile/presentation/screens/profile_scree
 import 'package:speech_coach/features/profile/presentation/screens/settings_screen.dart';
 import 'package:speech_coach/features/progress/presentation/screens/analytics_screen.dart';
 import 'package:speech_coach/features/scenarios/presentation/screens/scenario_detail_screen.dart';
+import 'package:speech_coach/features/scenarios/presentation/screens/practice_screen.dart';
 import 'package:speech_coach/features/scenarios/presentation/screens/scenario_list_screen.dart';
 import 'package:speech_coach/features/session/presentation/screens/feedback_screen.dart';
 import 'package:speech_coach/features/session/presentation/screens/recording_screen.dart';
@@ -79,6 +80,12 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: '/home',
             pageBuilder: (context, state) => const NoTransitionPage(
               child: HomeScreen(),
+            ),
+          ),
+          GoRoute(
+            path: '/practice',
+            pageBuilder: (context, state) => const NoTransitionPage(
+              child: PracticeScreen(),
             ),
           ),
           GoRoute(
@@ -167,6 +174,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           final extra = state.extra as Map<String, dynamic>;
           return CustomTransitionPage(
             child: ScoreCardScreen(
+              sessionId: extra['sessionId'] as String?,
               scenarioId: extra['scenarioId'] as String,
               scenarioTitle: extra['scenarioTitle'] as String,
               category: extra['category'] as String,
@@ -506,10 +514,15 @@ class _ShellScreen extends StatelessWidget {
             case 0:
               context.go('/home');
             case 1:
-              context.go('/progress');
+              context.go('/practice');
             case 2:
+              context.go('/progress');
+            case 3:
               context.go('/profile');
           }
+        },
+        onMicTap: () {
+          context.push('/conversation/${Uri.encodeComponent('Freestyle')}');
         },
       ),
     );
@@ -518,8 +531,9 @@ class _ShellScreen extends StatelessWidget {
   int _calculateIndex(BuildContext context) {
     final location = GoRouterState.of(context).matchedLocation;
     if (location.startsWith('/home')) return 0;
-    if (location.startsWith('/progress')) return 1;
-    if (location.startsWith('/profile')) return 2;
+    if (location.startsWith('/practice')) return 1;
+    if (location.startsWith('/progress')) return 2;
+    if (location.startsWith('/profile')) return 3;
     return 0;
   }
 }

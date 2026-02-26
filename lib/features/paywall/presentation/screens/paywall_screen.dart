@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:speech_coach/app/theme/app_colors.dart';
+import 'package:speech_coach/app/theme/app_images.dart';
 import 'package:speech_coach/app/theme/app_typography.dart';
 import 'package:speech_coach/core/extensions/context_extensions.dart';
 import 'package:speech_coach/features/paywall/presentation/providers/subscription_provider.dart';
@@ -95,18 +96,23 @@ class _CustomPaywallFallback extends StatelessWidget {
                   children: [
                     const SizedBox(height: 24),
 
-                    // Icon
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        gradient: AppColors.primaryGradient,
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: const Icon(
-                        Icons.workspace_premium_rounded,
-                        color: AppColors.white,
-                        size: 40,
+                    // Premium mascot
+                    Image.asset(
+                      AppImages.mascotPremium,
+                      width: 200,
+                      height: 200,
+                      errorBuilder: (_, __, ___) => Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          gradient: AppColors.primaryGradient,
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: const Icon(
+                          Icons.workspace_premium_rounded,
+                          color: AppColors.white,
+                          size: 40,
+                        ),
                       ),
                     ).animate().fadeIn(duration: 400.ms).scale(
                           begin: const Offset(0.8, 0.8),

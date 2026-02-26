@@ -245,13 +245,15 @@ class _SessionTile extends ConsumerWidget {
   const _SessionTile({required this.session});
 
   Color get _scoreColor {
-    if (session.overallScore >= 80) return AppColors.success;
-    if (session.overallScore >= 50) return AppColors.warning;
+    final score = session.overallScore ?? 0;
+    if (score >= 80) return AppColors.success;
+    if (score >= 50) return AppColors.warning;
     return AppColors.error;
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final score = session.overallScore ?? 0;
     return Tappable(
       onTap: () => context.push('/history/${session.id}'),
       child: Container(
@@ -275,7 +277,7 @@ class _SessionTile extends ConsumerWidget {
                     width: 48,
                     height: 48,
                     child: CircularProgressIndicator(
-                      value: session.overallScore / 100,
+                      value: score / 100,
                       strokeWidth: 3,
                       backgroundColor: context.divider,
                       color: _scoreColor,
@@ -283,7 +285,7 @@ class _SessionTile extends ConsumerWidget {
                     ),
                   ),
                   Text(
-                    '${session.overallScore}',
+                    '$score',
                     style: AppTypography.titleMedium(color: _scoreColor),
                   ),
                 ],

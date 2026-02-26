@@ -75,7 +75,7 @@ class DNAShareCard extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           Text(
-            'SpeechMaster',
+            'Speechy AI',
             style: AppTypography.labelSmall(
               color: const Color(0xFF999999),
             ),

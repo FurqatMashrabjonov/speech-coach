@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>SpeechMaster - Keep Going</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#e87a3b",
+                        "primary-dark": "#d66626",
+                        "background-light": "#f8f7f6",
+                        "background-dark": "#211711",
+                        "text-main": "#181411",
+                        "text-muted": "#887063",
+                    },
+                    fontFamily: {
+                        "sans": ["Plus Jakarta Sans", "sans-serif"],
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-text-main dark:text-white min-h-screen flex flex-col antialiased selection:bg-primary selection:text-white">
+<!-- App Container -->
+<div class="mx-auto flex h-full min-h-screen w-full max-w-md flex-col overflow-hidden bg-background-light dark:bg-background-dark shadow-2xl sm:rounded-xl sm:border sm:border-gray-200 dark:sm:border-gray-800 my-0 sm:my-8 relative">
+<!-- Header -->
+<div class="flex items-center justify-between px-4 py-3 bg-background-light dark:bg-background-dark sticky top-0 z-10">
+<button class="flex h-10 w-10 items-center justify-center rounded-full text-text-main dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-2xl">arrow_back</span>
+</button>
+<h2 class="text-lg font-bold leading-tight tracking-tight flex-1 text-center">SpeechMaster</h2>
+<button class="flex h-10 w-10 items-center justify-center rounded-full text-text-main dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 transition-colors">
+<span class="material-symbols-outlined text-2xl">settings</span>
+</button>
+</div>
+<!-- Main Content Scroll Area -->
+<div class="flex-1 overflow-y-auto px-4 pb-24">
+<!-- Progress Bar -->
+<div class="mt-4 mb-6 px-2">
+<div class="flex justify-between text-xs font-medium text-text-muted dark:text-gray-400 mb-2">
+<span>Daily Goal</span>
+<span>85%</span>
+</div>
+<div class="h-3 w-full rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+<div class="h-full rounded-full bg-primary w-[85%]"></div>
+</div>
+</div>
+<!-- Illustration Area -->
+<div class="flex flex-col items-center justify-center py-6">
+<div class="relative w-full aspect-square max-w-[280px] flex items-center justify-center mb-6">
+<!-- Background blobs for modern feel -->
+<div class="absolute inset-0 bg-primary/10 dark:bg-primary/20 rounded-full blur-3xl scale-90"></div>
+<div class="absolute top-0 right-0 w-32 h-32 bg-yellow-400/20 rounded-full blur-2xl"></div>
+<!-- Character Placeholder -->
+<div class="relative z-10 w-full h-full bg-contain bg-center bg-no-repeat transition-transform hover:scale-105 duration-300" data-alt="Cute orange mascot character giving thumbs up encouragingly" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuA9FbQxVtR2XZy6bib3_xwVkq7a1wioEIJHNpeOj2qrCMxt7QBV0TqJ88C-OCnUWnb1i6KnbU3TK5B3DsEJTmqiKJnoj_OzNW83pUSWCOuuFWlYi8ZRMbSpdJTGvHlA1lUuKga0zTAzQzBGkw7f9hsniZThSUWjE1M1K3OOoBKkjwl9LFqF3kHF7x4QmJJO9sW-civBb9blf2E7McpsEGw7ek-C-O2STGMHud6snXYbeE9xhKJb2J6G4ickNI2Qto4sw4EfC2cUl19a');">
+</div>
+</div>
+<div class="space-y-4 text-center max-w-xs mx-auto">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-xs font-bold uppercase tracking-wider">
+<span class="material-symbols-outlined text-sm">bolt</span>
+                        Streak: 5 Days
+                    </div>
+<h1 class="text-3xl font-bold text-text-main dark:text-white leading-tight">
+                        Keep going!
+                    </h1>
+<p class="text-text-muted dark:text-gray-300 text-base leading-relaxed">
+                        You're almost there! Just <span class="text-primary font-bold">5 more minutes</span> of practice to hit your daily goal. Speechy is rooting for you!
+                    </p>
+</div>
+</div>
+<!-- Action Cards -->
+<div class="grid grid-cols-2 gap-3 mt-6">
+<button class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 shadow-sm hover:shadow-md hover:border-primary/30 transition-all group">
+<div class="h-10 w-10 rounded-full bg-blue-50 dark:bg-blue-500/20 flex items-center justify-center text-blue-600 dark:text-blue-400 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">timer</span>
+</div>
+<span class="text-sm font-bold text-text-main dark:text-white">Quick Practice</span>
+<span class="text-xs text-text-muted dark:text-gray-400">2 min session</span>
+</button>
+<button class="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 shadow-sm hover:shadow-md hover:border-primary/30 transition-all group">
+<div class="h-10 w-10 rounded-full bg-purple-50 dark:bg-purple-500/20 flex items-center justify-center text-purple-600 dark:text-purple-400 group-hover:scale-110 transition-transform">
+<span class="material-symbols-outlined">graphic_eq</span>
+</div>
+<span class="text-sm font-bold text-text-main dark:text-white">Pronunciation</span>
+<span class="text-xs text-text-muted dark:text-gray-400">Focus on 'R' sound</span>
+</button>
+</div>
+<!-- Primary CTA -->
+<button class="w-full mt-6 bg-primary hover:bg-primary-dark text-white font-bold py-4 px-6 rounded-full shadow-lg shadow-primary/30 active:scale-95 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">play_circle</span>
+                Continue Lesson
+            </button>
+</div>
+<!-- Bottom Navigation -->
+<div class="absolute bottom-0 left-0 w-full bg-white dark:bg-[#1a120d] border-t border-gray-100 dark:border-white/5 px-6 pb-6 pt-3 z-20">
+<div class="flex items-end justify-between">
+<a class="flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-2xl text-text-muted dark:text-gray-400 group-hover:text-primary transition-colors">home</span>
+<span class="text-xs font-medium text-text-muted dark:text-gray-400 group-hover:text-primary transition-colors">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-2xl text-primary font-variation-settings-fill">mic</span>
+<span class="text-xs font-medium text-primary">Practice</span>
+</a>
+<!-- Floating Center Button Effect - Optional visual flair -->
+<div class="relative -top-6">
+<button class="flex h-14 w-14 items-center justify-center rounded-full bg-primary text-white shadow-xl shadow-primary/40 hover:bg-primary-dark transition-colors">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+</div>
+<a class="flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-2xl text-text-muted dark:text-gray-400 group-hover:text-primary transition-colors">bar_chart</span>
+<span class="text-xs font-medium text-text-muted dark:text-gray-400 group-hover:text-primary transition-colors">Progress</span>
+</a>
+<a class="flex flex-col items-center gap-1 group" href="#">
+<span class="material-symbols-outlined text-2xl text-text-muted dark:text-gray-400 group-hover:text-primary transition-colors">person</span>
+<span class="text-xs font-medium text-text-muted dark:text-gray-400 group-hover:text-primary transition-colors">Profile</span>
+</a>
+</div>
+</div>
+</div>
+</body></html>

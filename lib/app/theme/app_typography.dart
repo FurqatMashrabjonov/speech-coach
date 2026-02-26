@@ -83,7 +83,7 @@ class AppTypography {
       );
 
   static TextStyle bodySmall({Color? color}) => GoogleFonts.inter(
-        fontSize: 13,
+        fontSize: 14,
         fontWeight: FontWeight.w400,
         color: color,
         height: 1.5,
@@ -98,14 +98,14 @@ class AppTypography {
       );
 
   static TextStyle labelMedium({Color? color}) => GoogleFonts.inter(
-        fontSize: 13,
+        fontSize: 14,
         fontWeight: FontWeight.w500,
         color: color,
         height: 1.4,
       );
 
   static TextStyle labelSmall({Color? color}) => GoogleFonts.inter(
-        fontSize: 11,
+        fontSize: 13,
         fontWeight: FontWeight.w500,
         color: color,
         height: 1.4,

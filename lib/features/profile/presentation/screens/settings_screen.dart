@@ -148,7 +148,7 @@ class SettingsScreen extends ConsumerWidget {
                 trailing: Icon(Icons.chevron_right_rounded,
                     color: context.textTertiary),
                 onTap: () => launchUrl(
-                  Uri.parse('https://speechmaster.app/privacy'),
+                  Uri.parse('https://speechyai.app/privacy'),
                   mode: LaunchMode.externalApplication,
                 ),
               ),
@@ -167,7 +167,7 @@ class SettingsScreen extends ConsumerWidget {
                 trailing: Icon(Icons.chevron_right_rounded,
                     color: context.textTertiary),
                 onTap: () => launchUrl(
-                  Uri.parse('https://speechmaster.app/terms'),
+                  Uri.parse('https://speechyai.app/terms'),
                   mode: LaunchMode.externalApplication,
                 ),
               ),

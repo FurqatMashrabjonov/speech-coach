@@ -47,11 +47,18 @@ class NotificationService {
       scheduledDate = scheduledDate.add(const Duration(days: 1));
     }
 
+    final title = streak > 0
+        ? 'Keep your $streak-day streak alive!'
+        : 'Ready to practice?';
+    final body = streak > 0
+        ? 'Just 1 session today to keep your streak going.'
+        : 'Start a quick session and build your streak.';
+
     try {
       await _plugin.zonedSchedule(
         _streakNotificationId,
-        'Keep your streak alive! 🔥',
-        "Don't break your $streak-day streak! Practice today.",
+        title,
+        body,
         scheduledDate,
         const NotificationDetails(
           android: AndroidNotificationDetails(

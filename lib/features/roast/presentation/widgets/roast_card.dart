@@ -94,7 +94,7 @@ class _RoastCardState extends State<RoastCard> {
                   ).animate().fadeIn(delay: 400.ms, duration: 600.ms),
                   const SizedBox(height: 16),
                   Text(
-                    'SpeechMaster',
+                    'Speechy AI',
                     style: AppTypography.labelSmall(
                       color: context.textTertiary,
                     ),

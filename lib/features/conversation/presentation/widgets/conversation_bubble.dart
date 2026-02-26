@@ -7,8 +7,13 @@ import 'package:speech_coach/features/conversation/domain/conversation_entity.da
 
 class ConversationBubble extends StatelessWidget {
   final ConversationMessage message;
+  final String? characterImagePath;
 
-  const ConversationBubble({super.key, required this.message});
+  const ConversationBubble({
+    super.key,
+    required this.message,
+    this.characterImagePath,
+  });
 
   bool get _isUser => message.role == MessageRole.user;
 
@@ -22,27 +27,29 @@ class ConversationBubble extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           if (!_isUser) ...[
-            _AiAvatar(),
+            _AiAvatar(imagePath: characterImagePath),
             const SizedBox(width: 8),
           ],
           Flexible(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: _isUser
-                    ? AppColors.primary
-                    : AppColors.lavender.withValues(alpha: 0.3),
-                borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(20),
-                  topRight: const Radius.circular(20),
-                  bottomLeft: Radius.circular(_isUser ? 20 : 4),
-                  bottomRight: Radius.circular(_isUser ? 4 : 20),
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
+            child: Column(
+              crossAxisAlignment:
+                  _isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: _isUser
+                        ? AppColors.primary
+                        : AppColors.chatAiBubble,
+                    borderRadius: BorderRadius.only(
+                      topLeft: const Radius.circular(20),
+                      topRight: const Radius.circular(20),
+                      bottomLeft: Radius.circular(_isUser ? 20 : 4),
+                      bottomRight: Radius.circular(_isUser ? 4 : 20),
+                    ),
+                  ),
+                  child: Text(
                     message.text,
                     style: AppTypography.bodyMedium(
                       color: _isUser
@@ -50,20 +57,31 @@ class ConversationBubble extends StatelessWidget {
                           : context.textPrimary,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _formatTime(message.timestamp),
-                    style: AppTypography.labelSmall(
-                      color: _isUser
-                          ? AppColors.white.withValues(alpha: 0.7)
-                          : context.textTertiary,
+                ),
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      _formatTime(message.timestamp),
+                      style: AppTypography.labelSmall(
+                        color: context.textTertiary,
+                      ).copyWith(fontSize: 10),
                     ),
-                  ),
-                ],
-              ),
+                    if (_isUser) ...[
+                      const SizedBox(width: 4),
+                      Icon(
+                        Icons.check_circle_rounded,
+                        size: 12,
+                        color: AppColors.success.withValues(alpha: 0.6),
+                      ),
+                    ],
+                  ],
+                ),
+              ],
             ),
           ),
-          if (_isUser) const SizedBox(width: 40),
+          if (_isUser) const SizedBox(width: 8),
         ],
       ),
     )
@@ -80,18 +98,37 @@ class ConversationBubble extends StatelessWidget {
 }
 
 class _AiAvatar extends StatelessWidget {
+  final String? imagePath;
+
+  const _AiAvatar({this.imagePath});
+
   @override
   Widget build(BuildContext context) {
+    if (imagePath != null) {
+      return ClipOval(
+        child: Image.asset(
+          imagePath!,
+          width: 28,
+          height: 28,
+          fit: BoxFit.cover,
+          errorBuilder: (_, __, ___) => _defaultAvatar(),
+        ),
+      );
+    }
+    return _defaultAvatar();
+  }
+
+  Widget _defaultAvatar() {
     return Container(
-      width: 32,
-      height: 32,
+      width: 28,
+      height: 28,
       decoration: BoxDecoration(
         color: AppColors.primary.withValues(alpha: 0.22),
         shape: BoxShape.circle,
       ),
       child: const Icon(
         Icons.auto_awesome,
-        size: 16,
+        size: 14,
         color: AppColors.primary,
       ),
     );

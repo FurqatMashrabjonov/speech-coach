@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Character Avatar - Jordan</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#e87a3b",
+                        "primary-dark": "#d16024",
+                        "primary-light": "#fbece4",
+                        "background-light": "#f8f7f6",
+                        "background-dark": "#211711",
+                        "surface-light": "#ffffff",
+                        "surface-dark": "#2d241e",
+                        "text-main-light": "#181411",
+                        "text-main-dark": "#f4f2f0",
+                        "text-sub-light": "#887063",
+                        "text-sub-dark": "#bcaaa1",
+                    },
+                    fontFamily: {
+                        "display": ["Plus Jakarta Sans", "sans-serif"]
+                    },
+                    borderRadius: { "DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar hide for clean mobile look */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background-light dark:bg-background-dark font-display text-text-main-light dark:text-text-main-dark antialiased">
+<div class="relative flex h-full min-h-screen w-full flex-col overflow-hidden max-w-md mx-auto shadow-2xl bg-background-light dark:bg-background-dark">
+<!-- Header -->
+<header class="flex items-center justify-between px-6 pt-12 pb-4 bg-background-light dark:bg-background-dark z-10">
+<button class="flex items-center justify-center w-10 h-10 rounded-full bg-surface-light dark:bg-surface-dark shadow-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-text-main-light dark:text-text-main-dark">
+<span class="material-symbols-outlined">arrow_back</span>
+</button>
+<h1 class="text-lg font-bold tracking-tight">Debate Mode</h1>
+<button class="flex items-center justify-center w-10 h-10 rounded-full hover:bg-gray-100 dark:hover:bg-surface-dark transition-colors text-text-main-light dark:text-text-main-dark">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</header>
+<!-- Main Content -->
+<main class="flex-1 overflow-y-auto no-scrollbar pb-24 px-4">
+<!-- Avatar Section -->
+<div class="flex flex-col items-center mt-4 mb-8">
+<div class="relative group">
+<div class="absolute inset-0 bg-primary/20 dark:bg-primary/10 rounded-full blur-2xl transform scale-110"></div>
+<div class="relative w-40 h-40 rounded-full border-4 border-surface-light dark:border-surface-dark shadow-lg overflow-hidden bg-gradient-to-br from-orange-100 to-amber-50 dark:from-orange-900/30 dark:to-amber-900/30">
+<img alt="Bust illustration of Jordan with edgy hairstyle" class="w-full h-full object-cover" data-alt="Edgy male avatar with bold hairstyle" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZ_STCiibhI37mO5Qfqexi9VdqaAU-f5y-R8UzCrIGOwsUFZp4xUsIUO_KILe0X4PrF6-PGQRBci2qWuXD0DveIHnHTLVo9Nwcg27SvYrR8mW3yFHkphc_lepyxLhmDHlSIReJOBTB6BAJs_Y1DsMiypqbsCA2xdyHoNQk_eDRUGP4MqyNgFN2jrJUVlOqCjXhR2uKLDK-Z0o3Li5OJyWSnccQNFfT0jHv7sTkRd1ga2756gZiBFBJa8_z_iDRNqEJOU0WxK2RUKEo"/>
+</div>
+<div class="absolute bottom-2 right-2 bg-green-500 w-5 h-5 rounded-full border-2 border-surface-light dark:border-surface-dark"></div>
+</div>
+<h2 class="mt-4 text-3xl font-extrabold text-text-main-light dark:text-text-main-dark">Jordan</h2>
+<div class="flex items-center gap-2 mt-1">
+<span class="px-2 py-0.5 rounded text-xs font-semibold bg-primary/10 text-primary uppercase tracking-wide">Advanced</span>
+<span class="w-1 h-1 rounded-full bg-text-sub-light dark:bg-text-sub-dark"></span>
+<p class="text-text-sub-light dark:text-text-sub-dark text-sm font-medium">Sharp Excitable Debater</p>
+</div>
+</div>
+<!-- Stats Grid -->
+<div class="grid grid-cols-3 gap-3 mb-6">
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col items-center justify-center text-center gap-1">
+<div class="text-primary mb-1">
+<span class="material-symbols-outlined text-[28px]">trophy</span>
+</div>
+<p class="text-xs text-text-sub-light dark:text-text-sub-dark font-medium uppercase tracking-wider">Win Rate</p>
+<p class="text-xl font-bold">68%</p>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col items-center justify-center text-center gap-1">
+<div class="text-primary mb-1">
+<span class="material-symbols-outlined text-[28px]">speed</span>
+</div>
+<p class="text-xs text-text-sub-light dark:text-text-sub-dark font-medium uppercase tracking-wider">Avg. WPM</p>
+<p class="text-xl font-bold">145</p>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col items-center justify-center text-center gap-1">
+<div class="text-primary mb-1">
+<span class="material-symbols-outlined text-[28px]">local_fire_department</span>
+</div>
+<p class="text-xs text-text-sub-light dark:text-text-sub-dark font-medium uppercase tracking-wider">Aggression</p>
+<p class="text-xl font-bold">High</p>
+</div>
+</div>
+<!-- Current Topic Card -->
+<div class="bg-surface-light dark:bg-surface-dark p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 mb-6">
+<div class="flex justify-between items-start mb-3">
+<div>
+<p class="text-xs font-bold text-primary uppercase tracking-wider mb-1">Current Topic</p>
+<h3 class="text-lg font-bold text-text-main-light dark:text-text-main-dark">Climate Policy</h3>
+</div>
+<div class="bg-primary/10 p-2 rounded-full text-primary">
+<span class="material-symbols-outlined">topic</span>
+</div>
+</div>
+<p class="text-text-sub-light dark:text-text-sub-dark text-sm leading-relaxed mb-5">
+                    Prepare to defend your stance against Jordan's rapid-fire arguments regarding carbon tax implementation.
+                </p>
+<button class="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3 px-6 rounded-xl transition-all shadow-md shadow-primary/20 flex items-center justify-center gap-2 group">
+<span>Start Debate</span>
+<span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+<!-- Recent Sessions -->
+<div class="mb-4">
+<div class="flex justify-between items-center mb-3 px-1">
+<h3 class="text-base font-bold text-text-main-light dark:text-text-main-dark">Recent Sessions</h3>
+<a class="text-sm font-semibold text-primary hover:text-primary-dark" href="#">View all</a>
+</div>
+<div class="space-y-3">
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl border border-gray-100 dark:border-gray-800 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center text-green-600 dark:text-green-400">
+<span class="material-symbols-outlined text-[20px]">check</span>
+</div>
+<div>
+<p class="text-sm font-bold text-text-main-light dark:text-text-main-dark">Universal Basic Income</p>
+<p class="text-xs text-text-sub-light dark:text-text-sub-dark">Yesterday • Win</p>
+</div>
+</div>
+<span class="text-xs font-semibold bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-text-sub-light dark:text-text-sub-dark">12m</span>
+</div>
+<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl border border-gray-100 dark:border-gray-800 flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900/30 flex items-center justify-center text-red-600 dark:text-red-400">
+<span class="material-symbols-outlined text-[20px]">close</span>
+</div>
+<div>
+<p class="text-sm font-bold text-text-main-light dark:text-text-main-dark">AI Regulation</p>
+<p class="text-xs text-text-sub-light dark:text-text-sub-dark">Oct 24 • Loss</p>
+</div>
+</div>
+<span class="text-xs font-semibold bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-text-sub-light dark:text-text-sub-dark">18m</span>
+</div>
+</div>
+</div>
+</main>
+<!-- Bottom Navigation -->
+<nav class="flex border-t border-gray-100 dark:border-gray-800 bg-surface-light dark:bg-surface-dark px-6 pb-6 pt-3 justify-between items-center absolute bottom-0 w-full z-20">
+<a class="flex flex-col items-center gap-1 text-text-sub-light dark:text-text-sub-dark hover:text-primary dark:hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">home</span>
+<span class="text-[10px] font-medium">Home</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-primary dark:text-primary transition-colors" href="#">
+<span class="material-symbols-outlined font-variation-settings-fill">mic</span>
+<span class="text-[10px] font-medium">Practice</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-text-sub-light dark:text-text-sub-dark hover:text-primary dark:hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">bar_chart</span>
+<span class="text-[10px] font-medium">Progress</span>
+</a>
+<a class="flex flex-col items-center gap-1 text-text-sub-light dark:text-text-sub-dark hover:text-primary dark:hover:text-primary transition-colors group" href="#">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">person</span>
+<span class="text-[10px] font-medium">Profile</span>
+</a>
+</nav>
+</div>
+</body></html>

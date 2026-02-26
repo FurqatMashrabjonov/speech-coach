@@ -364,18 +364,26 @@ class _CharacterPicker extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: character.color.withValues(alpha: 0.2),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Text(
-                            character.avatarEmoji,
-                            style: AppTypography.titleMedium(
-                              color: character.color,
+                      ClipOval(
+                        child: Image.asset(
+                          character.imagePath,
+                          width: 36,
+                          height: 36,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            width: 36,
+                            height: 36,
+                            decoration: BoxDecoration(
+                              color: character.color.withValues(alpha: 0.2),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Center(
+                              child: Text(
+                                character.avatarEmoji,
+                                style: AppTypography.titleMedium(
+                                  color: character.color,
+                                ),
+                              ),
                             ),
                           ),
                         ),
@@ -416,10 +424,18 @@ class _CharacterPicker extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Icon(
-                selectedCharacter.icon,
-                color: selectedCharacter.color,
-                size: 20,
+              ClipOval(
+                child: Image.asset(
+                  selectedCharacter.imagePath,
+                  width: 24,
+                  height: 24,
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => Icon(
+                    selectedCharacter.icon,
+                    color: selectedCharacter.color,
+                    size: 20,
+                  ),
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(

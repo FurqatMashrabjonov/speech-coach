@@ -84,6 +84,20 @@ class AppColors {
   static const categoryConflict = Color(0xFFC4785C);
   static const categorySocial = Color(0xFFD4A070);
 
+  // Card pastels (for category grid)
+  static const cardPeach = Color(0xFFFDF2E9);
+  static const cardBlue = Color(0xFFE8F4FA);
+  static const cardLavender = Color(0xFFF0E9FD);
+  static const cardMint = Color(0xFFEAFBF2);
+  static const cardYellow = Color(0xFFFFF8E1);
+  static const cardRose = Color(0xFFFCECEC);
+
+  // Warm background
+  static const backgroundWarm = Color(0xFFFFFAF7);
+
+  // Chat bubble colors
+  static const chatAiBubble = Color(0xFFF2EEEA);
+
   // Legacy aliases
   static const streakOrange = Color(0xFFE8793A);
   static const streakYellow = Color(0xFFE8A849);

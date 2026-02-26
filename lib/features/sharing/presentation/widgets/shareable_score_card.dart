@@ -39,7 +39,7 @@ class ShareableScoreCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Text(
-                'SpeechMaster',
+                'Speechy AI',
                 style: AppTypography.titleMedium(color: AppColors.primary),
               ),
             ],

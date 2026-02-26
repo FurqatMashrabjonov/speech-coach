@@ -201,7 +201,7 @@ class FillerResultScreen extends ConsumerWidget {
                       onTap: () {
                         Share.share(
                           'I survived ${result.survivalSeconds}s without filler words '
-                          'in the SpeechMaster Filler Challenge! '
+                          'in the Speechy AI Filler Challenge!'
                           'Can you beat my score?',
                         );
                       },

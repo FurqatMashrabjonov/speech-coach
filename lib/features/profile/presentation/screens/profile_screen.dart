@@ -8,21 +8,40 @@ import 'package:speech_coach/core/extensions/context_extensions.dart';
 import 'package:speech_coach/core/extensions/string_extensions.dart';
 import 'package:speech_coach/shared/widgets/tappable.dart';
 import 'package:speech_coach/features/auth/presentation/providers/auth_provider.dart';
+import 'package:speech_coach/features/history/presentation/providers/session_history_provider.dart';
+import 'package:speech_coach/features/history/domain/session_history_entity.dart';
+import 'package:speech_coach/features/paywall/data/usage_service.dart';
 import 'package:speech_coach/features/paywall/presentation/providers/subscription_provider.dart';
 import 'package:speech_coach/features/progress/presentation/providers/progress_provider.dart';
+import 'package:speech_coach/features/progress/presentation/widgets/xp_bar.dart';
 import 'package:speech_coach/features/sharing/data/share_service.dart';
 import 'package:speech_coach/features/speaker_dna/presentation/providers/speaker_dna_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(sessionHistoryProvider.notifier).loadSessions();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authStateProvider);
     final progress = ref.watch(progressProvider);
     final sub = ref.watch(subscriptionProvider);
     final dnaState = ref.watch(speakerDNAProvider);
+    final usageService = ref.watch(usageServiceProvider);
+    final historyState = ref.watch(sessionHistoryProvider);
 
     return Scaffold(
       body: SafeArea(
@@ -189,6 +208,138 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                 ],
               ).animate().fadeIn(delay: 100.ms, duration: 400.ms),
+              const SizedBox(height: 16),
+
+              // XP Bar (moved from home)
+              const XpBar()
+                  .animate()
+                  .fadeIn(delay: 120.ms, duration: 400.ms),
+              const SizedBox(height: 12),
+
+              // Free tier indicator (moved from home)
+              if (!usageService.isPro)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: context.surface,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.bolt_rounded,
+                        color: AppColors.gold,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${usageService.remainingSessions} free sessions today',
+                        style: AppTypography.bodySmall(
+                          color: context.textSecondary,
+                        ),
+                      ),
+                      const Spacer(),
+                      Tappable(
+                        onTap: () => context.push('/paywall'),
+                        child: Text(
+                          'Upgrade',
+                          style: AppTypography.labelMedium(
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+                    .animate()
+                    .fadeIn(delay: 130.ms, duration: 400.ms),
+              const SizedBox(height: 12),
+
+              // Streak Freeze (Pro feature)
+              if (sub.isPro)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: context.surface,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: AppColors.skyBlue.withValues(alpha: 0.14),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.ac_unit_rounded,
+                          color: AppColors.skyBlue,
+                          size: 20,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Streak Freeze',
+                              style: AppTypography.titleMedium(),
+                            ),
+                            Text(
+                              '${progress.streakFreezes} remaining',
+                              style: AppTypography.bodySmall(
+                                color: context.textSecondary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+                    .animate()
+                    .fadeIn(delay: 140.ms, duration: 400.ms),
+              if (sub.isPro) const SizedBox(height: 12),
+
+              // Recent Sessions (moved from home)
+              if (historyState.status == SessionHistoryStatus.loaded &&
+                  historyState.sessions.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Recent Sessions',
+                          style: AppTypography.titleMedium(),
+                        ),
+                        Tappable(
+                          onTap: () => context.push('/history'),
+                          child: Text(
+                            'See All',
+                            style: AppTypography.labelMedium(
+                              color: AppColors.primary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    ...historyState.sessions.take(3).map(
+                          (session) => _RecentSessionTile(session: session),
+                        ),
+                  ],
+                )
+                    .animate()
+                    .fadeIn(delay: 145.ms, duration: 400.ms),
               const SizedBox(height: 20),
 
               // Badges section
@@ -338,7 +489,7 @@ class ProfileScreen extends ConsumerWidget {
                       iconColor: AppColors.secondary,
                       title: 'Help & Support',
                       onTap: () => launchUrl(
-                        Uri.parse('mailto:support@speechmaster.app'),
+                        Uri.parse('mailto:support@speechyai.app'),
                       ),
                     ),
                     const Divider(height: 1, indent: 60),
@@ -399,7 +550,7 @@ class ProfileScreen extends ConsumerWidget {
     );
   }
 
-  static const _badgeLabels = {
+  static const _badgeLabels = <String, String>{
     'first_conversation': 'First Chat',
     '5_day_streak': '5-Day Streak',
     '10_day_streak': '10-Day Streak',
@@ -495,5 +646,97 @@ class _ProfileMenuItem extends StatelessWidget {
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
     );
+  }
+}
+
+class _RecentSessionTile extends StatelessWidget {
+  final SessionHistoryEntry session;
+
+  const _RecentSessionTile({required this.session});
+
+  Color get _scoreColor {
+    final score = session.overallScore ?? 0;
+    if (score >= 80) return AppColors.success;
+    if (score >= 50) return AppColors.warning;
+    return AppColors.error;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final score = session.overallScore ?? 0;
+    return Tappable(
+      onTap: () => context.push('/history/${session.id}'),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardTheme.color ?? context.card,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: context.divider, width: 0.5),
+        ),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 40,
+              height: 40,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox(
+                    width: 40,
+                    height: 40,
+                    child: CircularProgressIndicator(
+                      value: score / 100,
+                      strokeWidth: 3,
+                      backgroundColor: context.divider,
+                      color: _scoreColor,
+                      strokeCap: StrokeCap.round,
+                    ),
+                  ),
+                  Text(
+                    '$score',
+                    style: AppTypography.labelMedium(color: _scoreColor),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    session.scenarioTitle,
+                    style: AppTypography.titleMedium(),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  Text(
+                    _formatDate(session.createdAt),
+                    style: AppTypography.labelSmall(
+                      color: context.textTertiary,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 20,
+              color: context.textTertiary,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final diff = now.difference(date);
+    if (diff.inDays == 0) return 'Today';
+    if (diff.inDays == 1) return 'Yesterday';
+    if (diff.inDays < 7) return '${diff.inDays}d ago';
+    return '${date.month}/${date.day}';
   }
 }

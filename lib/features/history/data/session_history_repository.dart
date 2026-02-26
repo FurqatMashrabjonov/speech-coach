@@ -22,6 +22,57 @@ class SessionHistoryRepository {
     await _sessionsRef.doc(entry.id).set(entry.toMap());
   }
 
+  Future<String> savePendingSession({
+    required String scenarioId,
+    required String scenarioTitle,
+    required String category,
+    required String transcript,
+    required int durationSeconds,
+    required String scenarioPrompt,
+  }) async {
+    final id = DateTime.now().millisecondsSinceEpoch.toString();
+    final entry = SessionHistoryEntry(
+      id: id,
+      scenarioId: scenarioId,
+      scenarioTitle: scenarioTitle,
+      category: category,
+      transcript: transcript,
+      durationSeconds: durationSeconds,
+      createdAt: DateTime.now(),
+      feedbackStatus: 'pending',
+      scenarioPrompt: scenarioPrompt,
+    );
+    await _sessionsRef.doc(id).set(entry.toMap());
+    return id;
+  }
+
+  Future<void> updateSessionWithFeedback({
+    required String sessionId,
+    required int overallScore,
+    required int clarity,
+    required int confidence,
+    required int engagement,
+    required int relevance,
+    required String summary,
+    required List<String> strengths,
+    required List<String> improvements,
+    required int xpEarned,
+  }) async {
+    await _sessionsRef.doc(sessionId).update({
+      'overallScore': overallScore,
+      'clarity': clarity,
+      'confidence': confidence,
+      'engagement': engagement,
+      'relevance': relevance,
+      'summary': summary,
+      'strengths': strengths,
+      'improvements': improvements,
+      'xpEarned': xpEarned,
+      'feedbackStatus': 'completed',
+      'feedbackGeneratedBy': 'client',
+    });
+  }
+
   Future<List<SessionHistoryEntry>> getSessions({int limit = 50}) async {
     final snapshot = await _sessionsRef
         .orderBy('createdAt', descending: true)

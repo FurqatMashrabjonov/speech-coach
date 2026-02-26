@@ -201,13 +201,13 @@ class SessionDetailScreen extends ConsumerWidget {
                     const SizedBox(height: 20),
 
                     // Overall score circle
-                    _OverallScoreCircle(score: session.overallScore)
+                    _OverallScoreCircle(score: session.overallScore ?? 0)
                         .animate()
                         .fadeIn(delay: 200.ms, duration: 600.ms)
                         .scale(begin: const Offset(0.8, 0.8)),
                     const SizedBox(height: 8),
                     Text(
-                      '+${session.xpEarned} XP',
+                      '+${session.xpEarned ?? 0} XP',
                       style: AppTypography.titleMedium(
                         color: AppColors.primary,
                       ),
@@ -216,10 +216,10 @@ class SessionDetailScreen extends ConsumerWidget {
 
                     // Radar chart
                     ScoreRadarChart(
-                      clarity: session.clarity,
-                      confidence: session.confidence,
-                      engagement: session.engagement,
-                      relevance: session.relevance,
+                      clarity: session.clarity ?? 0,
+                      confidence: session.confidence ?? 0,
+                      engagement: session.engagement ?? 0,
+                      relevance: session.relevance ?? 0,
                       size: 220,
                     ).animate().fadeIn(delay: 500.ms, duration: 600.ms),
                     const SizedBox(height: 24),
@@ -241,22 +241,22 @@ class SessionDetailScreen extends ConsumerWidget {
                           const SizedBox(height: 12),
                           ScoreBar(
                             label: 'Clarity',
-                            score: session.clarity,
+                            score: session.clarity ?? 0,
                             animationDelay: 0,
                           ),
                           ScoreBar(
                             label: 'Confidence',
-                            score: session.confidence,
+                            score: session.confidence ?? 0,
                             animationDelay: 100,
                           ),
                           ScoreBar(
                             label: 'Engagement',
-                            score: session.engagement,
+                            score: session.engagement ?? 0,
                             animationDelay: 200,
                           ),
                           ScoreBar(
                             label: 'Relevance',
-                            score: session.relevance,
+                            score: session.relevance ?? 0,
                             animationDelay: 300,
                           ),
                         ],
@@ -265,50 +265,52 @@ class SessionDetailScreen extends ConsumerWidget {
                     const SizedBox(height: 16),
 
                     // Summary
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: context.surface,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Summary',
-                              style: AppTypography.titleMedium()),
-                          const SizedBox(height: 8),
-                          Text(
-                            session.summary,
-                            style: AppTypography.bodyMedium(
-                              color: context.textSecondary,
+                    if (session.summary != null && session.summary!.isNotEmpty)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: context.surface,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Summary',
+                                style: AppTypography.titleMedium()),
+                            const SizedBox(height: 8),
+                            Text(
+                              session.summary!,
+                              style: AppTypography.bodyMedium(
+                                color: context.textSecondary,
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ).animate().fadeIn(delay: 700.ms, duration: 400.ms),
-                    const SizedBox(height: 16),
+                          ],
+                        ),
+                      ).animate().fadeIn(delay: 700.ms, duration: 400.ms),
+                    if (session.summary != null && session.summary!.isNotEmpty)
+                      const SizedBox(height: 16),
 
                     // Strengths
-                    if (session.strengths.isNotEmpty)
+                    if (session.strengths != null && session.strengths!.isNotEmpty)
                       _FeedbackList(
                         title: 'Strengths',
-                        items: session.strengths,
+                        items: session.strengths!,
                         icon: Icons.check_circle_rounded,
                         iconColor: AppColors.success,
                       ).animate().fadeIn(delay: 800.ms, duration: 400.ms),
-                    if (session.strengths.isNotEmpty)
+                    if (session.strengths != null && session.strengths!.isNotEmpty)
                       const SizedBox(height: 16),
 
                     // Improvements
-                    if (session.improvements.isNotEmpty)
+                    if (session.improvements != null && session.improvements!.isNotEmpty)
                       _FeedbackList(
                         title: 'Areas to Improve',
-                        items: session.improvements,
+                        items: session.improvements!,
                         icon: Icons.arrow_upward_rounded,
                         iconColor: AppColors.warning,
                       ).animate().fadeIn(delay: 900.ms, duration: 400.ms),
-                    if (session.improvements.isNotEmpty)
+                    if (session.improvements != null && session.improvements!.isNotEmpty)
                       const SizedBox(height: 16),
 
                     // Transcript
@@ -336,7 +338,7 @@ class SessionDetailScreen extends ConsumerWidget {
       await ShareService.shareScoreCardImage(
         imageBytes: image,
         scenarioTitle: session.scenarioTitle,
-        overallScore: session.overallScore,
+        overallScore: session.overallScore ?? 0,
       );
     }
   }

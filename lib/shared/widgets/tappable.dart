@@ -53,7 +53,10 @@ class _TappableState extends State<Tappable> {
         scale: _isDown ? widget.scaleDown : 1.0,
         duration: const Duration(milliseconds: 100),
         curve: Curves.easeInOut,
-        child: widget.child,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
+          child: widget.child,
+        ),
       ),
     );
   }

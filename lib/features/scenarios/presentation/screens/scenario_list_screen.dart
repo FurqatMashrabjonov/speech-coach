@@ -151,22 +151,24 @@ class _ScenarioCard extends StatelessWidget {
           '/scenario/${Uri.encodeComponent(scenario.id)}',
         );
       },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Theme.of(context).cardTheme.color ?? context.card,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: context.divider,
-            width: 0.5,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 80),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardTheme.color ?? context.card,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: context.divider,
+              width: 0.5,
+            ),
           ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
               decoration: BoxDecoration(
                 color: scenario.categoryColor.withValues(alpha: 0.22),
                 borderRadius: BorderRadius.circular(14),
@@ -218,6 +220,7 @@ class _ScenarioCard extends StatelessWidget {
               color: context.textTertiary,
             ),
           ],
+        ),
         ),
       ),
     );

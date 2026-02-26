@@ -11,13 +11,13 @@ class ShareService {
     required int overallScore,
   }) async {
     final dir = await getTemporaryDirectory();
-    final file = File('${dir.path}/speechmaster_scorecard.png');
+    final file = File('${dir.path}/speechy_scorecard.png');
     await file.writeAsBytes(imageBytes);
 
     await Share.shareXFiles(
       [XFile(file.path)],
       text:
-          'I scored $overallScore/100 on "$scenarioTitle" with SpeechMaster! '
+          'I scored $overallScore/100 on "$scenarioTitle" with Speechy AI! '
           'Practice your speaking skills with AI.',
     );
   }
@@ -27,7 +27,7 @@ class ShareService {
   }) async {
     await Share.share(
       "I've been practicing my speaking skills for $streak days straight "
-      'with SpeechMaster! Try it out.',
+      'with Speechy AI! Try it out.',
     );
   }
 }

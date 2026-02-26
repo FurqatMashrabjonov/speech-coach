@@ -148,15 +148,10 @@ class ConversationNotifier extends StateNotifier<ConversationState> {
     String? characterVoice,
     String? characterPersonality,
   }) {
-    // If character personality is provided, prepend it to the scenario prompt
-    final fullPrompt = characterPersonality != null
-        ? '$characterPersonality\n\n$scenarioPrompt'
-        : scenarioPrompt;
-
     state = state.copyWith(
       scenarioId: scenarioId,
       scenarioTitle: scenarioTitle,
-      scenarioPrompt: fullPrompt,
+      scenarioPrompt: scenarioPrompt,
       durationLimitMinutes: durationMinutes,
       isCountdown: true,
       characterName: characterName,
@@ -243,15 +238,11 @@ class ConversationNotifier extends StateNotifier<ConversationState> {
       // Initialize SoLoud audio player
       await _initAudioPlayer();
 
-      // Build system prompt with character personality if available
-      String? systemPrompt = state.scenarioPrompt;
-      if (systemPrompt == null && state.characterPersonality != null) {
-        systemPrompt = state.characterPersonality;
-      }
-
       await _service.connect(
         category,
-        customSystemPrompt: systemPrompt,
+        scenarioPrompt: state.scenarioPrompt,
+        characterPersonality: state.characterPersonality,
+        durationMinutes: state.durationLimitMinutes,
         voiceName: state.characterVoice,
       );
       _startTimer();
@@ -391,6 +382,8 @@ class ConversationNotifier extends StateNotifier<ConversationState> {
         if (!_isAiSpeaking) {
           _isAiSpeaking = true;
           _turnAudioBytesSent = 0;
+          // Flush any pending user transcription before AI starts its turn
+          _flushUserTranscription();
           // Hard-stop mic the moment AI starts talking
           _stopMicStream();
           state = state.copyWith(status: ConversationStatus.aiSpeaking);
@@ -518,6 +511,9 @@ class ConversationNotifier extends StateNotifier<ConversationState> {
     _closed = true;
     _timer?.cancel();
     _micResumeTimer?.cancel();
+
+    // Flush any remaining user transcription before ending
+    _flushUserTranscription();
 
     await _stopMicStream();
     await _stopAudioStream();

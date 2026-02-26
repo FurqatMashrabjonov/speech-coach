@@ -6,11 +6,13 @@ import 'package:speech_coach/core/extensions/context_extensions.dart';
 class BottomNavBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onTap;
+  final VoidCallback? onMicTap;
 
   const BottomNavBar({
     super.key,
     required this.currentIndex,
     required this.onTap,
+    this.onMicTap,
   });
 
   @override
@@ -27,7 +29,7 @@ class BottomNavBar extends StatelessWidget {
       ),
       child: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
@@ -39,20 +41,68 @@ class BottomNavBar extends StatelessWidget {
                 onTap: () => onTap(0),
               ),
               _NavItem(
-                icon: Icons.bar_chart_outlined,
-                activeIcon: Icons.bar_chart_rounded,
-                label: 'Progress',
+                icon: Icons.grid_view_outlined,
+                activeIcon: Icons.grid_view_rounded,
+                label: 'Practice',
                 isSelected: currentIndex == 1,
                 onTap: () => onTap(1),
+              ),
+              // Center mic FAB
+              _CenterMicFab(onTap: onMicTap),
+              _NavItem(
+                icon: Icons.bar_chart_outlined,
+                activeIcon: Icons.bar_chart_rounded,
+                label: 'Stats',
+                isSelected: currentIndex == 2,
+                onTap: () => onTap(2),
               ),
               _NavItem(
                 icon: Icons.person_outline_rounded,
                 activeIcon: Icons.person_rounded,
                 label: 'Profile',
-                isSelected: currentIndex == 2,
-                onTap: () => onTap(2),
+                isSelected: currentIndex == 3,
+                onTap: () => onTap(3),
               ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CenterMicFab extends StatelessWidget {
+  final VoidCallback? onTap;
+
+  const _CenterMicFab({this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.mediumImpact();
+        onTap?.call();
+      },
+      child: Transform.translate(
+        offset: const Offset(0, -8),
+        child: Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            gradient: AppColors.primaryGradient,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.primary.withValues(alpha: 0.35),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: const Icon(
+            Icons.mic_rounded,
+            color: AppColors.white,
+            size: 28,
           ),
         ),
       ),
@@ -84,7 +134,7 @@ class _NavItem extends StatelessWidget {
       },
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
-        width: 72,
+        width: 64,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -93,7 +143,7 @@ class _NavItem extends StatelessWidget {
               color: isSelected
                   ? AppColors.primary
                   : context.textSecondary,
-              size: 26,
+              size: 24,
             ),
             const SizedBox(height: 4),
             Text(
@@ -102,7 +152,7 @@ class _NavItem extends StatelessWidget {
                 color: isSelected
                     ? AppColors.primary
                     : context.textSecondary,
-                fontSize: 12,
+                fontSize: 11,
                 fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
               ),
             ),

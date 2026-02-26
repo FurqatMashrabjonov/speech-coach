@@ -2,7 +2,7 @@ class AppConstants {
   AppConstants._();
 
   // App
-  static const appName = 'SpeechMaster';
+  static const appName = 'Speechy AI';
   static const appTagline = 'Your AI Speaking Coach';
 
   // Animation durations

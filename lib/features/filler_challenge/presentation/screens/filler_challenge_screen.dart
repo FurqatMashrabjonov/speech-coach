@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:speech_coach/app/theme/app_colors.dart';
+import 'package:speech_coach/app/theme/app_images.dart';
 import 'package:speech_coach/app/theme/app_typography.dart';
 import 'package:speech_coach/core/extensions/context_extensions.dart';
 import 'package:speech_coach/features/conversation/presentation/providers/conversation_provider.dart';
@@ -121,17 +122,22 @@ class _FillerChallengeScreenState extends ConsumerState<FillerChallengeScreen> {
               if (challengeState.status == FillerChallengeStatus.idle)
                 Column(
                   children: [
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: AppColors.accent.withValues(alpha: 0.14),
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: const Icon(
-                        Icons.whatshot_rounded,
-                        color: AppColors.accent,
-                        size: 42,
+                    Image.asset(
+                      AppImages.mascotSpeak,
+                      width: 200,
+                      height: 200,
+                      errorBuilder: (_, __, ___) => Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: AppColors.accent.withValues(alpha: 0.14),
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: const Icon(
+                          Icons.whatshot_rounded,
+                          color: AppColors.accent,
+                          size: 42,
+                        ),
                       ),
                     ).animate().fadeIn(duration: 400.ms),
                     const SizedBox(height: 24),
