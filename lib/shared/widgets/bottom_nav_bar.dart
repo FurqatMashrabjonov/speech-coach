@@ -53,7 +53,7 @@ class BottomNavBar extends StatelessWidget {
               _NavItem(
                 icon: Icons.bar_chart_outlined,
                 activeIcon: Icons.bar_chart_rounded,
-                label: 'Stats',
+                label: 'Results',
                 isSelected: currentIndex == 2,
                 onTap: () => onTap(2),
               ),
@@ -85,7 +85,7 @@ class _CenterMicFab extends StatelessWidget {
         onTap?.call();
       },
       child: Transform.translate(
-        offset: const Offset(0, -8),
+        offset: const Offset(0, -12),
         child: Container(
           width: 56,
           height: 56,

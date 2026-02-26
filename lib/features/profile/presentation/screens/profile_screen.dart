@@ -8,15 +8,16 @@ import 'package:speech_coach/core/extensions/context_extensions.dart';
 import 'package:speech_coach/core/extensions/string_extensions.dart';
 import 'package:speech_coach/shared/widgets/tappable.dart';
 import 'package:speech_coach/features/auth/presentation/providers/auth_provider.dart';
-import 'package:speech_coach/features/history/presentation/providers/session_history_provider.dart';
-import 'package:speech_coach/features/history/domain/session_history_entity.dart';
 import 'package:speech_coach/features/paywall/data/usage_service.dart';
 import 'package:speech_coach/features/paywall/presentation/providers/subscription_provider.dart';
+import 'package:speech_coach/features/history/presentation/providers/session_history_provider.dart';
+import 'package:speech_coach/features/history/domain/session_history_entity.dart';
 import 'package:speech_coach/features/progress/presentation/providers/progress_provider.dart';
+import 'package:speech_coach/features/progress/presentation/utils/metric_helpers.dart';
+import 'package:speech_coach/features/progress/presentation/widgets/metric_row.dart';
+import 'package:speech_coach/features/progress/presentation/widgets/score_trend_chart.dart';
 import 'package:speech_coach/features/progress/presentation/widgets/xp_bar.dart';
-import 'package:speech_coach/features/sharing/data/share_service.dart';
 import 'package:speech_coach/features/speaker_dna/presentation/providers/speaker_dna_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
@@ -38,9 +39,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Widget build(BuildContext context) {
     final authState = ref.watch(authStateProvider);
     final progress = ref.watch(progressProvider);
-    final sub = ref.watch(subscriptionProvider);
     final dnaState = ref.watch(speakerDNAProvider);
-    final usageService = ref.watch(usageServiceProvider);
     final historyState = ref.watch(sessionHistoryProvider);
 
     return Scaffold(
@@ -48,311 +47,284 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 20),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 16),
-              // Header
+
+              // 1. Header row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const SizedBox(width: 48),
                   Text(
                     'Profile',
                     style: AppTypography.headlineLarge(),
                   ),
-                  TextButton(
-                    onPressed: () => context.push('/settings'),
-                    child: Icon(
-                      Icons.settings_outlined,
-                      color: context.textSecondary,
-                      size: 24,
+                  Tappable(
+                    onTap: () => context.push('/settings'),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: context.surface,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        Icons.settings_outlined,
+                        color: context.textSecondary,
+                        size: 22,
+                      ),
                     ),
                   ),
                 ],
-              ),
+              ).animate().fadeIn(duration: 400.ms),
               const SizedBox(height: 24),
 
-              // Avatar + Level
+              // 2. Identity
               authState.when(
                 data: (user) {
                   final name = user?.displayName ?? 'User';
                   final email = user?.email ?? '';
 
-                  return Column(
-                    children: [
-                      Stack(
-                        alignment: Alignment.bottomRight,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(3),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              border: Border.all(
+                  return Center(
+                    child: Column(
+                      children: [
+                        Stack(
+                          alignment: Alignment.bottomRight,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(3),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: AppColors.primary,
+                                  width: 2.5,
+                                ),
+                              ),
+                              child: CircleAvatar(
+                                radius: 48,
+                                backgroundColor:
+                                    AppColors.primary.withValues(alpha: 0.14),
+                                child: Text(
+                                  name.initials,
+                                  style: AppTypography.displaySmall(
+                                      color: AppColors.primary),
+                                ),
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
                                 color: AppColors.primary,
-                                width: 2.5,
+                                borderRadius: BorderRadius.circular(10),
                               ),
-                            ),
-                            child: CircleAvatar(
-                              radius: 48,
-                              backgroundColor:
-                                  AppColors.primary.withValues(alpha: 0.14),
                               child: Text(
-                                name.initials,
-                                style: AppTypography.displaySmall(
-                                    color: AppColors.primary),
+                                'Lv.${progress.level}',
+                                style: AppTypography.labelSmall(
+                                    color: AppColors.white),
                               ),
                             ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Text(name, style: AppTypography.headlineMedium()),
+                        const SizedBox(height: 2),
+                        Text(
+                          progress.levelTitle,
+                          style: AppTypography.bodySmall(
+                            color: AppColors.primary,
                           ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary,
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: Text(
-                              'Lv.${progress.level}',
-                              style: AppTypography.labelSmall(
-                                  color: AppColors.white),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          email,
+                          style: AppTypography.bodySmall(
+                            color: context.textSecondary,
+                          ),
+                        ),
+                        if (dnaState.dna != null) ...[
+                          const SizedBox(height: 8),
+                          Tappable(
+                            onTap: () => context.push('/speaker-dna-result'),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color:
+                                    AppColors.primary.withValues(alpha: 0.14),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(
+                                    Icons.fingerprint_rounded,
+                                    color: AppColors.primary,
+                                    size: 16,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    dnaState.dna!.archetype,
+                                    style: AppTypography.labelSmall(
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                         ],
-                      ),
-                      const SizedBox(height: 12),
-                      Text(name, style: AppTypography.headlineMedium()),
-                      const SizedBox(height: 2),
-                      Text(
-                        progress.levelTitle,
-                        style: AppTypography.bodySmall(
-                          color: AppColors.primary,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        email,
-                        style: AppTypography.bodySmall(
-                          color: context.textSecondary,
-                        ),
-                      ),
-                      if (dnaState.dna != null) ...[
-                        const SizedBox(height: 8),
-                        Tappable(
-                          onTap: () => context.push('/speaker-dna-result'),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(alpha: 0.14),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.fingerprint_rounded,
-                                  color: AppColors.primary,
-                                  size: 16,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  dnaState.dna!.archetype,
-                                  style: AppTypography.labelSmall(
-                                    color: AppColors.primary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
                       ],
-                    ],
+                    ),
                   ).animate().fadeIn(duration: 400.ms);
                 },
-                loading: () => const CircularProgressIndicator(),
-                error: (e, _) => Text('Error loading profile: $e'),
+                loading: () => const Center(
+                  child: CircularProgressIndicator(),
+                ),
+                error: (e, _) => Center(
+                  child: Text('Error loading profile: $e'),
+                ),
               ),
               const SizedBox(height: 24),
 
-              // Stats grid
-              Row(
+              // 3. Stats 2x2 grid
+              Column(
                 children: [
-                  _StatCard(
-                    icon: Icons.emoji_events_rounded,
-                    value: '${progress.totalXp}',
-                    label: 'Total XP',
-                    color: AppColors.gold,
+                  Row(
+                    children: [
+                      _StatCard(
+                        icon: Icons.emoji_events_rounded,
+                        value: '${progress.totalXp}',
+                        label: 'Total XP',
+                        color: AppColors.gold,
+                      ),
+                      const SizedBox(width: 12),
+                      _StatCard(
+                        icon: Icons.local_fire_department_rounded,
+                        value: '${progress.streak}',
+                        label: 'Day Streak',
+                        color: AppColors.secondary,
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 10),
-                  _StatCard(
-                    icon: Icons.local_fire_department_rounded,
-                    value: '${progress.streak}',
-                    label: 'Day Streak',
-                    color: AppColors.secondary,
-                  ),
-                  const SizedBox(width: 10),
-                  _StatCard(
-                    icon: Icons.mic_rounded,
-                    value: '${progress.totalSessions}',
-                    label: 'Sessions',
-                    color: AppColors.primary,
-                  ),
-                  const SizedBox(width: 10),
-                  _StatCard(
-                    icon: Icons.timer_rounded,
-                    value: '${progress.totalMinutes}',
-                    label: 'Minutes',
-                    color: AppColors.skyBlue,
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      _StatCard(
+                        icon: Icons.mic_rounded,
+                        value: '${progress.totalSessions}',
+                        label: 'Sessions',
+                        color: AppColors.primary,
+                      ),
+                      const SizedBox(width: 12),
+                      _StatCard(
+                        icon: Icons.timer_rounded,
+                        value: '${progress.totalMinutes}',
+                        label: 'Minutes',
+                        color: AppColors.skyBlue,
+                      ),
+                    ],
                   ),
                 ],
               ).animate().fadeIn(delay: 100.ms, duration: 400.ms),
               const SizedBox(height: 16),
 
-              // XP Bar (moved from home)
+              // 4. XP Bar
               const XpBar()
                   .animate()
                   .fadeIn(delay: 120.ms, duration: 400.ms),
-              const SizedBox(height: 12),
+              const SizedBox(height: 24),
 
-              // Free tier indicator (moved from home)
-              if (!usageService.isPro)
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 10,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.bolt_rounded,
-                        color: AppColors.gold,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${usageService.remainingSessions} free sessions today',
-                        style: AppTypography.bodySmall(
-                          color: context.textSecondary,
-                        ),
-                      ),
-                      const Spacer(),
-                      Tappable(
-                        onTap: () => context.push('/paywall'),
-                        child: Text(
-                          'Upgrade',
-                          style: AppTypography.labelMedium(
-                            color: AppColors.primary,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-                    .animate()
-                    .fadeIn(delay: 130.ms, duration: 400.ms),
-              const SizedBox(height: 12),
-
-              // Streak Freeze (Pro feature)
-              if (sub.isPro)
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: AppColors.skyBlue.withValues(alpha: 0.14),
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: const Icon(
-                          Icons.ac_unit_rounded,
-                          color: AppColors.skyBlue,
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Streak Freeze',
-                              style: AppTypography.titleMedium(),
-                            ),
-                            Text(
-                              '${progress.streakFreezes} remaining',
-                              style: AppTypography.bodySmall(
-                                color: context.textSecondary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-                    .animate()
-                    .fadeIn(delay: 140.ms, duration: 400.ms),
-              if (sub.isPro) const SizedBox(height: 12),
-
-              // Recent Sessions (moved from home)
-              if (historyState.status == SessionHistoryStatus.loaded &&
-                  historyState.sessions.isNotEmpty)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              // 5. Progress section
+              if (progress.sessionHistory.isNotEmpty) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Recent Sessions',
-                          style: AppTypography.titleMedium(),
+                    Text('Progress', style: AppTypography.headlineSmall()),
+                    Tappable(
+                      onTap: () => context.push('/progress'),
+                      child: Text(
+                        'See All',
+                        style: AppTypography.labelMedium(
+                          color: AppColors.primary,
                         ),
-                        Tappable(
-                          onTap: () => context.push('/history'),
-                          child: Text(
-                            'See All',
-                            style: AppTypography.labelMedium(
-                              color: AppColors.primary,
-                            ),
+                      ),
+                    ),
+                  ],
+                ).animate().fadeIn(delay: 140.ms, duration: 400.ms),
+                const SizedBox(height: 12),
+
+                MetricRow(
+                  icon: Icons.shield_rounded,
+                  label: 'Confidence',
+                  description:
+                      getMetricDescription('confidence', progress),
+                  valueText: getMetricLevel('confidence', progress),
+                  valueColor: AppColors.success,
+                ).animate().fadeIn(delay: 160.ms, duration: 400.ms),
+                const SizedBox(height: 8),
+                MetricRow(
+                  icon: Icons.waves_rounded,
+                  label: 'Clarity',
+                  description:
+                      getMetricDescription('clarity', progress),
+                  valueText: getMetricValue('clarity', progress),
+                  valueColor: AppColors.primary,
+                ).animate().fadeIn(delay: 180.ms, duration: 400.ms),
+                const SizedBox(height: 8),
+                MetricRow(
+                  icon: Icons.favorite_rounded,
+                  label: 'Emotion',
+                  description:
+                      getMetricDescription('emotion', progress),
+                  valueText: getMetricLevel('emotion', progress),
+                  valueColor: AppColors.success,
+                ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
+
+                // Mini score trend chart
+                if (progress.sessionHistory.length >= 2) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: AppColors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                          color: const Color(0xFFE5E5E5), width: 2),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Score Trend',
+                            style: AppTypography.titleMedium()),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          height: 150,
+                          child: ScoreTrendChart(
+                            sessions: progress.sessionHistory,
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 8),
-                    ...historyState.sessions.take(3).map(
-                          (session) => _RecentSessionTile(session: session),
-                        ),
-                  ],
-                )
-                    .animate()
-                    .fadeIn(delay: 145.ms, duration: 400.ms),
-              const SizedBox(height: 20),
+                  ).animate().fadeIn(delay: 220.ms, duration: 400.ms),
+                ],
+                const SizedBox(height: 24),
+              ],
 
-              // Badges section
-              if (progress.badges.isNotEmpty)
+              // 6. Badges section
+              if (progress.badges.isNotEmpty) ...[
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     color: AppColors.white,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
+                    border: Border.all(
+                        color: const Color(0xFFE5E5E5), width: 2),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -365,7 +337,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                             size: 20,
                           ),
                           const SizedBox(width: 8),
-                          Text('Badges', style: AppTypography.titleMedium()),
+                          Text('Badges',
+                              style: AppTypography.titleMedium()),
                           const Spacer(),
                           Text(
                             '${progress.badges.length}',
@@ -380,15 +353,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                         spacing: 8,
                         runSpacing: 8,
                         children: progress.badges.map((badge) {
-                          final label =
-                              _badgeLabels[badge] ?? badge.replaceAll('_', ' ');
+                          final label = _badgeLabels[badge] ??
+                              badge.replaceAll('_', ' ');
                           return Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 10,
                               vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.gold.withValues(alpha: 0.12),
+                              color:
+                                  AppColors.gold.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(10),
                             ),
                             child: Text(
@@ -401,150 +375,39 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       ),
                     ],
                   ),
-                ).animate().fadeIn(delay: 150.ms, duration: 400.ms),
-              const SizedBox(height: 20),
+                ).animate().fadeIn(delay: 240.ms, duration: 400.ms),
+                const SizedBox(height: 20),
+              ],
 
-              // Share streak
-              if (progress.streak > 0)
-                Tappable(
-                  onTap: () => ShareService.shareStreakMilestone(
-                    streak: progress.streak,
-                  ),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          AppColors.secondary.withValues(alpha: 0.22),
-                          AppColors.primary.withValues(alpha: 0.22),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.share_rounded,
-                          color: AppColors.primary,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'Share your ${progress.streak}-day streak!',
-                            style: AppTypography.bodyMedium(
-                              color: AppColors.primary,
-                            ),
-                          ),
-                        ),
-                        const Icon(
-                          Icons.chevron_right_rounded,
-                          color: AppColors.primary,
-                        ),
-                      ],
-                    ),
-                  ),
-                ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
-              const SizedBox(height: 20),
-
-              // Menu items
-              Container(
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardTheme.color,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Column(
+              // 7. Recent Sessions
+              if (historyState.status == SessionHistoryStatus.loaded &&
+                  historyState.sessions.isNotEmpty) ...[
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    _ProfileMenuItem(
-                      icon: Icons.fingerprint_rounded,
-                      iconColor: AppColors.primary,
-                      title: dnaState.dna != null
-                          ? 'Retake Speaker DNA'
-                          : 'Take Speaker DNA Quiz',
-                      onTap: () => context.push('/speaker-dna-quiz'),
-                    ),
-                    const Divider(height: 1, indent: 60),
-                    _ProfileMenuItem(
-                      icon: Icons.bar_chart_rounded,
-                      iconColor: AppColors.skyBlue,
-                      title: 'Analytics',
-                      onTap: () => context.go('/progress'),
-                    ),
-                    const Divider(height: 1, indent: 60),
-                    _ProfileMenuItem(
-                      icon: sub.isPro
-                          ? Icons.workspace_premium_rounded
-                          : Icons.workspace_premium_outlined,
-                      iconColor: AppColors.gold,
-                      title: sub.isPro ? 'Manage Subscription' : 'Upgrade to Pro',
-                      onTap: () {
-                        if (sub.isPro) {
-                          ref.read(subscriptionProvider.notifier).showCustomerCenter();
-                        } else {
-                          context.push('/paywall');
-                        }
-                      },
-                    ),
-                    const Divider(height: 1, indent: 60),
-                    _ProfileMenuItem(
-                      icon: Icons.help_outline_rounded,
-                      iconColor: AppColors.secondary,
-                      title: 'Help & Support',
-                      onTap: () => launchUrl(
-                        Uri.parse('mailto:support@speechyai.app'),
+                    Text('Recent Sessions',
+                        style: AppTypography.titleMedium()),
+                    Tappable(
+                      onTap: () => context.push('/history'),
+                      child: Text(
+                        'See All',
+                        style: AppTypography.labelMedium(
+                          color: AppColors.primary,
+                        ),
                       ),
-                    ),
-                    const Divider(height: 1, indent: 60),
-                    _ProfileMenuItem(
-                      icon: Icons.settings_outlined,
-                      iconColor: context.textSecondary,
-                      title: 'Settings',
-                      onTap: () => context.push('/settings'),
                     ),
                   ],
                 ),
-              ).animate().fadeIn(delay: 250.ms, duration: 400.ms),
-              const SizedBox(height: 24),
-
-              // Log out
-              Tappable(
-                onTap: () async {
-                  final confirmed = await showDialog<bool>(
-                    context: context,
-                    builder: (ctx) => AlertDialog(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      title: const Text('Sign Out'),
-                      content:
-                          const Text('Are you sure you want to sign out?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(ctx, false),
-                          child: const Text('Cancel'),
-                        ),
-                        TextButton(
-                          onPressed: () => Navigator.pop(ctx, true),
-                          child: Text(
-                            'Sign Out',
-                            style: TextStyle(color: AppColors.error),
-                          ),
-                        ),
-                      ],
+                const SizedBox(height: 8),
+                ...historyState.sessions.take(3).map(
+                      (session) =>
+                          _RecentSessionTile(session: session),
                     ),
-                  );
-                  if (confirmed == true) {
-                    await ref
-                        .read(authNotifierProvider.notifier)
-                        .signOut();
-                  }
-                },
-                child: Text(
-                  'Log out',
-                  style: AppTypography.bodyLarge(color: AppColors.error),
-                ),
-              ),
+                const SizedBox(height: 20),
+              ],
+
+              // 8. Account & Features
+              _AccountSection(ref: ref),
               const SizedBox(height: 32),
             ],
           ),
@@ -611,45 +474,6 @@ class _StatCard extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _ProfileMenuItem extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
-  final String title;
-  final VoidCallback onTap;
-
-  const _ProfileMenuItem({
-    required this.icon,
-    required this.iconColor,
-    required this.title,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      leading: Container(
-        width: 36,
-        height: 36,
-        decoration: BoxDecoration(
-          color: iconColor.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(10),
-        ),
-        child: Icon(icon, color: iconColor, size: 20),
-      ),
-      title: Text(
-        title,
-        style: AppTypography.bodyLarge(),
-      ),
-      trailing: Icon(
-        Icons.chevron_right_rounded,
-        color: context.textTertiary,
-      ),
-      onTap: onTap,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
     );
   }
 }
@@ -743,5 +567,220 @@ class _RecentSessionTile extends StatelessWidget {
     if (diff.inDays == 1) return 'Yesterday';
     if (diff.inDays < 7) return '${diff.inDays}d ago';
     return '${date.month}/${date.day}';
+  }
+}
+
+class _AccountSection extends StatelessWidget {
+  final WidgetRef ref;
+
+  const _AccountSection({required this.ref});
+
+  @override
+  Widget build(BuildContext context) {
+    final sub = ref.watch(subscriptionProvider);
+    final usageService = ref.watch(usageServiceProvider);
+    final authState = ref.watch(authStateProvider);
+    final email = authState.whenOrNull(
+          data: (user) => user?.email,
+        ) ??
+        '';
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Account', style: AppTypography.headlineSmall()),
+        const SizedBox(height: 12),
+
+        // Subscription
+        Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardTheme.color ?? context.card,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
+          ),
+          child: Column(
+            children: [
+              ListTile(
+                leading: _icon(
+                  sub.isPro
+                      ? Icons.workspace_premium_rounded
+                      : Icons.star_outline_rounded,
+                  AppColors.gold,
+                ),
+                title: Text(
+                    sub.isPro ? 'Manage Subscription' : 'Upgrade to Pro'),
+                subtitle: Text(sub.isPro ? 'Pro' : 'Free'),
+                trailing: Icon(Icons.chevron_right_rounded,
+                    color: context.textTertiary),
+                onTap: () {
+                  if (sub.isPro) {
+                    ref
+                        .read(subscriptionProvider.notifier)
+                        .showCustomerCenter();
+                  } else {
+                    context.push('/paywall');
+                  }
+                },
+              ),
+              const Divider(height: 1, indent: 60),
+              ListTile(
+                leading: _icon(Icons.email_outlined, AppColors.skyBlue),
+                title: const Text('Email'),
+                subtitle: Text(email),
+              ),
+              if (!usageService.isPro) ...[
+                const Divider(height: 1, indent: 60),
+                ListTile(
+                  leading: _icon(Icons.bolt_rounded, AppColors.gold),
+                  title: const Text('Free Sessions Today'),
+                  subtitle:
+                      Text('${usageService.remainingSessions} remaining'),
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Features
+        Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardTheme.color ?? context.card,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
+          ),
+          child: Column(
+            children: [
+              ListTile(
+                leading:
+                    _icon(Icons.fingerprint_rounded, AppColors.primary),
+                title: const Text('Speaker DNA Quiz'),
+                trailing: Icon(Icons.chevron_right_rounded,
+                    color: context.textTertiary),
+                onTap: () => context.push('/speaker-dna-quiz'),
+              ),
+              const Divider(height: 1, indent: 60),
+              ListTile(
+                leading: _icon(
+                    Icons.auto_awesome_rounded, AppColors.secondary),
+                title: const Text('Voice Wrapped'),
+                trailing: Icon(Icons.chevron_right_rounded,
+                    color: context.textTertiary),
+                onTap: () => context.push('/voice-wrapped'),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Account Actions
+        Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).cardTheme.color ?? context.card,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
+          ),
+          child: Column(
+            children: [
+              ListTile(
+                leading: _icon(Icons.logout_rounded, AppColors.error),
+                title: Text(
+                  'Log Out',
+                  style: TextStyle(color: AppColors.error),
+                ),
+                onTap: () => _confirmLogout(context),
+              ),
+              const Divider(height: 1, indent: 60),
+              ListTile(
+                leading:
+                    _icon(Icons.delete_outline_rounded, AppColors.error),
+                title: Text(
+                  'Delete Account',
+                  style: TextStyle(color: AppColors.error),
+                ),
+                onTap: () => _confirmDeleteAccount(context),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ).animate().fadeIn(delay: 260.ms, duration: 400.ms);
+  }
+
+  Widget _icon(IconData icon, Color color) {
+    return Container(
+      width: 36,
+      height: 36,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Icon(icon, color: color, size: 20),
+    );
+  }
+
+  void _confirmLogout(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: const Text('Sign Out'),
+        content: const Text('Are you sure you want to sign out?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Navigator.pop(ctx);
+              await ref.read(authNotifierProvider.notifier).signOut();
+            },
+            child: Text(
+              'Sign Out',
+              style: TextStyle(color: AppColors.error),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDeleteAccount(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: const Text('Delete Account'),
+        content: const Text(
+          'This action cannot be undone. All your data will be permanently deleted.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                      'Please contact support@speechyai.app to delete your account.'),
+                ),
+              );
+            },
+            child: Text(
+              'Delete',
+              style: TextStyle(color: AppColors.error),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

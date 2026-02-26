@@ -5,12 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:speech_coach/app/theme/app_colors.dart';
-import 'package:speech_coach/app/theme/app_images.dart';
 import 'package:speech_coach/app/theme/app_typography.dart';
 import 'package:speech_coach/core/extensions/context_extensions.dart';
 import 'package:speech_coach/features/progress/domain/progress_entity.dart';
 import 'package:speech_coach/features/progress/presentation/providers/progress_provider.dart';
-import 'package:speech_coach/shared/widgets/mascot_widget.dart';
+import 'package:speech_coach/features/progress/presentation/utils/metric_helpers.dart';
+import 'package:speech_coach/features/progress/presentation/widgets/metric_row.dart';
+import 'package:speech_coach/features/progress/presentation/widgets/score_trend_chart.dart';
 import 'package:speech_coach/shared/widgets/skeleton.dart';
 
 class AnalyticsScreen extends ConsumerWidget {
@@ -18,60 +19,105 @@ class AnalyticsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final progress = ref.watch(progressProvider);
+    final realProgress = ref.watch(progressProvider);
+
+    // Use real data if available, otherwise show demo data
+    final progress = realProgress.sessionHistory.isNotEmpty
+        ? realProgress
+        : _demoProgress;
+    final isDemo = realProgress.sessionHistory.isEmpty;
 
     return Scaffold(
       body: SafeArea(
-        child: progress.sessionHistory.isEmpty
-            ? _buildEmptyState(context)
-            : _buildContent(context, progress),
+        child: _buildContent(context, progress, isDemo: isDemo),
       ),
     );
   }
 
-  Widget _buildEmptyState(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset(
-              AppImages.mascotEmpty,
-              width: 160,
-              height: 160,
-              errorBuilder: (_, __, ___) => Icon(
-                Icons.bar_chart_rounded,
-                size: 64,
-                color: AppColors.primary.withValues(alpha: 0.3),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'No Data Yet',
-              style: AppTypography.headlineSmall(),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Complete your first practice session to see your analytics here.',
-              textAlign: TextAlign.center,
-              style: AppTypography.bodyMedium(
-                color: context.textSecondary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  static final _demoProgress = UserProgress(
+    totalXp: 2450,
+    level: 5,
+    levelTitle: 'Skilled',
+    streak: 12,
+    longestStreak: 18,
+    totalSessions: 47,
+    totalMinutes: 186,
+    lastSessionDate: DateTime.now().subtract(const Duration(hours: 3)),
+    badges: [
+      'first_conversation',
+      '5_day_streak',
+      '10_day_streak',
+      'dedicated_10',
+      'interviews_5',
+      'star_performer',
+    ],
+    sessionHistory: _generateDemoSessions(),
+  );
+
+  static List<SessionRecord> _generateDemoSessions() {
+    final rng = Random(42);
+    final now = DateTime.now();
+    final categories = [
+      'Interviews',
+      'Presentations',
+      'Public Speaking',
+      'Conversations',
+      'Debates',
+      'Storytelling',
+      'Phone Anxiety',
+      'Dating & Social',
+    ];
+
+    final sessions = <SessionRecord>[];
+    for (int i = 0; i < 47; i++) {
+      final daysAgo = (i * 1.9).toInt() + rng.nextInt(2);
+      final cat = categories[rng.nextInt(categories.length)];
+      final base = 55 + rng.nextInt(35);
+      sessions.add(SessionRecord(
+        scenarioId: 'demo_$i',
+        category: cat,
+        overallScore: base,
+        clarity: (base - 5 + rng.nextInt(15)).clamp(20, 100),
+        confidence: (base - 8 + rng.nextInt(18)).clamp(20, 100),
+        engagement: (base - 3 + rng.nextInt(12)).clamp(20, 100),
+        relevance: (base + rng.nextInt(10)).clamp(20, 100),
+        durationSeconds: 120 + rng.nextInt(300),
+        xpEarned: 30 + rng.nextInt(70),
+        date: now.subtract(Duration(days: daysAgo, hours: rng.nextInt(12))),
+      ));
+    }
+    return sessions;
   }
 
-  Widget _buildContent(BuildContext context, UserProgress progress) {
-    final avgScore = progress.sessionHistory.isNotEmpty
-        ? (progress.sessionHistory
-                .map((s) => s.overallScore)
-                .reduce((a, b) => a + b) /
-            progress.sessionHistory.length)
+  Widget _buildContent(BuildContext context, UserProgress progress,
+      {bool isDemo = false}) {
+    final sessions = progress.sessionHistory;
+    final avgScore = sessions.isNotEmpty
+        ? sessions.map((s) => s.overallScore).reduce((a, b) => a + b) /
+            sessions.length
         : 0.0;
+    final bestScore = sessions.isNotEmpty
+        ? sessions.map((s) => s.overallScore).reduce(max)
+        : 0;
+    final totalMinutes = progress.totalMinutes;
+
+    // Category breakdown
+    final categoryMap = <String, int>{};
+    for (final s in sessions) {
+      categoryMap[s.category] = (categoryMap[s.category] ?? 0) + 1;
+    }
+    final sortedCategories = categoryMap.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
+
+    // Weekly sessions (last 7 days)
+    final now = DateTime.now();
+    final weekSessions = List<int>.filled(7, 0);
+    for (final s in sessions) {
+      final diff = now.difference(s.date).inDays;
+      if (diff >= 0 && diff < 7) {
+        weekSessions[6 - diff]++;
+      }
+    }
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -84,28 +130,11 @@ class AnalyticsScreen extends ConsumerWidget {
           Row(
             children: [
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Your Progress',
-                      style: AppTypography.displayMedium(),
-                    ),
-                    Text(
-                      'Last 7 days',
-                      style: AppTypography.bodySmall(
-                        color: context.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
+                child: Text('Results', style: AppTypography.headlineLarge()),
               ),
-              // Streak fire badge
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: AppColors.primary.withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(20),
@@ -121,320 +150,305 @@ class AnalyticsScreen extends ConsumerWidget {
                     const SizedBox(width: 4),
                     Text(
                       '${progress.streak}',
-                      style: AppTypography.titleMedium(
-                        color: AppColors.primary,
-                      ),
+                      style:
+                          AppTypography.titleMedium(color: AppColors.primary),
                     ),
                   ],
                 ),
               ),
             ],
           ).animate().fadeIn(duration: 400.ms),
-          const SizedBox(height: 24),
 
-          // Speaker DNA Card
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Speaker DNA', style: AppTypography.titleMedium()),
-                      Text(
-                        'Unique Voice Print',
-                        style: AppTypography.labelSmall(
-                          color: AppColors.primary,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      // Audio waveform visualization
-                      Row(
-                        children: List.generate(12, (i) {
-                          final h = 8.0 + (sin(i * 0.8) + 1) * 10;
-                          return Container(
-                            width: 3,
-                            height: h,
-                            margin: const EdgeInsets.symmetric(horizontal: 1.5),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary.withValues(
-                                alpha: 0.3 + (sin(i * 0.8) + 1) * 0.35,
-                              ),
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                          );
-                        }),
-                      ),
-                    ],
-                  ),
+          // Demo banner
+          if (isDemo) ...[
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: AppColors.primary.withValues(alpha: 0.2),
                 ),
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.auto_awesome_rounded,
+                      color: AppColors.primary, size: 18),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Sample data — complete sessions to see your real stats',
+                      style: AppTypography.labelSmall(
+                          color: AppColors.primary),
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.fingerprint_rounded,
-                    color: AppColors.primary,
-                    size: 28,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ).animate().fadeIn(delay: 100.ms, duration: 400.ms),
+          ],
+          const SizedBox(height: 20),
+
+          // ============ OVERVIEW STATS ============
+          Row(
+            children: [
+              _BigStatCard(
+                value: '${progress.totalSessions}',
+                label: 'Sessions',
+                icon: Icons.mic_rounded,
+                color: AppColors.primary,
+              ),
+              const SizedBox(width: 10),
+              _BigStatCard(
+                value: avgScore.toStringAsFixed(0),
+                label: 'Avg Score',
+                icon: Icons.speed_rounded,
+                color: AppColors.success,
+              ),
+              const SizedBox(width: 10),
+              _BigStatCard(
+                value: '$bestScore',
+                label: 'Best',
+                icon: Icons.emoji_events_rounded,
+                color: AppColors.gold,
+              ),
+              const SizedBox(width: 10),
+              _BigStatCard(
+                value: '${totalMinutes}m',
+                label: 'Practice',
+                icon: Icons.timer_rounded,
+                color: AppColors.skyBlue,
+              ),
+            ],
+          ).animate().fadeIn(delay: 80.ms, duration: 400.ms),
+          const SizedBox(height: 20),
+
+          // ============ ACTIVITY HEATMAP ============
+          _ActivityHeatmap(sessions: sessions)
+              .animate()
+              .fadeIn(delay: 160.ms, duration: 400.ms),
+          const SizedBox(height: 20),
+
+          // ============ WEEKLY BAR CHART ============
+          _SectionCard(
+            title: 'This Week',
+            child: SizedBox(
+              height: 160,
+              child: _WeeklyBarChart(weekSessions: weekSessions),
+            ),
+          ).animate().fadeIn(delay: 240.ms, duration: 400.ms),
           const SizedBox(height: 16),
 
-          // Speechy commentary
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    const MascotWidget(
-                      state: MascotState.happy,
-                      size: 40,
+          // ============ CATEGORY BREAKDOWN ============
+          if (sortedCategories.isNotEmpty)
+            _SectionCard(
+              title: 'Categories',
+              child: Column(
+                children: sortedCategories.take(5).map((entry) {
+                  final pct = entry.value / sessions.length;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 10),
+                    child: _CategoryBar(
+                      category: entry.key,
+                      count: entry.value,
+                      percentage: pct,
+                      color: _categoryColor(entry.key),
                     ),
-                    Positioned(
-                      right: -4,
-                      top: -4,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 4,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.success,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          avgScore.toStringAsFixed(1),
-                          style: AppTypography.labelSmall(
-                            color: AppColors.white,
-                          ).copyWith(fontSize: 9),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Speechy says:',
-                        style: AppTypography.labelSmall(
-                          color: context.textTertiary,
-                        ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        _getSpeechyComment(avgScore, progress.streak),
-                        style: AppTypography.bodySmall(
-                          color: context.textSecondary,
-                        ).copyWith(fontStyle: FontStyle.italic),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
-          const SizedBox(height: 24),
+                  );
+                }).toList(),
+              ),
+            ).animate().fadeIn(delay: 320.ms, duration: 400.ms),
+          if (sortedCategories.isNotEmpty) const SizedBox(height: 16),
 
-          // Core Metrics
+          // ============ SCORE TREND ============
+          if (sessions.length >= 2)
+            _SectionCard(
+              title: 'Score Trend',
+              child: SizedBox(
+                height: 200,
+                child: ScoreTrendChart(sessions: sessions),
+              ),
+            ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
+          if (sessions.length >= 2) const SizedBox(height: 16),
+
+          // ============ CORE METRICS ============
           Text('Core Metrics', style: AppTypography.headlineSmall())
               .animate()
-              .fadeIn(delay: 250.ms, duration: 400.ms),
+              .fadeIn(delay: 480.ms, duration: 400.ms),
           const SizedBox(height: 12),
-
-          _MetricRow(
+          MetricRow(
             icon: Icons.shield_rounded,
             label: 'Confidence',
-            description: _getMetricDescription('confidence', progress),
-            valueText: _getMetricLevel('confidence', progress),
+            description: getMetricDescription('confidence', progress),
+            valueText: getMetricLevel('confidence', progress),
             valueColor: AppColors.success,
-          ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
+          ).animate().fadeIn(delay: 520.ms, duration: 400.ms),
           const SizedBox(height: 8),
-          _MetricRow(
+          MetricRow(
             icon: Icons.waves_rounded,
             label: 'Clarity',
-            description: _getMetricDescription('clarity', progress),
-            valueText: _getMetricValue('clarity', progress),
+            description: getMetricDescription('clarity', progress),
+            valueText: getMetricValue('clarity', progress),
             valueColor: AppColors.primary,
-          ).animate().fadeIn(delay: 350.ms, duration: 400.ms),
+          ).animate().fadeIn(delay: 560.ms, duration: 400.ms),
           const SizedBox(height: 8),
-          _MetricRow(
+          MetricRow(
             icon: Icons.favorite_rounded,
             label: 'Emotion',
-            description: _getMetricDescription('emotion', progress),
-            valueText: _getMetricLevel('emotion', progress),
+            description: getMetricDescription('emotion', progress),
+            valueText: getMetricLevel('emotion', progress),
             valueColor: AppColors.success,
-          ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
-          const SizedBox(height: 24),
+          ).animate().fadeIn(delay: 600.ms, duration: 400.ms),
+          const SizedBox(height: 20),
 
-          // Score trend chart
-          if (progress.sessionHistory.length >= 2)
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Score Trend', style: AppTypography.titleMedium()),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    height: 200,
-                    child: _ScoreTrendChart(
-                      sessions: progress.sessionHistory,
-                    ),
-                  ),
-                ],
-              ),
-            ).animate().fadeIn(delay: 450.ms, duration: 400.ms),
-          if (progress.sessionHistory.length >= 2) const SizedBox(height: 16),
+          // ============ SCORE DISTRIBUTION ============
+          _SectionCard(
+            title: 'Score Distribution',
+            child: SizedBox(
+              height: 140,
+              child: _ScoreDistribution(sessions: sessions),
+            ),
+          ).animate().fadeIn(delay: 640.ms, duration: 400.ms),
+          const SizedBox(height: 16),
 
-          // Badges
+          // ============ BADGES ============
           if (progress.badges.isNotEmpty)
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
+            _SectionCard(
+              title: 'Badges (${progress.badges.length})',
+              child: Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: progress.badges
+                    .map((b) => _BadgeChip(badge: b))
+                    .toList(),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Badges', style: AppTypography.titleMedium()),
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: progress.badges
-                        .map((b) => _BadgeChip(badge: b))
-                        .toList(),
-                  ),
-                ],
-              ),
-            ).animate().fadeIn(delay: 500.ms, duration: 400.ms),
-          const SizedBox(height: 24),
+            ).animate().fadeIn(delay: 700.ms, duration: 400.ms),
+          const SizedBox(height: 32),
         ],
       ),
     );
   }
 
-  String _getSpeechyComment(double avgScore, int streak) {
-    if (avgScore >= 85) {
-      return '"You\'re crushing it! Your speaking skills are exceptional."';
-    }
-    if (avgScore >= 70) {
-      return '"Great progress! Your consistency is really paying off."';
-    }
-    if (streak >= 3) {
-      return '"Love the streak! Keep showing up and you\'ll see big improvements."';
-    }
-    return '"Every practice session makes you better. Keep going!"';
-  }
-
-  String _getMetricDescription(String metric, UserProgress progress) {
-    final sessions = progress.sessionHistory;
-    if (sessions.isEmpty) return 'No data yet';
-
-    switch (metric) {
-      case 'confidence':
-        final avg = sessions.map((s) => s.confidence).reduce((a, b) => a + b) /
-            sessions.length;
-        return avg >= 75 ? 'Strong projection' : 'Building confidence';
-      case 'clarity':
-        final clarityAvg = sessions.map((s) => s.clarity).reduce((a, b) => a + b) /
-            sessions.length;
-        return clarityAvg >= 75 ? 'Clear communicator' : 'Building clarity';
-      case 'emotion':
-        final avg = sessions.map((s) => s.engagement).reduce((a, b) => a + b) /
-            sessions.length;
-        return avg >= 75 ? 'Warm & Engaging' : 'Building warmth';
+  static Color _categoryColor(String category) {
+    switch (category.toLowerCase()) {
+      case 'interviews':
+        return AppColors.primary;
+      case 'presentations':
+        return AppColors.secondary;
+      case 'public speaking':
+        return const Color(0xFFCE82FF);
+      case 'conversations':
+        return AppColors.success;
+      case 'debates':
+        return AppColors.error;
+      case 'storytelling':
+        return AppColors.gold;
+      case 'phone anxiety':
+        return AppColors.skyBlue;
+      case 'dating & social':
+        return const Color(0xFFFF6B9D);
+      case 'conflict & boundaries':
+        return const Color(0xFFFF8C42);
+      case 'social situations':
+        return const Color(0xFF4ECDC4);
       default:
-        return '';
-    }
-  }
-
-  String _getMetricLevel(String metric, UserProgress progress) {
-    final sessions = progress.sessionHistory;
-    if (sessions.isEmpty) return '--';
-
-    double avg;
-    switch (metric) {
-      case 'confidence':
-        avg = sessions.map((s) => s.confidence).reduce((a, b) => a + b) /
-            sessions.length;
-        break;
-      case 'emotion':
-        avg = sessions.map((s) => s.engagement).reduce((a, b) => a + b) /
-            sessions.length;
-        break;
-      default:
-        return '--';
-    }
-    if (avg >= 80) return 'High';
-    if (avg >= 60) return 'Medium';
-    return 'Building';
-  }
-
-  String _getMetricValue(String metric, UserProgress progress) {
-    final sessions = progress.sessionHistory;
-    if (sessions.isEmpty) return '--';
-
-    switch (metric) {
-      case 'clarity':
-        final avg = sessions.map((s) => s.clarity).reduce((a, b) => a + b) /
-            sessions.length;
-        return '${avg.round()}%';
-      default:
-        return '--';
+        return AppColors.primary;
     }
   }
 }
 
-class _MetricRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String description;
-  final String valueText;
-  final Color valueColor;
+// ─── Overview Stat Card ─────────────────────────────────────────────────────
 
-  const _MetricRow({
-    required this.icon,
+class _BigStatCard extends StatelessWidget {
+  final String value;
+  final String label;
+  final IconData icon;
+  final Color color;
+
+  const _BigStatCard({
+    required this.value,
     required this.label,
-    required this.description,
-    required this.valueText,
-    required this.valueColor,
+    required this.icon,
+    required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          color: color.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color, size: 18),
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: AppTypography.titleLarge(color: color)
+                  .copyWith(fontWeight: FontWeight.w800, fontSize: 18),
+            ),
+            Text(
+              label,
+              style: AppTypography.labelSmall(color: context.textSecondary)
+                  .copyWith(fontSize: 10),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Activity Heatmap (GitHub-style) ────────────────────────────────────────
+
+class _ActivityHeatmap extends StatelessWidget {
+  final List<SessionRecord> sessions;
+
+  const _ActivityHeatmap({required this.sessions});
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    // Build a map of date → session count for last 91 days (13 weeks)
+    final activityMap = <DateTime, int>{};
+    for (final s in sessions) {
+      final d = DateTime(s.date.year, s.date.month, s.date.day);
+      final diff = today.difference(d).inDays;
+      if (diff >= 0 && diff < 91) {
+        activityMap[d] = (activityMap[d] ?? 0) + 1;
+      }
+    }
+
+    // Generate grid: 13 weeks × 7 days
+    final startDate = today.subtract(Duration(days: 90 + today.weekday % 7));
+    final weeks = <List<_HeatmapDay>>[];
+    var current = startDate;
+    var week = <_HeatmapDay>[];
+
+    while (!current.isAfter(today)) {
+      final count = activityMap[current] ?? 0;
+      week.add(_HeatmapDay(date: current, count: count));
+      if (week.length == 7) {
+        weeks.add(week);
+        week = [];
+      }
+      current = current.add(const Duration(days: 1));
+    }
+    if (week.isNotEmpty) {
+      weeks.add(week);
+    }
+
+    // Day labels
+    const dayLabels = ['', 'M', '', 'W', '', 'F', ''];
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -442,111 +456,192 @@ class _MetricRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
       ),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: valueColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: valueColor, size: 20),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: AppTypography.titleMedium()),
-                Text(
-                  description,
-                  style: AppTypography.labelSmall(
-                    color: context.textTertiary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Text(
-            valueText,
-            style: AppTypography.titleMedium(color: valueColor)
-                .copyWith(fontWeight: FontWeight.w800),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class AnalyticsSkeleton extends StatelessWidget {
-  const AnalyticsSkeleton({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SizedBox(height: 16),
-          const SkeletonLine(width: 180, height: 32),
-          const SizedBox(height: 6),
-          const SkeletonLine(width: 100, height: 14),
-          const SizedBox(height: 24),
-          Skeleton(height: 100, borderRadius: BorderRadius.circular(20)),
-          const SizedBox(height: 16),
-          Skeleton(height: 80, borderRadius: BorderRadius.circular(16)),
-          const SizedBox(height: 24),
-          const SkeletonLine(width: 140, height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Activity', style: AppTypography.titleMedium()),
+              Text(
+                '${sessions.length} total sessions',
+                style: AppTypography.labelSmall(
+                    color: context.textSecondary),
+              ),
+            ],
+          ),
           const SizedBox(height: 12),
-          for (int i = 0; i < 3; i++) ...[
-            Skeleton(height: 72, borderRadius: BorderRadius.circular(16)),
-            const SizedBox(height: 8),
-          ],
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Day labels column
+              Column(
+                children: dayLabels
+                    .map(
+                      (label) => SizedBox(
+                        height: 12,
+                        child: Text(
+                          label,
+                          style: AppTypography.labelSmall(
+                                  color: context.textTertiary)
+                              .copyWith(fontSize: 8),
+                        ),
+                      ),
+                    )
+                    .toList(),
+              ),
+              const SizedBox(width: 4),
+              // Heatmap grid
+              Expanded(
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  reverse: true,
+                  child: Row(
+                    children: weeks.map((week) {
+                      return Column(
+                        children: List.generate(7, (dayIndex) {
+                          if (dayIndex < week.length) {
+                            return _HeatmapCell(day: week[dayIndex]);
+                          }
+                          return const SizedBox(width: 10, height: 10);
+                        }),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // Legend
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text('Less',
+                  style: AppTypography.labelSmall(
+                          color: context.textTertiary)
+                      .copyWith(fontSize: 9)),
+              const SizedBox(width: 4),
+              for (final level in [0, 1, 2, 3])
+                Container(
+                  width: 10,
+                  height: 10,
+                  margin: const EdgeInsets.symmetric(horizontal: 1),
+                  decoration: BoxDecoration(
+                    color: _heatColor(level),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              const SizedBox(width: 4),
+              Text('More',
+                  style: AppTypography.labelSmall(
+                          color: context.textTertiary)
+                      .copyWith(fontSize: 9)),
+            ],
+          ),
         ],
+      ),
+    );
+  }
+
+  static Color _heatColor(int level) {
+    switch (level) {
+      case 0:
+        return const Color(0xFFEBEDF0);
+      case 1:
+        return AppColors.success.withValues(alpha: 0.3);
+      case 2:
+        return AppColors.success.withValues(alpha: 0.6);
+      default:
+        return AppColors.success;
+    }
+  }
+}
+
+class _HeatmapDay {
+  final DateTime date;
+  final int count;
+
+  const _HeatmapDay({required this.date, required this.count});
+}
+
+class _HeatmapCell extends StatelessWidget {
+  final _HeatmapDay day;
+
+  const _HeatmapCell({required this.day});
+
+  @override
+  Widget build(BuildContext context) {
+    final level = day.count == 0
+        ? 0
+        : day.count == 1
+            ? 1
+            : day.count == 2
+                ? 2
+                : 3;
+
+    return Container(
+      width: 10,
+      height: 10,
+      margin: const EdgeInsets.all(1),
+      decoration: BoxDecoration(
+        color: _ActivityHeatmap._heatColor(level),
+        borderRadius: BorderRadius.circular(2),
       ),
     );
   }
 }
 
-class _ScoreTrendChart extends StatelessWidget {
-  final List<SessionRecord> sessions;
+// ─── Weekly Bar Chart ───────────────────────────────────────────────────────
 
-  const _ScoreTrendChart({required this.sessions});
+class _WeeklyBarChart extends StatelessWidget {
+  final List<int> weekSessions;
+
+  const _WeeklyBarChart({required this.weekSessions});
 
   @override
   Widget build(BuildContext context) {
-    final recentSessions = sessions.length > 20
-        ? sessions.sublist(sessions.length - 20)
-        : sessions;
+    final maxVal = weekSessions.reduce(max).toDouble();
+    final dayLabels = _last7DayLabels();
 
-    return LineChart(
-      LineChartData(
-        gridData: FlGridData(
-          show: true,
-          drawVerticalLine: false,
-          horizontalInterval: 25,
-          getDrawingHorizontalLine: (value) => FlLine(
-            color: context.divider,
-            strokeWidth: 1,
+    return BarChart(
+      BarChartData(
+        alignment: BarChartAlignment.spaceAround,
+        maxY: maxVal > 0 ? maxVal + 1 : 4,
+        barTouchData: BarTouchData(
+          touchTooltipData: BarTouchTooltipData(
+            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+              return BarTooltipItem(
+                '${rod.toY.toInt()} sessions',
+                AppTypography.labelSmall(color: AppColors.white),
+              );
+            },
           ),
         ),
         titlesData: FlTitlesData(
-          leftTitles: AxisTitles(
+          show: true,
+          bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
-              reservedSize: 30,
-              interval: 25,
-              getTitlesWidget: (value, meta) => Text(
-                '${value.toInt()}',
-                style: AppTypography.labelSmall(
-                  color: context.textTertiary,
-                ),
-              ),
+              getTitlesWidget: (value, meta) {
+                final idx = value.toInt();
+                if (idx >= 0 && idx < dayLabels.length) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(
+                      dayLabels[idx],
+                      style: AppTypography.labelSmall(
+                              color: context.textTertiary)
+                          .copyWith(fontSize: 10),
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+              reservedSize: 24,
             ),
           ),
-          bottomTitles: const AxisTitles(
+          leftTitles: const AxisTitles(
             sideTitles: SideTitles(showTitles: false),
           ),
           topTitles: const AxisTitles(
@@ -556,37 +651,213 @@ class _ScoreTrendChart extends StatelessWidget {
             sideTitles: SideTitles(showTitles: false),
           ),
         ),
+        gridData: const FlGridData(show: false),
         borderData: FlBorderData(show: false),
-        minY: 0,
-        maxY: 100,
-        lineBarsData: [
-          LineChartBarData(
-            spots: recentSessions.asMap().entries.map((e) {
-              return FlSpot(
-                  e.key.toDouble(), e.value.overallScore.toDouble());
-            }).toList(),
-            isCurved: true,
-            color: AppColors.primary,
-            barWidth: 3,
-            dotData: FlDotData(
-              show: true,
-              getDotPainter: (spot, percent, barData, index) =>
-                  FlDotCirclePainter(
-                radius: 3,
-                color: AppColors.primary,
-                strokeWidth: 0,
+        barGroups: List.generate(7, (i) {
+          return BarChartGroupData(
+            x: i,
+            barRods: [
+              BarChartRodData(
+                toY: weekSessions[i].toDouble(),
+                color: weekSessions[i] > 0
+                    ? AppColors.primary
+                    : const Color(0xFFE5E5E5),
+                width: 24,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(6),
+                ),
               ),
+            ],
+          );
+        }),
+      ),
+    );
+  }
+
+  List<String> _last7DayLabels() {
+    const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    final now = DateTime.now();
+    return List.generate(7, (i) {
+      final d = now.subtract(Duration(days: 6 - i));
+      return days[d.weekday - 1];
+    });
+  }
+}
+
+// ─── Category Breakdown Bar ─────────────────────────────────────────────────
+
+class _CategoryBar extends StatelessWidget {
+  final String category;
+  final int count;
+  final double percentage;
+  final Color color;
+
+  const _CategoryBar({
+    required this.category,
+    required this.count,
+    required this.percentage,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              category,
+              style: AppTypography.labelMedium(),
             ),
-            belowBarData: BarAreaData(
-              show: true,
-              color: AppColors.primary.withValues(alpha: 0.1),
+            Text(
+              '$count sessions',
+              style:
+                  AppTypography.labelSmall(color: context.textSecondary),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(4),
+          child: LinearProgressIndicator(
+            value: percentage,
+            backgroundColor: const Color(0xFFE5E5E5),
+            color: color,
+            minHeight: 8,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─── Score Distribution ─────────────────────────────────────────────────────
+
+class _ScoreDistribution extends StatelessWidget {
+  final List<SessionRecord> sessions;
+
+  const _ScoreDistribution({required this.sessions});
+
+  @override
+  Widget build(BuildContext context) {
+    // Bucket scores: 0-20, 20-40, 40-60, 60-80, 80-100
+    final buckets = List<int>.filled(5, 0);
+    for (final s in sessions) {
+      final idx = (s.overallScore / 20).floor().clamp(0, 4);
+      buckets[idx]++;
+    }
+    final maxBucket = buckets.reduce(max).toDouble();
+    final labels = ['0-20', '21-40', '41-60', '61-80', '81-100'];
+    final colors = [
+      AppColors.error,
+      AppColors.warning,
+      AppColors.gold,
+      AppColors.primary,
+      AppColors.success,
+    ];
+
+    return BarChart(
+      BarChartData(
+        alignment: BarChartAlignment.spaceAround,
+        maxY: maxBucket > 0 ? maxBucket + 1 : 4,
+        barTouchData: BarTouchData(
+          touchTooltipData: BarTouchTooltipData(
+            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+              return BarTooltipItem(
+                '${rod.toY.toInt()} sessions',
+                AppTypography.labelSmall(color: AppColors.white),
+              );
+            },
+          ),
+        ),
+        titlesData: FlTitlesData(
+          show: true,
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) {
+                final idx = value.toInt();
+                if (idx >= 0 && idx < labels.length) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(
+                      labels[idx],
+                      style: AppTypography.labelSmall(
+                              color: context.textTertiary)
+                          .copyWith(fontSize: 9),
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+              reservedSize: 24,
             ),
           ),
+          leftTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          topTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+          rightTitles: const AxisTitles(
+            sideTitles: SideTitles(showTitles: false),
+          ),
+        ),
+        gridData: const FlGridData(show: false),
+        borderData: FlBorderData(show: false),
+        barGroups: List.generate(5, (i) {
+          return BarChartGroupData(
+            x: i,
+            barRods: [
+              BarChartRodData(
+                toY: buckets[i].toDouble(),
+                color: colors[i],
+                width: 32,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(6),
+                ),
+              ),
+            ],
+          );
+        }),
+      ),
+    );
+  }
+}
+
+// ─── Section Card ───────────────────────────────────────────────────────────
+
+class _SectionCard extends StatelessWidget {
+  final String title;
+  final Widget child;
+
+  const _SectionCard({required this.title, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: AppTypography.titleMedium()),
+          const SizedBox(height: 12),
+          child,
         ],
       ),
     );
   }
 }
+
+// ─── Badge Chip ─────────────────────────────────────────────────────────────
 
 class _BadgeChip extends StatelessWidget {
   final String badge;
@@ -630,6 +901,39 @@ class _BadgeChip extends StatelessWidget {
             label,
             style: AppTypography.labelSmall(color: AppColors.gold),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─── Skeleton ───────────────────────────────────────────────────────────────
+
+class AnalyticsSkeleton extends StatelessWidget {
+  const AnalyticsSkeleton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 16),
+          const SkeletonLine(width: 180, height: 32),
+          const SizedBox(height: 6),
+          const SkeletonLine(width: 100, height: 14),
+          const SizedBox(height: 24),
+          Skeleton(height: 100, borderRadius: BorderRadius.circular(20)),
+          const SizedBox(height: 16),
+          Skeleton(height: 80, borderRadius: BorderRadius.circular(16)),
+          const SizedBox(height: 24),
+          const SkeletonLine(width: 140, height: 20),
+          const SizedBox(height: 12),
+          for (int i = 0; i < 3; i++) ...[
+            Skeleton(height: 72, borderRadius: BorderRadius.circular(16)),
+            const SizedBox(height: 8),
+          ],
         ],
       ),
     );

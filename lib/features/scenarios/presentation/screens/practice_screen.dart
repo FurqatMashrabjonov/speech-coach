@@ -95,7 +95,7 @@ class PracticeScreen extends ConsumerWidget {
                   crossAxisCount: 2,
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
-                  childAspectRatio: 1.3,
+                  childAspectRatio: 1.15,
                 ),
                 itemCount: _categories.length,
                 itemBuilder: (context, index) {
@@ -253,8 +253,8 @@ class _CategoryCard extends StatelessWidget {
             const Spacer(),
             Text(
               name,
-              style: AppTypography.titleMedium(),
-              maxLines: 1,
+              style: AppTypography.labelLarge(),
+              maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
             Text(

@@ -28,7 +28,11 @@ class NotificationService {
     );
   }
 
-  static Future<void> scheduleStreakReminder(int streak) async {
+  static Future<void> scheduleStreakReminder(
+    int streak, {
+    int hour = 19,
+    int minute = 0,
+  }) async {
     if (streak <= 0) return;
 
     await cancelAll();
@@ -39,7 +43,8 @@ class NotificationService {
       now.year,
       now.month,
       now.day,
-      19, // 7 PM
+      hour,
+      minute,
     );
 
     // If 7 PM has passed today, schedule for tomorrow

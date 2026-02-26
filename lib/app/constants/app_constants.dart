@@ -44,6 +44,13 @@ class AppConstants {
   // SharedPreferences keys
   static const String keyOnboardingCompleted = 'onboarding_completed';
   static const String keyThemeMode = 'theme_mode';
+  static const String keyDefaultVoice = 'default_voice';
+  static const String keyDefaultDuration = 'default_duration_minutes';
+  static const String keyAutoScore = 'auto_score';
+  static const String keyPracticeReminders = 'practice_reminders';
+  static const String keyReminderTimeHour = 'reminder_time_hour';
+  static const String keyReminderTimeMinute = 'reminder_time_minute';
+  static const String keyStreakReminders = 'streak_reminders';
 
   // Firestore collections
   static const String usersCollection = 'users';

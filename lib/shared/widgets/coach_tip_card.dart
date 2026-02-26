@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:speech_coach/app/theme/app_colors.dart';
 import 'package:speech_coach/app/theme/app_typography.dart';
-import 'package:speech_coach/shared/widgets/mascot_widget.dart';
 
 class CoachTipCard extends StatelessWidget {
   final String tip;
@@ -43,9 +42,18 @@ class CoachTipCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const MascotWidget(
-                    state: MascotState.coaching,
-                    size: 48,
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.lightbulb_rounded,
+                      color: AppColors.primary,
+                      size: 20,
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(

@@ -40,22 +40,6 @@ class MascotWidget extends StatelessWidget {
     }
   }
 
-  IconData get _fallbackIcon {
-    switch (state) {
-      case MascotState.happy:
-        return Icons.sentiment_very_satisfied_rounded;
-      case MascotState.celebrating:
-        return Icons.celebration_rounded;
-      case MascotState.impressed:
-        return Icons.thumb_up_rounded;
-      case MascotState.thinking:
-        return Icons.psychology_rounded;
-      case MascotState.encouraging:
-        return Icons.trending_up_rounded;
-      case MascotState.coaching:
-        return Icons.school_rounded;
-    }
-  }
 
   Color get _fallbackColor {
     switch (state) {
@@ -109,18 +93,40 @@ class MascotWidget extends StatelessWidget {
     );
   }
 
+  String get _fallbackEmoji {
+    switch (state) {
+      case MascotState.happy:
+        return '😊';
+      case MascotState.celebrating:
+        return '🎉';
+      case MascotState.impressed:
+        return '🤩';
+      case MascotState.thinking:
+        return '🤔';
+      case MascotState.encouraging:
+        return '💪';
+      case MascotState.coaching:
+        return '🎓';
+    }
+  }
+
   Widget _buildFallback() {
     return Container(
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: _fallbackColor.withValues(alpha: 0.1),
+        color: _fallbackColor.withValues(alpha: 0.12),
         shape: BoxShape.circle,
+        border: Border.all(
+          color: _fallbackColor.withValues(alpha: 0.2),
+          width: 2,
+        ),
       ),
-      child: Icon(
-        _fallbackIcon,
-        size: size * 0.45,
-        color: _fallbackColor,
+      child: Center(
+        child: Text(
+          _fallbackEmoji,
+          style: TextStyle(fontSize: size * 0.4),
+        ),
       ),
     );
   }

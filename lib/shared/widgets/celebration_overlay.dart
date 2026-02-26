@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:speech_coach/app/theme/app_colors.dart';
 import 'package:speech_coach/app/theme/app_typography.dart';
-import 'package:speech_coach/shared/widgets/mascot_widget.dart';
 
 class CelebrationOverlay extends StatelessWidget {
   final String message;
@@ -52,10 +51,19 @@ class CelebrationOverlay extends StatelessWidget {
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Mascot
-                      const MascotWidget(
-                        state: MascotState.celebrating,
-                        size: 120,
+                      // Trophy icon
+                      Container(
+                        width: 80,
+                        height: 80,
+                        decoration: BoxDecoration(
+                          color: AppColors.gold.withValues(alpha: 0.12),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.emoji_events_rounded,
+                          color: AppColors.gold,
+                          size: 40,
+                        ),
                       )
                           .animate()
                           .scale(

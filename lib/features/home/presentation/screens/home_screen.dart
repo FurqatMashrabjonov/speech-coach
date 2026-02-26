@@ -5,8 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:speech_coach/app/theme/app_colors.dart';
 import 'package:speech_coach/app/theme/app_typography.dart';
 import 'package:speech_coach/core/extensions/context_extensions.dart';
+import 'package:speech_coach/features/daily_goal/domain/daily_goal_entity.dart';
 import 'package:speech_coach/features/daily_goal/presentation/providers/daily_goal_provider.dart';
-import 'package:speech_coach/shared/widgets/mascot_widget.dart';
 import 'package:speech_coach/shared/widgets/duo_button.dart';
 import 'package:speech_coach/shared/widgets/progress_bar.dart';
 import 'package:speech_coach/shared/widgets/skeleton.dart';
@@ -103,6 +103,32 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     return 'Good Evening';
   }
 
+  String _headingText(UserProgress progress, DailyGoal dailyGoal) {
+    if (dailyGoal.completedToday >= dailyGoal.targetSessions) {
+      return "You've hit your daily goal!";
+    }
+    if (progress.streak >= 7) {
+      return '${progress.streak}-day streak! Keep going!';
+    }
+    if (progress.totalSessions == 0) {
+      return 'Start your speaking journey';
+    }
+    return "Let's find your voice!";
+  }
+
+  String _subtitleText(UserProgress progress, DailyGoal dailyGoal) {
+    if (dailyGoal.completedToday >= dailyGoal.targetSessions) {
+      return 'Practice more to level up';
+    }
+    if (progress.streak > 0) {
+      return 'Consistency is key to fluency';
+    }
+    if (progress.totalSessions == 0) {
+      return 'Complete your first session today';
+    }
+    return 'Consistency is key to fluency';
+  }
+
   @override
   Widget build(BuildContext context) {
     final progress = ref.watch(progressProvider);
@@ -182,59 +208,22 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ).animate().fadeIn(duration: 400.ms),
               const SizedBox(height: 24),
 
-              // --- Section 2: Mascot + Speech bubble ---
-              Center(
-                child: Column(
-                  children: [
-                    Stack(
-                      alignment: Alignment.topRight,
-                      clipBehavior: Clip.none,
-                      children: [
-                        const MascotWidget(
-                          state: MascotState.happy,
-                          size: 140,
-                          showGlow: true,
-                        ),
-                        Positioned(
-                          top: -8,
-                          right: -40,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.white,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: const Color(0xFFE5E5E5),
-                                width: 2,
-                              ),
-                            ),
-                            child: Text(
-                              'Ready to speak?',
-                              style: AppTypography.labelMedium(
-                                color: AppColors.primary,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+              // --- Section 2: Heading ---
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    _headingText(progress, dailyGoal),
+                    style: AppTypography.headlineMedium(),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    _subtitleText(progress, dailyGoal),
+                    style: AppTypography.bodySmall(
+                      color: context.textSecondary,
                     ),
-                    const SizedBox(height: 12),
-                    Text(
-                      "Let's find your voice!",
-                      style: AppTypography.headlineMedium(),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Consistency is key to fluency.',
-                      style: AppTypography.bodySmall(
-                        color: context.textSecondary,
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               )
                   .animate()
                   .fadeIn(delay: 100.ms, duration: 500.ms)
@@ -418,9 +407,10 @@ class _DailyGoalCard extends StatelessWidget {
                 style: AppTypography.titleMedium(),
               ),
               const Spacer(),
-              const MascotWidget(
-                state: MascotState.encouraging,
-                size: 36,
+              Icon(
+                isComplete ? Icons.emoji_events_rounded : Icons.flag_rounded,
+                color: isComplete ? AppColors.gold : AppColors.primary,
+                size: 24,
               ),
             ],
           ),
@@ -577,11 +567,9 @@ class HomeSkeleton extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 24),
-          Center(
-            child: SkeletonCircle(size: 140),
-          ),
-          const SizedBox(height: 16),
-          Center(child: const SkeletonLine(width: 200, height: 24)),
+          const SkeletonLine(width: 220, height: 24),
+          const SizedBox(height: 8),
+          const SkeletonLine(width: 180, height: 14),
           const SizedBox(height: 24),
           Skeleton(height: 140, borderRadius: BorderRadius.circular(20)),
           const SizedBox(height: 24),

@@ -11,9 +11,9 @@ import 'package:speech_coach/core/extensions/context_extensions.dart';
 import 'package:speech_coach/features/characters/domain/character_entity.dart';
 import 'package:speech_coach/features/conversation/domain/conversation_entity.dart';
 import 'package:speech_coach/shared/widgets/duo_button.dart';
-import 'package:speech_coach/shared/widgets/mascot_widget.dart';
 import 'package:speech_coach/shared/widgets/tappable.dart';
 import 'package:speech_coach/features/conversation/presentation/providers/conversation_provider.dart';
+import 'package:speech_coach/features/profile/presentation/providers/settings_provider.dart';
 import 'package:speech_coach/features/conversation/presentation/widgets/conversation_bubble.dart';
 import 'package:speech_coach/features/feedback/presentation/providers/feedback_provider.dart';
 import 'package:speech_coach/features/history/presentation/providers/session_history_provider.dart';
@@ -59,7 +59,7 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
       if (widget.characterName != null && widget.scenarioId == null) {
         notifier.setCharacter(
           name: widget.characterName!,
-          voiceName: widget.characterVoice ?? 'Puck',
+          voiceName: widget.characterVoice ?? ref.read(defaultVoiceProvider),
           personality: widget.characterPersonality ?? '',
         );
       }
@@ -131,9 +131,18 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const MascotWidget(
-                  state: MascotState.coaching,
-                  size: 160,
+                Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    color: AppColors.primary.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.mic_rounded,
+                    color: AppColors.primary,
+                    size: 48,
+                  ),
                 ),
                 const SizedBox(height: 24),
                 Text(
@@ -419,6 +428,28 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
                       .read(conversationProvider(widget.category).notifier)
                       .startConversation();
                 },
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (state.messages.isEmpty && state.currentTranscription.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.mic_rounded, size: 48, color: AppColors.primary.withValues(alpha: 0.3)),
+              const SizedBox(height: 16),
+              Text('Listening...', style: AppTypography.titleMedium(color: context.textTertiary)),
+              const SizedBox(height: 8),
+              Text(
+                'AI will speak first, then respond naturally.',
+                textAlign: TextAlign.center,
+                style: AppTypography.bodySmall(color: context.textTertiary),
               ),
             ],
           ),

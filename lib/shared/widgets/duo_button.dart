@@ -100,7 +100,8 @@ class _DuoButtonState extends State<DuoButton> {
   Color get _textColor {
     if (widget.disabled) return const Color(0xFFAFAFAF);
     if (widget.outline) return widget.color ?? AppColors.primary;
-    return AppColors.white;
+    final fill = widget.color ?? AppColors.primary;
+    return fill.computeLuminance() > 0.5 ? const Color(0xFF4A4A4A) : AppColors.white;
   }
 
   Color get _borderColor {

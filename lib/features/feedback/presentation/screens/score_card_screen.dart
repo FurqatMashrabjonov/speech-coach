@@ -9,7 +9,6 @@ import 'package:speech_coach/app/theme/app_typography.dart';
 import 'package:speech_coach/core/extensions/context_extensions.dart';
 import 'package:speech_coach/features/feedback/domain/feedback_entity.dart';
 import 'package:speech_coach/shared/widgets/coach_tip_card.dart';
-import 'package:speech_coach/shared/widgets/mascot_widget.dart';
 import 'package:speech_coach/shared/widgets/progress_bar.dart';
 import 'package:speech_coach/shared/widgets/duo_button.dart';
 import 'package:speech_coach/shared/widgets/score_ring.dart';
@@ -119,9 +118,18 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const MascotWidget(
-            state: MascotState.thinking,
-            size: 180,
+          Container(
+            width: 100,
+            height: 100,
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.auto_awesome_rounded,
+              color: AppColors.primary,
+              size: 48,
+            ),
           ),
           const SizedBox(height: 24),
           // Pulsing circles behind mascot
@@ -355,14 +363,7 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
                         .scale(begin: const Offset(0.8, 0.8)),
                     const SizedBox(height: 4),
 
-                    // Mascot overlay
-                    Transform.translate(
-                      offset: const Offset(0, -16),
-                      child: const MascotWidget(
-                        state: MascotState.impressed,
-                        size: 80,
-                      ),
-                    ),
+                    const SizedBox(height: 8),
 
                     // Label
                     Text(
