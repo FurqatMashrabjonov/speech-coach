@@ -3,42 +3,44 @@ import 'package:flutter/material.dart';
 class AppColors {
   AppColors._();
 
-  // Primary - Warm Terracotta/Orange
+  // Primary - Orange Brand (kept)
   static const primary = Color(0xFFE8793A);
-  static const primaryLight = Color(0xFFFADCC8);
-  static const primaryDark = Color(0xFFC96830);
+  static const primaryLight = Color(0xFFFFF0E5);
+  static const primaryDark = Color(0xFFC45A1F);
 
-  // Secondary - Soft Peach (used sparingly)
+  // Secondary
   static const secondary = Color(0xFFE8793A);
-  static const secondaryLight = Color(0xFFFBE8D8);
+  static const secondaryLight = Color(0xFFFFF0E5);
 
-  // Accent - Warm Amber
-  static const accent = Color(0xFFE8A849);
-  static const accentLight = Color(0xFFFBE8D8);
+  // Accent - Duolingo Blue (for links, secondary actions)
+  static const accent = Color(0xFF1CB0F6);
+  static const accentLight = Color(0xFFE5F4FD);
 
-  // Extended palette - Warm tones only
-  static const lime = Color(0xFFE8A849);
-  static const skyBlue = Color(0xFFD4845A);
-  static const gold = Color(0xFFE8A849);
-  static const lavender = Color(0xFFF2C4A0);
-  static const softPink = Color(0xFFFBE8D8);
+  // Extended palette - Duolingo-vibrant
+  static const lime = Color(0xFF58CC02);
+  static const skyBlue = Color(0xFF1CB0F6);
+  static const gold = Color(0xFFFFC800);
+  static const lavender = Color(0xFFCE82FF);
+  static const softPink = Color(0xFFFFE5E5);
+  static const purple = Color(0xFFCE82FF);
+  static const darkBlue = Color(0xFF2B70C9);
 
-  // Success / Warning / Error
-  static const success = Color(0xFF5A9A5C);
-  static const warning = Color(0xFFE8A849);
-  static const error = Color(0xFFD44C3F);
+  // Success / Warning / Error - Duolingo-vibrant
+  static const success = Color(0xFF58CC02);
+  static const warning = Color(0xFFFFC800);
+  static const error = Color(0xFFFF4B4B);
 
-  // Neutrals - Light (warm-tinted)
+  // Neutrals - Light (clean white like Duolingo)
   static const white = Color(0xFFFFFFFF);
-  static const backgroundLight = Color(0xFFFAF8F5);
-  static const surfaceLight = Color(0xFFF2EEEA);
+  static const backgroundLight = Color(0xFFFFFFFF);
+  static const surfaceLight = Color(0xFFF7F7F7);
   static const cardLight = Color(0xFFFFFFFF);
-  static const dividerLight = Color(0xFFE8E4DF);
+  static const dividerLight = Color(0xFFE5E5E5);
   static const textPrimaryLight = Color(0xFF1A1715);
-  static const textSecondaryLight = Color(0xFF8E8880);
-  static const textTertiaryLight = Color(0xFFA8A29E);
+  static const textSecondaryLight = Color(0xFF777777);
+  static const textTertiaryLight = Color(0xFFAFAFAF);
 
-  // Neutrals - Dark (warm-tinted)
+  // Neutrals - Dark (warm-tinted, kept as-is)
   static const backgroundDark = Color(0xFF161412);
   static const surfaceDark = Color(0xFF211E1B);
   static const cardDark = Color(0xFF2C2825);
@@ -47,9 +49,9 @@ class AppColors {
   static const textSecondaryDark = Color(0xFFA8A098);
   static const textTertiaryDark = Color(0xFF706860);
 
-  // Gradients - Subtle, single-family
+  // Gradients
   static const primaryGradient = LinearGradient(
-    colors: [Color(0xFFE8793A), Color(0xFFD4845A)],
+    colors: [Color(0xFFE8793A), Color(0xFFF09050)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
@@ -61,44 +63,44 @@ class AppColors {
   );
 
   static const cardGradient = LinearGradient(
-    colors: [Color(0xFFE8793A), Color(0xFFD4845A)],
+    colors: [Color(0xFFE8793A), Color(0xFFF09050)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   static const accentGradient = LinearGradient(
-    colors: [Color(0xFFE8A849), Color(0xFFE8793A)],
+    colors: [Color(0xFFFFC800), Color(0xFFE8793A)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  // Category colors - Subtle warm variations
+  // Category colors - Vibrant, distinct hues (Duolingo-style)
   static const categoryPresentations = Color(0xFFE8793A);
-  static const categoryInterviews = Color(0xFFD4845A);
-  static const categoryPublicSpeaking = Color(0xFFE0956A);
-  static const categoryConversations = Color(0xFFC8956E);
-  static const categoryDebates = Color(0xFFE8A849);
-  static const categoryStorytelling = Color(0xFFD4A87A);
-  static const categoryPhoneAnxiety = Color(0xFFD47A5A);
-  static const categoryDating = Color(0xFFE09A7A);
-  static const categoryConflict = Color(0xFFC4785C);
-  static const categorySocial = Color(0xFFD4A070);
+  static const categoryInterviews = Color(0xFF2B70C9);
+  static const categoryPublicSpeaking = Color(0xFFCE82FF);
+  static const categoryConversations = Color(0xFF58CC02);
+  static const categoryDebates = Color(0xFFFF4B4B);
+  static const categoryStorytelling = Color(0xFFFFC800);
+  static const categoryPhoneAnxiety = Color(0xFF1CB0F6);
+  static const categoryDating = Color(0xFFFF9600);
+  static const categoryConflict = Color(0xFFE8793A);
+  static const categorySocial = Color(0xFF58CC02);
 
-  // Card pastels (for category grid)
-  static const cardPeach = Color(0xFFFDF2E9);
-  static const cardBlue = Color(0xFFE8F4FA);
-  static const cardLavender = Color(0xFFF0E9FD);
-  static const cardMint = Color(0xFFEAFBF2);
-  static const cardYellow = Color(0xFFFFF8E1);
-  static const cardRose = Color(0xFFFCECEC);
+  // Card pastels - Brighter, cleaner
+  static const cardPeach = Color(0xFFFFF4EC);
+  static const cardBlue = Color(0xFFE5F4FD);
+  static const cardLavender = Color(0xFFF0E5FF);
+  static const cardMint = Color(0xFFE5FFF0);
+  static const cardYellow = Color(0xFFFFF9E0);
+  static const cardRose = Color(0xFFFFE5E5);
 
-  // Warm background
-  static const backgroundWarm = Color(0xFFFFFAF7);
+  // Warm background (clean white)
+  static const backgroundWarm = Color(0xFFFFFFFF);
 
   // Chat bubble colors
-  static const chatAiBubble = Color(0xFFF2EEEA);
+  static const chatAiBubble = Color(0xFFF7F7F7);
 
   // Legacy aliases
   static const streakOrange = Color(0xFFE8793A);
-  static const streakYellow = Color(0xFFE8A849);
+  static const streakYellow = Color(0xFFFFC800);
 }

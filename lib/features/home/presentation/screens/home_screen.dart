@@ -7,6 +7,7 @@ import 'package:speech_coach/app/theme/app_typography.dart';
 import 'package:speech_coach/core/extensions/context_extensions.dart';
 import 'package:speech_coach/features/daily_goal/presentation/providers/daily_goal_provider.dart';
 import 'package:speech_coach/shared/widgets/mascot_widget.dart';
+import 'package:speech_coach/shared/widgets/duo_button.dart';
 import 'package:speech_coach/shared/widgets/progress_bar.dart';
 import 'package:speech_coach/shared/widgets/skeleton.dart';
 import 'package:speech_coach/shared/widgets/tappable.dart';
@@ -205,13 +206,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                             decoration: BoxDecoration(
                               color: AppColors.white,
                               borderRadius: BorderRadius.circular(16),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.06),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
+                              border: Border.all(
+                                color: const Color(0xFFE5E5E5),
+                                width: 2,
+                              ),
                             ),
                             child: Text(
                               'Ready to speak?',
@@ -323,8 +321,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 12),
                 decoration: BoxDecoration(
-                  color: context.surface,
-                  borderRadius: BorderRadius.circular(20),
+                  color: AppColors.white,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
                 ),
                 child: Row(
                   children: [
@@ -400,9 +399,8 @@ class _DailyGoalCard extends StatelessWidget {
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: context.divider),
-        boxShadow: context.cardShadow,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -442,7 +440,9 @@ class _DailyGoalCard extends StatelessWidget {
             color: isComplete ? AppColors.success : AppColors.primary,
           ),
           const SizedBox(height: 12),
-          Tappable(
+          DuoButton.primary(
+            text: isComplete ? 'Practice More' : 'Continue Practicing',
+            width: double.infinity,
             onTap: () {
               if (dailyChallenge != null) {
                 context.push(
@@ -454,22 +454,6 @@ class _DailyGoalCard extends StatelessWidget {
                 );
               }
             },
-            child: Row(
-              children: [
-                Text(
-                  isComplete ? 'Practice More' : 'Continue Practicing',
-                  style: AppTypography.labelMedium(
-                    color: AppColors.primary,
-                  ),
-                ),
-                const SizedBox(width: 4),
-                const Icon(
-                  Icons.arrow_forward_rounded,
-                  size: 16,
-                  color: AppColors.primary,
-                ),
-              ],
-            ),
           ),
         ],
       ),
@@ -500,7 +484,8 @@ class _QuickStartCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -550,7 +535,8 @@ class _StatItem extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           value,
-          style: AppTypography.headlineMedium(color: color),
+          style: AppTypography.headlineMedium(color: color)
+              .copyWith(fontWeight: FontWeight.w800),
         ),
         Text(
           label,

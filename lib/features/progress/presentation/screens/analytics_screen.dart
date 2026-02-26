@@ -138,9 +138,8 @@ class AnalyticsScreen extends ConsumerWidget {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               color: AppColors.white,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: context.divider),
-              boxShadow: context.cardShadow,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
             ),
             child: Row(
               children: [
@@ -199,8 +198,9 @@ class AnalyticsScreen extends ConsumerWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: context.surface,
+              color: AppColors.white,
               borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -296,8 +296,9 @@ class AnalyticsScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: context.surface,
-                borderRadius: BorderRadius.circular(20),
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -320,8 +321,9 @@ class AnalyticsScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: context.surface,
-                borderRadius: BorderRadius.circular(20),
+                color: AppColors.white,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -436,8 +438,9 @@ class _MetricRow extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: context.surface,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
       ),
       child: Row(
         children: [
@@ -467,7 +470,8 @@ class _MetricRow extends StatelessWidget {
           ),
           Text(
             valueText,
-            style: AppTypography.titleMedium(color: valueColor),
+            style: AppTypography.titleMedium(color: valueColor)
+                .copyWith(fontWeight: FontWeight.w800),
           ),
         ],
       ),

@@ -10,6 +10,7 @@ import 'package:speech_coach/app/theme/app_typography.dart';
 import 'package:speech_coach/core/extensions/context_extensions.dart';
 import 'package:speech_coach/features/conversation/presentation/providers/conversation_provider.dart';
 import 'package:speech_coach/features/filler_challenge/presentation/providers/filler_challenge_provider.dart';
+import 'package:speech_coach/shared/widgets/duo_button.dart';
 import 'package:speech_coach/shared/widgets/tappable.dart';
 
 class FillerChallengeScreen extends ConsumerStatefulWidget {
@@ -158,8 +159,9 @@ class _FillerChallengeScreenState extends ConsumerState<FillerChallengeScreen> {
                     Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
-                        color: context.surface,
+                        color: AppColors.white,
                         borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
                       ),
                       child: Column(
                         children: [
@@ -275,43 +277,34 @@ class _FillerChallengeScreenState extends ConsumerState<FillerChallengeScreen> {
                   padding: EdgeInsets.only(
                     bottom: MediaQuery.of(context).padding.bottom + 20,
                   ),
-                  child: Tappable(
-                    onTap: _isConnecting
-                        ? null
-                        : challengeState.status == FillerChallengeStatus.active
-                            ? _endChallenge
-                            : _startChallenge,
-                    child: Container(
-                      width: double.infinity,
-                      height: 54,
-                      decoration: BoxDecoration(
-                        color: challengeState.status ==
-                                FillerChallengeStatus.active
-                            ? AppColors.error
-                            : AppColors.primary,
-                        borderRadius: BorderRadius.circular(999),
-                      ),
-                      child: Center(
-                        child: _isConnecting
-                            ? const SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  color: AppColors.white,
-                                  strokeWidth: 2.5,
-                                ),
-                              )
-                            : Text(
-                                challengeState.status ==
-                                        FillerChallengeStatus.active
-                                    ? 'End Challenge'
-                                    : 'Start Challenge',
-                                style: AppTypography.button(
-                                    color: AppColors.white),
-                              ),
-                      ),
-                    ),
-                  ),
+                  child: _isConnecting
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            color: AppColors.primary,
+                            strokeWidth: 2.5,
+                          ),
+                        )
+                      : DuoButton(
+                          text: challengeState.status ==
+                                  FillerChallengeStatus.active
+                              ? 'End Challenge'
+                              : 'Start Challenge',
+                          color: challengeState.status ==
+                                  FillerChallengeStatus.active
+                              ? AppColors.error
+                              : AppColors.primary,
+                          shadowColor: challengeState.status ==
+                                  FillerChallengeStatus.active
+                              ? const Color(0xFFCC3030)
+                              : AppColors.primaryDark,
+                          width: double.infinity,
+                          onTap: challengeState.status ==
+                                  FillerChallengeStatus.active
+                              ? _endChallenge
+                              : _startChallenge,
+                        ),
                 ),
             ],
           ),

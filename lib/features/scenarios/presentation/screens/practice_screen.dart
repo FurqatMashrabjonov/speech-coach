@@ -6,6 +6,7 @@ import 'package:speech_coach/app/theme/app_colors.dart';
 import 'package:speech_coach/app/theme/app_typography.dart';
 import 'package:speech_coach/core/extensions/context_extensions.dart';
 import 'package:speech_coach/features/daily_goal/presentation/providers/daily_goal_provider.dart';
+import 'package:speech_coach/shared/widgets/duo_button.dart';
 import 'package:speech_coach/shared/widgets/tappable.dart';
 
 class PracticeScreen extends ConsumerWidget {
@@ -145,7 +146,7 @@ class _DailyChallengeBanner extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           gradient: AppColors.primaryGradient,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -195,18 +196,12 @@ class _DailyChallengeBanner extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 8,
-              ),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(999),
-              ),
-              child: Text(
-                'Start Now',
-                style: AppTypography.labelMedium(color: AppColors.primary),
+            DuoButton(
+              text: 'Start Now',
+              color: AppColors.white,
+              shadowColor: const Color(0xFFE5E5E5),
+              onTap: () => context.push(
+                '/scenario/${Uri.encodeComponent(scenarioId)}',
               ),
             ),
           ],
@@ -239,7 +234,8 @@ class _CategoryCard extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

@@ -160,8 +160,8 @@ class _ScenarioCard extends StatelessWidget {
             color: Theme.of(context).cardTheme.color ?? context.card,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: context.divider,
-              width: 0.5,
+              color: const Color(0xFFE5E5E5),
+              width: 2,
             ),
           ),
           child: Row(

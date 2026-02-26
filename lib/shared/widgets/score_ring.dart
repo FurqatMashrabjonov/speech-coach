@@ -15,7 +15,7 @@ class ScoreRing extends StatefulWidget {
     super.key,
     required this.score,
     this.size = 160,
-    this.strokeWidth = 6,
+    this.strokeWidth = 10,
     this.color,
     this.animate = true,
   });
@@ -93,7 +93,7 @@ class _ScoreRingState extends State<ScoreRing>
               progress: _animation.value,
               strokeWidth: widget.strokeWidth,
               color: _ringColor,
-              trackColor: AppColors.dividerLight,
+              trackColor: const Color(0xFFE5E5E5),
             ),
             child: Center(
               child: Column(

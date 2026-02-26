@@ -11,6 +11,7 @@ import 'package:speech_coach/features/feedback/domain/feedback_entity.dart';
 import 'package:speech_coach/shared/widgets/coach_tip_card.dart';
 import 'package:speech_coach/shared/widgets/mascot_widget.dart';
 import 'package:speech_coach/shared/widgets/progress_bar.dart';
+import 'package:speech_coach/shared/widgets/duo_button.dart';
 import 'package:speech_coach/shared/widgets/score_ring.dart';
 import 'package:speech_coach/shared/widgets/tappable.dart';
 import 'package:speech_coach/features/feedback/presentation/providers/feedback_provider.dart';
@@ -246,22 +247,9 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            Tappable(
+            DuoButton.primary(
+              text: 'Go Home',
               onTap: () => context.go('/home'),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text(
-                  'Go Home',
-                  style: AppTypography.labelLarge(color: AppColors.white),
-                ),
-              ),
             ),
           ],
         ),
@@ -390,8 +378,9 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
                       width: double.infinity,
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: context.surface,
-                        borderRadius: BorderRadius.circular(20),
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -403,7 +392,6 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
                             label: 'Clarity',
                             trailingText: '${feedback.clarity}%',
                             icon: Icons.waves_rounded,
-                            height: 8,
                           ),
                           const SizedBox(height: 14),
                           ProgressBar(
@@ -411,7 +399,6 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
                             label: 'Confidence',
                             trailingText: '${feedback.confidence}%',
                             icon: Icons.shield_rounded,
-                            height: 8,
                           ),
                           const SizedBox(height: 14),
                           ProgressBar(
@@ -419,7 +406,6 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
                             label: 'Engagement',
                             trailingText: '${feedback.engagement}%',
                             icon: Icons.people_rounded,
-                            height: 8,
                           ),
                           const SizedBox(height: 14),
                           ProgressBar(
@@ -427,7 +413,6 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
                             label: 'Relevance',
                             trailingText: '${feedback.relevance}%',
                             icon: Icons.track_changes_rounded,
-                            height: 8,
                           ),
                         ],
                       ),
@@ -481,34 +466,12 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               // Continue Learning CTA
-              Tappable(
+              DuoButton.primary(
+                text: 'Continue Learning',
+                icon: Icons.arrow_forward_rounded,
+                width: double.infinity,
                 onTap: () => context.go(
                   '/scenarios/${Uri.encodeComponent(widget.category)}',
-                ),
-                child: Container(
-                  width: double.infinity,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Center(
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Continue Learning',
-                          style: AppTypography.button(color: AppColors.white),
-                        ),
-                        const SizedBox(width: 4),
-                        const Icon(
-                          Icons.arrow_forward_rounded,
-                          color: AppColors.white,
-                          size: 18,
-                        ),
-                      ],
-                    ),
-                  ),
                 ),
               ),
               const SizedBox(height: 8),
@@ -699,8 +662,9 @@ class _FeedbackList extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: context.surface,
-        borderRadius: BorderRadius.circular(20),
+        color: AppColors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

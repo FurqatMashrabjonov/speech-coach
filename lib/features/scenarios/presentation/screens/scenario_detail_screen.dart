@@ -6,6 +6,7 @@ import 'package:speech_coach/app/theme/app_colors.dart';
 import 'package:speech_coach/app/theme/app_typography.dart';
 import 'package:speech_coach/core/extensions/context_extensions.dart';
 import 'package:speech_coach/features/characters/domain/character_entity.dart';
+import 'package:speech_coach/shared/widgets/duo_button.dart';
 import 'package:speech_coach/shared/widgets/tappable.dart';
 import 'package:speech_coach/features/characters/presentation/providers/character_provider.dart';
 import 'package:speech_coach/features/paywall/data/usage_service.dart';
@@ -146,8 +147,9 @@ class ScenarioDetailScreen extends ConsumerWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: context.surface,
-                        borderRadius: BorderRadius.circular(20),
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
                       ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -198,68 +200,26 @@ class ScenarioDetailScreen extends ConsumerWidget {
                   // Voice Practice button (primary)
                   Expanded(
                     flex: 3,
-                    child: Tappable(
+                    child: DuoButton.primary(
+                      text: 'Voice Practice',
+                      icon: Icons.mic_rounded,
+                      width: double.infinity,
                       onTap: () => _startPractice(
                           context, ref, scenario, selectedCharacter,
                           mode: 'voice'),
-                      child: Container(
-                        height: 54,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          borderRadius: BorderRadius.circular(999),
-                        ),
-                        child: Center(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              const Icon(Icons.mic_rounded,
-                                  color: AppColors.white, size: 20),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Voice Practice',
-                                style:
-                                    AppTypography.button(color: AppColors.white),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
                     ),
                   ),
                   const SizedBox(width: 10),
                   // Text Chat button (outline)
                   Expanded(
                     flex: 2,
-                    child: Tappable(
+                    child: DuoButton.outline(
+                      text: 'Text Chat',
+                      icon: Icons.keyboard_rounded,
+                      width: double.infinity,
                       onTap: () => _startPractice(
                           context, ref, scenario, selectedCharacter,
                           mode: 'text'),
-                      child: Container(
-                        height: 54,
-                        decoration: BoxDecoration(
-                          color: Colors.transparent,
-                          borderRadius: BorderRadius.circular(999),
-                          border: Border.all(
-                            color: AppColors.primary,
-                            width: 1.5,
-                          ),
-                        ),
-                        child: Center(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(Icons.keyboard_rounded,
-                                  color: AppColors.primary, size: 20),
-                              const SizedBox(width: 6),
-                              Text(
-                                'Text Chat',
-                                style: AppTypography.button(
-                                    color: AppColors.primary),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
                     ),
                   ),
                 ],
@@ -353,11 +313,11 @@ class _CharacterPicker extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: isSelected
                         ? character.color.withValues(alpha: 0.22)
-                        : context.surface,
+                        : AppColors.white,
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
                       color:
-                          isSelected ? character.color : Colors.transparent,
+                          isSelected ? character.color : const Color(0xFFE5E5E5),
                       width: 2,
                     ),
                   ),

@@ -11,6 +11,7 @@ import 'package:speech_coach/app/theme/app_typography.dart';
 import 'package:speech_coach/core/extensions/context_extensions.dart';
 import 'package:speech_coach/features/conversation/presentation/providers/conversation_provider.dart';
 import 'package:speech_coach/features/speaker_dna/presentation/providers/speaker_dna_provider.dart';
+import 'package:speech_coach/shared/widgets/duo_button.dart';
 import 'package:speech_coach/shared/widgets/tappable.dart';
 
 class SpeakerDNAQuizScreen extends ConsumerStatefulWidget {
@@ -144,8 +145,9 @@ class _SpeakerDNAQuizScreenState extends ConsumerState<SpeakerDNAQuizScreen> {
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: context.surface,
-                        borderRadius: BorderRadius.circular(20),
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
                       ),
                       child: Text(
                         '"$_topic"',
@@ -204,37 +206,24 @@ class _SpeakerDNAQuizScreenState extends ConsumerState<SpeakerDNAQuizScreen> {
                 padding: EdgeInsets.only(
                   bottom: MediaQuery.of(context).padding.bottom + 20,
                 ),
-                child: Tappable(
-                  onTap: _isConnecting
-                      ? null
-                      : _isRecording
-                          ? _stopRecording
-                          : _startRecording,
-                  child: Container(
-                    width: double.infinity,
-                    height: 54,
-                    decoration: BoxDecoration(
-                      color: _isRecording ? AppColors.error : AppColors.primary,
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Center(
-                      child: _isConnecting
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(
-                                color: AppColors.white,
-                                strokeWidth: 2.5,
-                              ),
-                            )
-                          : Text(
-                              _isRecording ? 'Finish Early' : 'Start Speaking',
-                              style: AppTypography.button(
-                                  color: AppColors.white),
-                            ),
-                    ),
-                  ),
-                ),
+                child: _isConnecting
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary,
+                          strokeWidth: 2.5,
+                        ),
+                      )
+                    : DuoButton(
+                        text: _isRecording ? 'Finish Early' : 'Start Speaking',
+                        color: _isRecording ? AppColors.error : AppColors.primary,
+                        shadowColor: _isRecording
+                            ? const Color(0xFFCC3030)
+                            : AppColors.primaryDark,
+                        width: double.infinity,
+                        onTap: _isRecording ? _stopRecording : _startRecording,
+                      ),
               ),
             ],
           ),

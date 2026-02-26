@@ -10,6 +10,7 @@ import 'package:speech_coach/app/theme/app_typography.dart';
 import 'package:speech_coach/core/extensions/context_extensions.dart';
 import 'package:speech_coach/features/characters/domain/character_entity.dart';
 import 'package:speech_coach/features/conversation/domain/conversation_entity.dart';
+import 'package:speech_coach/shared/widgets/duo_button.dart';
 import 'package:speech_coach/shared/widgets/mascot_widget.dart';
 import 'package:speech_coach/shared/widgets/tappable.dart';
 import 'package:speech_coach/features/conversation/presentation/providers/conversation_provider.dart';
@@ -411,24 +412,13 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
                 ),
               ),
               const SizedBox(height: 24),
-              Tappable(
+              DuoButton.primary(
+                text: 'Try Again',
                 onTap: () {
                   ref
                       .read(conversationProvider(widget.category).notifier)
                       .startConversation();
                 },
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Text(
-                    'Try Again',
-                    style: AppTypography.labelLarge(color: AppColors.white),
-                  ),
-                ),
               ),
             ],
           ),
@@ -467,13 +457,12 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
       decoration: BoxDecoration(
         color: Theme.of(context).scaffoldBackgroundColor,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
+        border: Border(
+          top: BorderSide(
+            color: const Color(0xFFE5E5E5),
+            width: 2,
           ),
-        ],
+        ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -516,9 +505,9 @@ class _ConversationScreenState extends ConsumerState<ConversationScreen> {
                         ? []
                         : [
                             BoxShadow(
-                              color: AppColors.primary.withValues(alpha: 0.35),
-                              blurRadius: 16,
-                              spreadRadius: 2,
+                              color: AppColors.primaryDark,
+                              blurRadius: 0,
+                              offset: const Offset(0, 4),
                             ),
                           ],
                   ),

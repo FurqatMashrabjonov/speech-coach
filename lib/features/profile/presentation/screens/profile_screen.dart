@@ -225,8 +225,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                     vertical: 10,
                   ),
                   decoration: BoxDecoration(
-                    color: context.surface,
+                    color: AppColors.white,
                     borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
                   ),
                   child: Row(
                     children: [
@@ -265,8 +266,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: context.surface,
+                    color: AppColors.white,
                     borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
                   ),
                   child: Row(
                     children: [
@@ -348,8 +350,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: context.surface,
-                    borderRadius: BorderRadius.circular(20),
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -588,6 +591,7 @@ class _StatCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: color.withValues(alpha: 0.14),
           borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
         ),
         child: Column(
           children: [
@@ -595,7 +599,8 @@ class _StatCard extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               value,
-              style: AppTypography.titleLarge(color: color),
+              style: AppTypography.titleLarge(color: color)
+                  .copyWith(fontWeight: FontWeight.w800),
             ),
             Text(
               label,
@@ -672,7 +677,7 @@ class _RecentSessionTile extends StatelessWidget {
         decoration: BoxDecoration(
           color: Theme.of(context).cardTheme.color ?? context.card,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: context.divider, width: 0.5),
+          border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
         ),
         child: Row(
           children: [

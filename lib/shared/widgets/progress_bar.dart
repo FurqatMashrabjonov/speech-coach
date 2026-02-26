@@ -18,7 +18,7 @@ class ProgressBar extends StatefulWidget {
     this.label,
     this.trailingText,
     this.icon,
-    this.height = 8,
+    this.height = 12,
     this.color,
     this.trackColor,
     this.animate = true,
@@ -80,7 +80,7 @@ class _ProgressBarState extends State<ProgressBar>
   @override
   Widget build(BuildContext context) {
     final barColor = widget.color ?? AppColors.primary;
-    final track = widget.trackColor ?? AppColors.dividerLight;
+    final track = widget.trackColor ?? const Color(0xFFE5E5E5);
 
     return Column(
       mainAxisSize: MainAxisSize.min,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:speech_coach/app/theme/app_colors.dart';
 import 'package:speech_coach/core/extensions/context_extensions.dart';
 
@@ -22,8 +23,8 @@ class BottomNavBar extends StatelessWidget {
         color: context.isDark ? AppColors.surfaceDark : AppColors.white,
         border: Border(
           top: BorderSide(
-            color: context.divider,
-            width: 0.5,
+            color: context.isDark ? AppColors.dividerDark : const Color(0xFFE5E5E5),
+            width: 2,
           ),
         ),
       ),
@@ -93,8 +94,8 @@ class _CenterMicFab extends StatelessWidget {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AppColors.primary.withValues(alpha: 0.35),
-                blurRadius: 12,
+                color: AppColors.primaryDark,
+                blurRadius: 0,
                 offset: const Offset(0, 4),
               ),
             ],
@@ -142,18 +143,18 @@ class _NavItem extends StatelessWidget {
               isSelected ? activeIcon : icon,
               color: isSelected
                   ? AppColors.primary
-                  : context.textSecondary,
-              size: 24,
+                  : const Color(0xFFAFAFAF),
+              size: 28,
             ),
             const SizedBox(height: 4),
             Text(
               label,
-              style: TextStyle(
+              style: GoogleFonts.nunito(
                 color: isSelected
                     ? AppColors.primary
-                    : context.textSecondary,
-                fontSize: 11,
-                fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                    : const Color(0xFFAFAFAF),
+                fontSize: 12,
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
               ),
             ),
           ],

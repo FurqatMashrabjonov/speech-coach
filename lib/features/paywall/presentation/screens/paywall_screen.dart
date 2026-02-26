@@ -8,6 +8,7 @@ import 'package:speech_coach/app/theme/app_images.dart';
 import 'package:speech_coach/app/theme/app_typography.dart';
 import 'package:speech_coach/core/extensions/context_extensions.dart';
 import 'package:speech_coach/features/paywall/presentation/providers/subscription_provider.dart';
+import 'package:speech_coach/shared/widgets/duo_button.dart';
 import 'package:speech_coach/shared/widgets/tappable.dart';
 
 /// Paywall screen that shows RevenueCat's remote paywall when available,
@@ -138,8 +139,9 @@ class _CustomPaywallFallback extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: context.surface,
-                        borderRadius: BorderRadius.circular(20),
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
                       ),
                       child: Column(
                         children: [
@@ -237,47 +239,50 @@ class _CustomPaywallFallback extends StatelessWidget {
                     const SizedBox(height: 16),
 
                     // Lifetime deal
-                    Tappable(
-                      onTap: sub.isPurchasing
-                          ? null
-                          : () {
-                              final pkg = lifetimePkg;
-                              if (pkg != null) {
-                                ref
-                                    .read(subscriptionProvider.notifier)
-                                    .purchase(pkg);
-                              }
-                            },
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          gradient: AppColors.primaryGradient,
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Column(
-                          children: [
-                            Text(
-                              'Launch Deal - Lifetime',
-                              style: AppTypography.titleMedium(
-                                  color: AppColors.white),
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryLight,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: AppColors.primary, width: 2),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            'Launch Deal - Lifetime',
+                            style: AppTypography.titleMedium(
+                                color: AppColors.primary),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            lifetimePkg?.storeProduct.priceString ??
+                                '\$49.99 one-time',
+                            style: AppTypography.displaySmall(
+                                color: AppColors.primary),
+                          ),
+                          Text(
+                            'Limited time offer',
+                            style: AppTypography.labelSmall(
+                              color: AppColors.primaryDark,
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              lifetimePkg?.storeProduct.priceString ??
-                                  '\$49.99 one-time',
-                              style: AppTypography.displaySmall(
-                                  color: AppColors.white),
-                            ),
-                            Text(
-                              'Limited time offer',
-                              style: AppTypography.labelSmall(
-                                color:
-                                    AppColors.white.withValues(alpha: 0.8),
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(height: 12),
+                          DuoButton.primary(
+                            text: 'Get Lifetime Access',
+                            width: double.infinity,
+                            onTap: sub.isPurchasing
+                                ? null
+                                : () {
+                                    final pkg = lifetimePkg;
+                                    if (pkg != null) {
+                                      ref
+                                          .read(subscriptionProvider.notifier)
+                                          .purchase(pkg);
+                                    }
+                                  },
+                          ),
+                        ],
                       ),
                     ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
                     const SizedBox(height: 24),
@@ -414,12 +419,12 @@ class _PricingCard extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             color: isPopular
-                ? AppColors.primary.withValues(alpha: 0.14)
-                : context.surface,
+                ? AppColors.primaryLight
+                : AppColors.white,
             borderRadius: BorderRadius.circular(16),
             border: Border.all(
-              color: isPopular ? AppColors.primary : context.divider,
-              width: isPopular ? 2 : 1,
+              color: isPopular ? AppColors.primary : const Color(0xFFE5E5E5),
+              width: 2,
             ),
           ),
           child: Column(

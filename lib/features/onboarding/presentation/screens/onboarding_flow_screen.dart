@@ -9,6 +9,7 @@ import 'package:speech_coach/app/theme/app_images.dart';
 import 'package:speech_coach/app/theme/app_typography.dart';
 import 'package:speech_coach/core/extensions/context_extensions.dart';
 import 'package:speech_coach/shared/providers/user_provider.dart';
+import 'package:speech_coach/shared/widgets/duo_button.dart';
 import 'package:speech_coach/shared/widgets/tappable.dart';
 
 class OnboardingFlowScreen extends ConsumerStatefulWidget {
@@ -125,7 +126,11 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
                 20,
                 MediaQuery.of(context).padding.bottom + 20,
               ),
-              child: Tappable(
+              child: DuoButton.primary(
+                text: _currentPage < _pages.length - 1
+                    ? 'Next'
+                    : 'Get Started',
+                width: double.infinity,
                 onTap: () {
                   if (_currentPage < _pages.length - 1) {
                     _pageController.nextPage(
@@ -136,22 +141,6 @@ class _OnboardingFlowScreenState extends ConsumerState<OnboardingFlowScreen> {
                     _requestMicPermission();
                   }
                 },
-                child: Container(
-                  width: double.infinity,
-                  height: 54,
-                  decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Center(
-                    child: Text(
-                      _currentPage < _pages.length - 1
-                          ? 'Next'
-                          : 'Get Started',
-                      style: AppTypography.button(color: AppColors.white),
-                    ),
-                  ),
-                ),
               ),
             ),
           ],

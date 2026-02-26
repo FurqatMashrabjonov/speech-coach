@@ -10,7 +10,7 @@ class Tappable extends StatefulWidget {
     super.key,
     required this.child,
     this.onTap,
-    this.scaleDown = 0.97,
+    this.scaleDown = 0.95,
   });
 
   @override
