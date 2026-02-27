@@ -73,6 +73,7 @@ CATEGORIES = [
 ]
 
 CHARACTERS = [
+    # --- Original 8 ---
     (
         "assets/images/characters/character_alex.png",
         "Head-and-shoulders portrait of a sharp professional male coach in his 30s, direct confident expression, wearing a blazer, blue accent colors",
@@ -104,6 +105,95 @@ CHARACTERS = [
     (
         "assets/images/characters/character_avery.png",
         "Head-and-shoulders portrait of a warm supportive guide, gentle encouraging smile, soft orange accent",
+    ),
+    # --- 22 New Characters ---
+    (
+        "assets/images/characters/character_luna.png",
+        "Head-and-shoulders portrait of an energetic young female life coach with bright eyes and radiant smile, sporty outfit, bright blue accent colors",
+    ),
+    (
+        "assets/images/characters/character_viktor.png",
+        "Head-and-shoulders portrait of a stern disciplined male military trainer in his 40s, buzz cut, serious focused expression, dark grey and navy accent",
+    ),
+    (
+        "assets/images/characters/character_priya.png",
+        "Head-and-shoulders portrait of a cheerful Indian female podcast host in her 20s, headphones around neck, curious bright expression, warm orange accent",
+    ),
+    (
+        "assets/images/characters/character_sage.png",
+        "Head-and-shoulders portrait of a calm relaxed therapist with gentle knowing smile, casual earth-tone outfit, green accent colors",
+    ),
+    (
+        "assets/images/characters/character_nadia.png",
+        "Head-and-shoulders portrait of an articulate female science teacher with glasses, precise confident expression, purple accent colors",
+    ),
+    (
+        "assets/images/characters/character_sunny.png",
+        "Head-and-shoulders portrait of a bubbly energetic morning show host with big bright smile, colorful outfit, yellow and orange accent",
+    ),
+    (
+        "assets/images/characters/character_dev.png",
+        "Head-and-shoulders portrait of a measured analytical male tech lead in his 30s, neat appearance, calm collected look, blue accent colors",
+    ),
+    (
+        "assets/images/characters/character_rio.png",
+        "Head-and-shoulders portrait of an animated quick-witted comedian with a playful mischievous grin, expressive eyes, red and pink accent",
+    ),
+    (
+        "assets/images/characters/character_ethan.png",
+        "Head-and-shoulders portrait of a calm serene male meditation guide with peaceful closed-eye smile, minimal zen outfit, teal and mint accent",
+    ),
+    (
+        "assets/images/characters/character_omar.png",
+        "Head-and-shoulders portrait of a smooth charming male radio DJ in his 30s with a suave confident smile, headphones, warm orange accent",
+    ),
+    (
+        "assets/images/characters/character_rex.png",
+        "Head-and-shoulders portrait of a tough bold male personal trainer with strong jawline and intense motivating expression, athletic wear, red accent",
+    ),
+    (
+        "assets/images/characters/character_iris.png",
+        "Head-and-shoulders portrait of a gentle soothing female counselor with soft compassionate expression, kind eyes, lavender and light purple accent",
+    ),
+    (
+        "assets/images/characters/character_jake.png",
+        "Head-and-shoulders portrait of a laid-back surfer dude with messy hair and relaxed easygoing grin, tank top, teal and aqua accent",
+    ),
+    (
+        "assets/images/characters/character_dr_nash.png",
+        "Head-and-shoulders portrait of a wise male researcher in his 50s with reading glasses and deep thoughtful expression, tweed jacket, dark blue accent",
+    ),
+    (
+        "assets/images/characters/character_marcus.png",
+        "Head-and-shoulders portrait of a scholarly patient male professor with warm welcoming expression, bow tie, indigo and blue accent",
+    ),
+    (
+        "assets/images/characters/character_zoe.png",
+        "Head-and-shoulders portrait of a young enthusiastic female intern in her early 20s with eager excited expression, bright casual outfit, pink accent",
+    ),
+    (
+        "assets/images/characters/character_maya.png",
+        "Head-and-shoulders portrait of a relaxed friendly female bartender with great-listener expression, casual apron, green and mint accent",
+    ),
+    (
+        "assets/images/characters/character_leo.png",
+        "Head-and-shoulders portrait of a composed direct male news anchor with polished professional look, suit and tie, sky blue accent",
+    ),
+    (
+        "assets/images/characters/character_elena.png",
+        "Head-and-shoulders portrait of a sophisticated tactful female diplomat with elegant confident expression, formal attire, light purple accent",
+    ),
+    (
+        "assets/images/characters/character_prof_chen.png",
+        "Head-and-shoulders portrait of a patient informative male university professor in his 60s with kind wise expression, glasses, grey and blue accent",
+    ),
+    (
+        "assets/images/characters/character_aria.png",
+        "Head-and-shoulders portrait of a bold driven female startup founder in her 30s with fierce determined expression, modern blazer, red accent",
+    ),
+    (
+        "assets/images/characters/character_grace.png",
+        "Head-and-shoulders portrait of a kind nurturing grandmother figure in her 60s with warm loving smile, cozy sweater, soft pink accent",
     ),
 ]
 
