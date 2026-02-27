@@ -22,6 +22,7 @@ import 'package:speech_coach/features/roast/presentation/widgets/roast_card.dart
 import 'package:speech_coach/features/roast/presentation/widgets/roast_intensity_picker.dart';
 import 'package:speech_coach/features/sharing/data/share_service.dart';
 import 'package:speech_coach/shared/widgets/celebration_overlay.dart';
+import 'package:speech_coach/features/assessment/presentation/providers/assessment_provider.dart';
 import 'package:in_app_review/in_app_review.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -45,12 +46,68 @@ class ScoreCardScreen extends ConsumerStatefulWidget {
   ConsumerState<ScoreCardScreen> createState() => _ScoreCardScreenState();
 }
 
-class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
+class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen>
+    with TickerProviderStateMixin {
   final _screenshotController = ScreenshotController();
   bool _xpAwarded = false;
   bool _sessionSaved = false;
   bool _reviewChecked = false;
   bool _celebrationShown = false;
+
+  // Loading animation state
+  late AnimationController _pulseController;
+  late AnimationController _progressController;
+  int _currentStep = 0;
+  int _currentTipIndex = 0;
+
+  static const _analysisSteps = [
+    ('Processing your conversation', Icons.chat_bubble_rounded),
+    ('Evaluating clarity & structure', Icons.waves_rounded),
+    ('Measuring confidence level', Icons.shield_rounded),
+    ('Analyzing engagement', Icons.people_rounded),
+    ('Checking relevance', Icons.track_changes_rounded),
+    ('Generating personalized feedback', Icons.auto_awesome_rounded),
+  ];
+
+  static const _tips = [
+    'Speaking at 120-150 words per minute is ideal for most conversations.',
+    'Pausing before key points makes them 40% more memorable.',
+    'Using specific examples makes your arguments twice as persuasive.',
+    'Mirror the energy of your conversation partner to build rapport.',
+    'Ending with a clear takeaway leaves a lasting impression.',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    )..repeat(reverse: true);
+
+    _progressController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 12),
+    )..forward();
+
+    // Animate through steps
+    _animateSteps();
+  }
+
+  void _animateSteps() async {
+    for (var i = 0; i < _analysisSteps.length; i++) {
+      await Future.delayed(const Duration(milliseconds: 1800));
+      if (!mounted) return;
+      setState(() => _currentStep = i + 1);
+    }
+  }
+
+  @override
+  void dispose() {
+    _pulseController.dispose();
+    _progressController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,23 +120,32 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         ref.read(progressProvider.notifier).addSession(feedbackState.feedback!);
 
+        // Mark learning plan step as completed
+        ref.read(learningPlanProvider.notifier).markCompleted(
+              widget.scenarioId,
+              feedbackState.feedback!.overallScore.toDouble(),
+            );
+
         if (!_sessionSaved) {
           _sessionSaved = true;
+          // Save feedback to Firestore in background (non-blocking)
           if (widget.sessionId != null) {
-            // New flow: update the pending session with feedback
             ref.read(pendingSessionSaverProvider).completeFeedback(
                   sessionId: widget.sessionId!,
                   feedback: feedbackState.feedback!,
-                );
+                ).timeout(const Duration(seconds: 5)).catchError((e) {
+                  debugPrint('ScoreCard: completeFeedback failed (non-critical): $e');
+                });
           } else {
-            // Legacy flow: save full session at once
             ref.read(saveSessionProvider).save(
                   scenarioId: widget.scenarioId,
                   scenarioTitle: widget.scenarioTitle,
                   category: widget.category,
                   feedback: feedbackState.feedback!,
                   transcript: widget.transcript,
-                );
+                ).timeout(const Duration(seconds: 5)).catchError((e) {
+                  debugPrint('ScoreCard: saveSession failed (non-critical): $e');
+                });
           }
         }
 
@@ -114,113 +180,177 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
   }
 
   Widget _buildLoading() {
-    return Center(
+    return SingleChildScrollView(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
-              Icons.auto_awesome_rounded,
-              color: AppColors.primary,
-              size: 48,
+          const SizedBox(height: 48),
+
+          // Pulsing AI icon with rings
+          SizedBox(
+            width: 130,
+            height: 130,
+            child: AnimatedBuilder(
+              animation: _pulseController,
+              builder: (context, child) {
+                final scale = 1.0 + (_pulseController.value * 0.08);
+                final outerOpacity = 0.08 + (_pulseController.value * 0.06);
+                return Center(
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      // Outer ring
+                      Container(
+                        width: 120 * scale,
+                        height: 120 * scale,
+                        decoration: ShapeDecoration(
+                          shape: const CircleBorder(),
+                          color: AppColors.primary.withValues(alpha: outerOpacity),
+                        ),
+                      ),
+                      // Inner ring
+                      Container(
+                        width: 90,
+                        height: 90,
+                        decoration: ShapeDecoration(
+                          shape: const CircleBorder(),
+                          color: AppColors.primary.withValues(alpha: 0.12),
+                        ),
+                      ),
+                      // Icon
+                      Container(
+                        width: 64,
+                        height: 64,
+                        decoration: const ShapeDecoration(
+                          shape: CircleBorder(),
+                          color: AppColors.primary,
+                        ),
+                        child: const Icon(
+                          Icons.auto_awesome_rounded,
+                          color: AppColors.white,
+                          size: 32,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
-          const SizedBox(height: 24),
-          // Pulsing circles behind mascot
+          const SizedBox(height: 28),
+
           Text(
             'Analyzing your speech...',
             style: AppTypography.headlineSmall(),
-          ),
-          const SizedBox(height: 8),
+          ).animate().fadeIn(duration: 400.ms),
+          const SizedBox(height: 6),
           Text(
-            'We\'re reviewing your performance to give you\npersonalized feedback.',
+            'Our AI coach is reviewing your performance',
             textAlign: TextAlign.center,
             style: AppTypography.bodySmall(
               color: context.textSecondary,
             ),
-          ),
-          const SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 48),
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      'Processing audio',
-                      style: AppTypography.labelSmall(
-                        color: context.textTertiary,
-                      ),
-                    ),
-                    const Spacer(),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                const ProgressBar(
-                  value: 0.65,
-                  height: 6,
-                  animate: true,
-                ),
-              ],
-            ),
-          ),
+          ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
           const SizedBox(height: 32),
-          // Pro tip card
+
+          // Animated progress bar
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(
-                  color: AppColors.primary.withValues(alpha: 0.1),
-                ),
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(
-                    Icons.lightbulb_rounded,
-                    size: 18,
-                    color: AppColors.primary,
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: AnimatedBuilder(
+              animation: _progressController,
+              builder: (context, child) {
+                // Progress moves fast at first, slows down near end
+                final t = _progressController.value;
+                final eased = t < 0.7
+                    ? (t / 0.7) * 0.85
+                    : 0.85 + ((t - 0.7) / 0.3) * 0.1;
+                return Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
-                          'PRO TIP',
-                          style: AppTypography.labelSmall(
-                            color: AppColors.primary,
-                          ).copyWith(
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.5,
+                        Flexible(
+                          child: Text(
+                            _currentStep < _analysisSteps.length
+                                ? _analysisSteps[_currentStep].$1
+                                : 'Almost done...',
+                            style: AppTypography.labelSmall(
+                              color: context.textTertiary,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(width: 8),
                         Text(
-                          'Speaking at 120-150 words per minute is ideal for most conversations.',
-                          style: AppTypography.bodySmall(
-                            color: context.textSecondary,
+                          '${(eased * 100).toInt()}%',
+                          style: AppTypography.labelSmall(
+                            color: AppColors.primary,
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ],
-              ),
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(6),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: LinearProgressIndicator(
+                          value: eased.clamp(0.0, 0.95),
+                          minHeight: 8,
+                          backgroundColor: const Color(0xFFE5E5E5),
+                          color: AppColors.primary,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
           ),
+          const SizedBox(height: 32),
+
+          // Analysis steps checklist
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: AppColors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                for (var i = 0; i < _analysisSteps.length; i++)
+                  _AnalysisStepRow(
+                    label: _analysisSteps[i].$1,
+                    icon: _analysisSteps[i].$2,
+                    state: i < _currentStep
+                        ? _StepState.done
+                        : i == _currentStep
+                            ? _StepState.active
+                            : _StepState.pending,
+                    isLast: i == _analysisSteps.length - 1,
+                  ),
+              ],
+            ),
+          ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
+          const SizedBox(height: 24),
+
+          // Cycling pro tips
+          _CyclingTipCard(
+            tips: _tips,
+            currentIndex: _currentTipIndex,
+            onTick: () {
+              if (mounted) {
+                setState(() => _currentTipIndex = (_currentTipIndex + 1) % _tips.length);
+              }
+            },
+          ).animate().fadeIn(delay: 500.ms, duration: 400.ms),
+          const SizedBox(height: 32),
         ],
-      ).animate().fadeIn(duration: 400.ms),
+      ),
     );
   }
 
@@ -641,6 +771,171 @@ class _ScoreCardScreenState extends ConsumerState<ScoreCardScreen> {
         overallScore: feedback.overallScore,
       );
     }
+  }
+}
+
+// --- Loading animation helpers ---
+
+enum _StepState { pending, active, done }
+
+class _AnalysisStepRow extends StatelessWidget {
+  final String label;
+  final IconData icon;
+  final _StepState state;
+  final bool isLast;
+
+  const _AnalysisStepRow({
+    required this.label,
+    required this.icon,
+    required this.state,
+    required this.isLast,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final circleColor = state == _StepState.done
+        ? AppColors.success
+        : state == _StepState.active
+            ? AppColors.primary.withValues(alpha: 0.15)
+            : const Color(0xFFF0F0F0);
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: isLast ? 0 : 12),
+      child: Row(
+        children: [
+          // Status indicator — plain Container (no AnimatedContainer to avoid circle+borderRadius conflict)
+          Container(
+            width: 28,
+            height: 28,
+            decoration: ShapeDecoration(
+              shape: const CircleBorder(),
+              color: circleColor,
+            ),
+            alignment: Alignment.center,
+            child: state == _StepState.done
+                ? const Icon(Icons.check_rounded, size: 16, color: AppColors.white)
+                : state == _StepState.active
+                    ? SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColors.primary,
+                        ),
+                      )
+                    : Icon(icon, size: 14, color: const Color(0xFFBBBBBB)),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              label,
+              style: AppTypography.bodySmall(
+                color: state == _StepState.done
+                    ? AppColors.success
+                    : state == _StepState.active
+                        ? context.textPrimary
+                        : context.textTertiary,
+              ).copyWith(
+                fontWeight: state == _StepState.active ? FontWeight.w700 : FontWeight.w600,
+              ),
+            ),
+          ),
+          if (state == _StepState.done)
+            Text(
+              'Done',
+              style: AppTypography.labelSmall(color: AppColors.success),
+            ).animate().fadeIn(duration: 300.ms).scale(begin: const Offset(0.8, 0.8)),
+        ],
+      ),
+    );
+  }
+}
+
+class _CyclingTipCard extends StatefulWidget {
+  final List<String> tips;
+  final int currentIndex;
+  final VoidCallback onTick;
+
+  const _CyclingTipCard({
+    required this.tips,
+    required this.currentIndex,
+    required this.onTick,
+  });
+
+  @override
+  State<_CyclingTipCard> createState() => _CyclingTipCardState();
+}
+
+class _CyclingTipCardState extends State<_CyclingTipCard> {
+  late int _index;
+
+  @override
+  void initState() {
+    super.initState();
+    _index = widget.currentIndex;
+    _startCycling();
+  }
+
+  void _startCycling() async {
+    while (mounted) {
+      await Future.delayed(const Duration(seconds: 4));
+      if (!mounted) return;
+      setState(() => _index = (_index + 1) % widget.tips.length);
+      widget.onTick();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.primary.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: AppColors.primary.withValues(alpha: 0.1),
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(
+            Icons.lightbulb_rounded,
+            size: 18,
+            color: AppColors.primary,
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'DID YOU KNOW?',
+                  style: AppTypography.labelSmall(
+                    color: AppColors.primary,
+                  ).copyWith(
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 500),
+                  child: Text(
+                    widget.tips[_index],
+                    key: ValueKey(_index),
+                    style: AppTypography.bodySmall(
+                      color: context.textSecondary,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 

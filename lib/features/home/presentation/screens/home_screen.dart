@@ -14,6 +14,8 @@ import 'package:speech_coach/shared/widgets/tappable.dart';
 import 'package:speech_coach/features/progress/presentation/providers/progress_provider.dart';
 import 'package:speech_coach/features/auth/presentation/providers/auth_provider.dart';
 import 'package:speech_coach/features/progress/domain/progress_entity.dart';
+import 'package:speech_coach/features/assessment/presentation/providers/assessment_provider.dart';
+import 'package:speech_coach/features/scenarios/data/scenario_repository.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -239,6 +241,10 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   .animate()
                   .fadeIn(delay: 200.ms, duration: 400.ms)
                   .slideY(begin: 0.05),
+              const SizedBox(height: 24),
+
+              // --- Section: Learning Plan ---
+              _LearningPlanSection(),
               const SizedBox(height: 24),
 
               // --- Section 4: Quick Start ---
@@ -536,6 +542,155 @@ class _StatItem extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+class _LearningPlanSection extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final plan = ref.watch(learningPlanProvider);
+    if (plan == null) return const SizedBox.shrink();
+
+    final nextStep = plan.nextStep;
+    final repo = ScenarioRepository();
+    final nextScenario =
+        nextStep != null ? repo.getById(nextStep.scenarioId) : null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Your Learning Plan',
+              style: AppTypography.headlineSmall(),
+            ),
+            Tappable(
+              onTap: () => context.push('/plan-summary'),
+              child: Text(
+                'See All',
+                style: AppTypography.labelMedium(
+                  color: AppColors.primary,
+                ),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: AppColors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.route_rounded,
+                      color: AppColors.primary,
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          plan.title,
+                          style: AppTypography.titleMedium(),
+                        ),
+                        Text(
+                          '${plan.completedCount}/${plan.totalSteps} completed',
+                          style: AppTypography.labelSmall(
+                            color: context.textTertiary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ProgressBar(
+                value: plan.progressPercent,
+                height: 8,
+                color: AppColors.success,
+              ),
+              if (nextScenario != null) ...[
+                const SizedBox(height: 12),
+                Tappable(
+                  onTap: () => context.push(
+                    '/scenario/${Uri.encodeComponent(nextStep!.scenarioId)}',
+                  ),
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.primary.withValues(alpha: 0.15),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.play_circle_filled_rounded,
+                          color: AppColors.primary,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Next Up',
+                                style: AppTypography.labelSmall(
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              Text(
+                                nextScenario.title,
+                                style: AppTypography.titleMedium(),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Icon(
+                          Icons.chevron_right_rounded,
+                          color: context.textTertiary,
+                          size: 20,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ],
+    )
+        .animate()
+        .fadeIn(delay: 200.ms, duration: 400.ms)
+        .slideY(begin: 0.05);
   }
 }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:speech_coach/app/theme/app_colors.dart';
+import 'package:speech_coach/app/theme/app_images.dart';
 
 class Scenario {
   final String id;
@@ -8,6 +9,7 @@ class Scenario {
   final String description;
   final int durationMinutes;
   final String systemPrompt;
+  final String userRole;
   final String difficulty;
   final IconData icon;
 
@@ -18,11 +20,15 @@ class Scenario {
     required this.description,
     required this.durationMinutes,
     required this.systemPrompt,
+    this.userRole = '',
     this.difficulty = 'Medium',
     this.icon = Icons.mic_rounded,
   });
 
   Duration get duration => Duration(minutes: durationMinutes);
+
+  /// Image path for this scenario, looked up from AppImages.
+  String? get imagePath => AppImages.scenarioImageMap[id];
 
   Color get categoryColor {
     switch (category) {

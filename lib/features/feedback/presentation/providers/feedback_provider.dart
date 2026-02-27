@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:speech_coach/features/feedback/data/feedback_service.dart';
 import 'package:speech_coach/features/feedback/domain/feedback_entity.dart';
@@ -45,6 +46,8 @@ class FeedbackNotifier extends StateNotifier<FeedbackState> {
     required String scenarioId,
     required int durationSeconds,
   }) async {
+    debugPrint('FeedbackNotifier: starting analysis for "$scenarioTitle" ($category)');
+    debugPrint('FeedbackNotifier: transcript length = ${transcript.length} chars');
     state = state.copyWith(status: FeedbackStatus.loading);
 
     try {
@@ -57,11 +60,23 @@ class FeedbackNotifier extends StateNotifier<FeedbackState> {
         durationSeconds: durationSeconds,
       );
 
+      debugPrint('FeedbackNotifier: analysis complete — '
+          'overall=${feedback.overallScore}, clarity=${feedback.clarity}, '
+          'confidence=${feedback.confidence}, engagement=${feedback.engagement}, '
+          'relevance=${feedback.relevance}');
+
+      if (!mounted) {
+        debugPrint('FeedbackNotifier: WARNING — notifier disposed before result could be set');
+        return;
+      }
+
       state = state.copyWith(
         status: FeedbackStatus.loaded,
         feedback: feedback,
       );
     } catch (e) {
+      debugPrint('FeedbackNotifier: analysis FAILED — $e');
+      if (!mounted) return;
       state = state.copyWith(
         status: FeedbackStatus.error,
         error: e.toString(),
@@ -74,8 +89,10 @@ class FeedbackNotifier extends StateNotifier<FeedbackState> {
   }
 }
 
+// NOT autoDispose — must survive pushReplacement navigation from
+// conversation screen → score card screen. Reset manually after use.
 final feedbackProvider =
-    StateNotifierProvider.autoDispose<FeedbackNotifier, FeedbackState>((ref) {
+    StateNotifierProvider<FeedbackNotifier, FeedbackState>((ref) {
   final service = ref.read(feedbackServiceProvider);
   return FeedbackNotifier(service);
 });

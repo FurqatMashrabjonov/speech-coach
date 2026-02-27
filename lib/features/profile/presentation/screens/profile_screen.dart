@@ -8,8 +8,6 @@ import 'package:speech_coach/core/extensions/context_extensions.dart';
 import 'package:speech_coach/core/extensions/string_extensions.dart';
 import 'package:speech_coach/shared/widgets/tappable.dart';
 import 'package:speech_coach/features/auth/presentation/providers/auth_provider.dart';
-import 'package:speech_coach/features/paywall/data/usage_service.dart';
-import 'package:speech_coach/features/paywall/presentation/providers/subscription_provider.dart';
 import 'package:speech_coach/features/history/presentation/providers/session_history_provider.dart';
 import 'package:speech_coach/features/history/domain/session_history_entity.dart';
 import 'package:speech_coach/features/progress/presentation/providers/progress_provider.dart';
@@ -577,8 +575,6 @@ class _AccountSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final sub = ref.watch(subscriptionProvider);
-    final usageService = ref.watch(usageServiceProvider);
     final authState = ref.watch(authStateProvider);
     final email = authState.whenOrNull(
           data: (user) => user?.email,
@@ -591,7 +587,7 @@ class _AccountSection extends StatelessWidget {
         Text('Account', style: AppTypography.headlineSmall()),
         const SizedBox(height: 12),
 
-        // Subscription
+        // Account info
         Container(
           decoration: BoxDecoration(
             color: Theme.of(context).cardTheme.color ?? context.card,
@@ -601,42 +597,10 @@ class _AccountSection extends StatelessWidget {
           child: Column(
             children: [
               ListTile(
-                leading: _icon(
-                  sub.isPro
-                      ? Icons.workspace_premium_rounded
-                      : Icons.star_outline_rounded,
-                  AppColors.gold,
-                ),
-                title: Text(
-                    sub.isPro ? 'Manage Subscription' : 'Upgrade to Pro'),
-                subtitle: Text(sub.isPro ? 'Pro' : 'Free'),
-                trailing: Icon(Icons.chevron_right_rounded,
-                    color: context.textTertiary),
-                onTap: () {
-                  if (sub.isPro) {
-                    ref
-                        .read(subscriptionProvider.notifier)
-                        .showCustomerCenter();
-                  } else {
-                    context.push('/paywall');
-                  }
-                },
-              ),
-              const Divider(height: 1, indent: 60),
-              ListTile(
                 leading: _icon(Icons.email_outlined, AppColors.skyBlue),
                 title: const Text('Email'),
                 subtitle: Text(email),
               ),
-              if (!usageService.isPro) ...[
-                const Divider(height: 1, indent: 60),
-                ListTile(
-                  leading: _icon(Icons.bolt_rounded, AppColors.gold),
-                  title: const Text('Free Sessions Today'),
-                  subtitle:
-                      Text('${usageService.remainingSessions} remaining'),
-                ),
-              ],
             ],
           ),
         ),

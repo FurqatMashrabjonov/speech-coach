@@ -405,7 +405,7 @@ class _BigStatCard extends StatelessWidget {
   }
 }
 
-// ─── Activity Heatmap (GitHub-style) ────────────────────────────────────────
+// ─── Activity Heatmap (GitHub-style, 30 days, primary color) ────────────────
 
 class _ActivityHeatmap extends StatelessWidget {
   final List<SessionRecord> sessions;
@@ -417,25 +417,27 @@ class _ActivityHeatmap extends StatelessWidget {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
 
-    // Build a map of date → session count for last 91 days (13 weeks)
+    // Build a map of date → session count for last 35 days (5 weeks)
     final activityMap = <DateTime, int>{};
     for (final s in sessions) {
       final d = DateTime(s.date.year, s.date.month, s.date.day);
       final diff = today.difference(d).inDays;
-      if (diff >= 0 && diff < 91) {
+      if (diff >= 0 && diff < 35) {
         activityMap[d] = (activityMap[d] ?? 0) + 1;
       }
     }
 
-    // Generate grid: 13 weeks × 7 days
-    final startDate = today.subtract(Duration(days: 90 + today.weekday % 7));
+    // 5 weeks × 7 days grid, aligned to start on Monday
+    final daysBack = 34 + (today.weekday - 1); // align to Monday
+    final startDate = today.subtract(Duration(days: daysBack));
     final weeks = <List<_HeatmapDay>>[];
     var current = startDate;
     var week = <_HeatmapDay>[];
 
     while (!current.isAfter(today)) {
       final count = activityMap[current] ?? 0;
-      week.add(_HeatmapDay(date: current, count: count));
+      final isFuture = current.isAfter(today);
+      week.add(_HeatmapDay(date: current, count: count, isFuture: isFuture));
       if (week.length == 7) {
         weeks.add(week);
         week = [];
@@ -443,14 +445,30 @@ class _ActivityHeatmap extends StatelessWidget {
       current = current.add(const Duration(days: 1));
     }
     if (week.isNotEmpty) {
+      // Pad remaining days as future
+      while (week.length < 7) {
+        week.add(_HeatmapDay(
+          date: current,
+          count: 0,
+          isFuture: true,
+        ));
+        current = current.add(const Duration(days: 1));
+      }
       weeks.add(week);
     }
 
-    // Day labels
-    const dayLabels = ['', 'M', '', 'W', '', 'F', ''];
+    // Count active days this month
+    final activeDays = activityMap.keys
+        .where((d) => today.difference(d).inDays < 30)
+        .length;
+
+    const dayLabels = ['Mon', '', 'Wed', '', 'Fri', '', 'Sun'];
+
+    // Month name for header
+    final monthName = _monthName(today.month);
 
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
@@ -459,84 +477,148 @@ class _ActivityHeatmap extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Title row
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Activity', style: AppTypography.titleMedium()),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Activity', style: AppTypography.titleLarge()),
+                  const SizedBox(height: 2),
+                  Text(
+                    '$monthName ${today.year}',
+                    style: AppTypography.bodySmall(
+                        color: context.textSecondary),
+                  ),
+                ],
+              ),
+              // Active days badge
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.calendar_today_rounded,
+                        color: AppColors.primary, size: 14),
+                    const SizedBox(width: 4),
+                    Text(
+                      '$activeDays active days',
+                      style: AppTypography.labelMedium(
+                          color: AppColors.primary),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+
+          // Heatmap grid
+          LayoutBuilder(builder: (context, constraints) {
+            final labelWidth = 32.0;
+            final gridWidth = constraints.maxWidth - labelWidth - 4;
+            final cellGap = 3.0;
+            final numWeeks = weeks.length;
+            final cellSize =
+                (gridWidth - (numWeeks - 1) * cellGap) / numWeeks;
+
+            return Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Day labels
+                SizedBox(
+                  width: labelWidth,
+                  child: Column(
+                    children: dayLabels.map((label) {
+                      return SizedBox(
+                        height: cellSize + cellGap,
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            label,
+                            style: AppTypography.labelSmall(
+                                    color: context.textTertiary)
+                                .copyWith(fontSize: 10),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                const SizedBox(width: 4),
+                // Grid
+                Expanded(
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: weeks.map((weekDays) {
+                      return Column(
+                        children: weekDays.map((day) {
+                          return Container(
+                            width: cellSize,
+                            height: cellSize,
+                            margin: EdgeInsets.only(bottom: cellGap),
+                            decoration: BoxDecoration(
+                              color: day.isFuture
+                                  ? Colors.transparent
+                                  : _heatColor(day.count),
+                              borderRadius: BorderRadius.circular(4),
+                              border: day.isFuture
+                                  ? Border.all(
+                                      color: const Color(0xFFE5E5E5),
+                                      width: 1,
+                                    )
+                                  : null,
+                            ),
+                          );
+                        }).toList(),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ],
+            );
+          }),
+          const SizedBox(height: 12),
+
+          // Legend
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
               Text(
                 '${sessions.length} total sessions',
                 style: AppTypography.labelSmall(
                     color: context.textSecondary),
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Day labels column
-              Column(
-                children: dayLabels
-                    .map(
-                      (label) => SizedBox(
-                        height: 12,
-                        child: Text(
-                          label,
-                          style: AppTypography.labelSmall(
-                                  color: context.textTertiary)
-                              .copyWith(fontSize: 8),
-                        ),
+              Row(
+                children: [
+                  Text('Less',
+                      style: AppTypography.labelSmall(
+                              color: context.textTertiary)
+                          .copyWith(fontSize: 10)),
+                  const SizedBox(width: 4),
+                  for (final level in [0, 1, 2, 3])
+                    Container(
+                      width: 14,
+                      height: 14,
+                      margin: const EdgeInsets.symmetric(horizontal: 2),
+                      decoration: BoxDecoration(
+                        color: _heatColor(level),
+                        borderRadius: BorderRadius.circular(3),
                       ),
-                    )
-                    .toList(),
+                    ),
+                  const SizedBox(width: 4),
+                  Text('More',
+                      style: AppTypography.labelSmall(
+                              color: context.textTertiary)
+                          .copyWith(fontSize: 10)),
+                ],
               ),
-              const SizedBox(width: 4),
-              // Heatmap grid
-              Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  reverse: true,
-                  child: Row(
-                    children: weeks.map((week) {
-                      return Column(
-                        children: List.generate(7, (dayIndex) {
-                          if (dayIndex < week.length) {
-                            return _HeatmapCell(day: week[dayIndex]);
-                          }
-                          return const SizedBox(width: 10, height: 10);
-                        }),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          // Legend
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text('Less',
-                  style: AppTypography.labelSmall(
-                          color: context.textTertiary)
-                      .copyWith(fontSize: 9)),
-              const SizedBox(width: 4),
-              for (final level in [0, 1, 2, 3])
-                Container(
-                  width: 10,
-                  height: 10,
-                  margin: const EdgeInsets.symmetric(horizontal: 1),
-                  decoration: BoxDecoration(
-                    color: _heatColor(level),
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              const SizedBox(width: 4),
-              Text('More',
-                  style: AppTypography.labelSmall(
-                          color: context.textTertiary)
-                      .copyWith(fontSize: 9)),
             ],
           ),
         ],
@@ -544,52 +626,32 @@ class _ActivityHeatmap extends StatelessWidget {
     );
   }
 
-  static Color _heatColor(int level) {
-    switch (level) {
-      case 0:
-        return const Color(0xFFEBEDF0);
-      case 1:
-        return AppColors.success.withValues(alpha: 0.3);
-      case 2:
-        return AppColors.success.withValues(alpha: 0.6);
-      default:
-        return AppColors.success;
-    }
+  static Color _heatColor(int count) {
+    if (count == 0) return const Color(0xFFEBEDF0);
+    if (count == 1) return AppColors.primary.withValues(alpha: 0.25);
+    if (count == 2) return AppColors.primary.withValues(alpha: 0.55);
+    return AppColors.primary;
+  }
+
+  static String _monthName(int month) {
+    const months = [
+      '', 'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December',
+    ];
+    return months[month];
   }
 }
 
 class _HeatmapDay {
   final DateTime date;
   final int count;
+  final bool isFuture;
 
-  const _HeatmapDay({required this.date, required this.count});
-}
-
-class _HeatmapCell extends StatelessWidget {
-  final _HeatmapDay day;
-
-  const _HeatmapCell({required this.day});
-
-  @override
-  Widget build(BuildContext context) {
-    final level = day.count == 0
-        ? 0
-        : day.count == 1
-            ? 1
-            : day.count == 2
-                ? 2
-                : 3;
-
-    return Container(
-      width: 10,
-      height: 10,
-      margin: const EdgeInsets.all(1),
-      decoration: BoxDecoration(
-        color: _ActivityHeatmap._heatColor(level),
-        borderRadius: BorderRadius.circular(2),
-      ),
-    );
-  }
+  const _HeatmapDay({
+    required this.date,
+    required this.count,
+    this.isFuture = false,
+  });
 }
 
 // ─── Weekly Bar Chart ───────────────────────────────────────────────────────

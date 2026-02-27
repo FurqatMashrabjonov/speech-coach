@@ -6,10 +6,10 @@ import 'package:speech_coach/app/theme/app_colors.dart';
 import 'package:speech_coach/app/theme/app_typography.dart';
 import 'package:speech_coach/core/extensions/context_extensions.dart';
 import 'package:speech_coach/features/characters/domain/character_entity.dart';
+import 'package:speech_coach/app/theme/app_images.dart';
 import 'package:speech_coach/shared/widgets/duo_button.dart';
 import 'package:speech_coach/shared/widgets/tappable.dart';
 import 'package:speech_coach/features/characters/presentation/providers/character_provider.dart';
-import 'package:speech_coach/features/paywall/data/usage_service.dart';
 import 'package:speech_coach/features/scenarios/domain/scenario_entity.dart';
 import 'package:speech_coach/features/scenarios/presentation/providers/scenario_provider.dart';
 
@@ -76,18 +76,27 @@ class ScenarioDetailScreen extends ConsumerWidget {
                   children: [
                     const SizedBox(height: 32),
 
-                    // Icon
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: scenario.categoryColor.withValues(alpha: 0.22),
-                        borderRadius: BorderRadius.circular(24),
-                      ),
-                      child: Icon(
-                        scenario.icon,
-                        color: scenario.categoryColor,
-                        size: 40,
+                    // Scenario image
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(24),
+                      child: Image.asset(
+                        scenario.imagePath ?? AppImages.categoryImageMap[scenario.category] ?? '',
+                        width: 120,
+                        height: 120,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            color: scenario.categoryColor.withValues(alpha: 0.22),
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: Icon(
+                            scenario.icon,
+                            color: scenario.categoryColor,
+                            size: 56,
+                          ),
+                        ),
                       ),
                     ).animate().fadeIn(duration: 400.ms).scale(
                           begin: const Offset(0.8, 0.8),
@@ -187,42 +196,20 @@ class ScenarioDetailScreen extends ConsumerWidget {
               ),
             ),
 
-            // Start buttons (Voice + Text)
-            Container(
+            // Start button
+            Padding(
               padding: EdgeInsets.fromLTRB(
                 20,
                 12,
                 20,
                 MediaQuery.of(context).padding.bottom + 12,
               ),
-              child: Row(
-                children: [
-                  // Voice Practice button (primary)
-                  Expanded(
-                    flex: 3,
-                    child: DuoButton.primary(
-                      text: 'Voice Practice',
-                      icon: Icons.mic_rounded,
-                      width: double.infinity,
-                      onTap: () => _startPractice(
-                          context, ref, scenario, selectedCharacter,
-                          mode: 'voice'),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  // Text Chat button (outline)
-                  Expanded(
-                    flex: 2,
-                    child: DuoButton.outline(
-                      text: 'Text Chat',
-                      icon: Icons.keyboard_rounded,
-                      width: double.infinity,
-                      onTap: () => _startPractice(
-                          context, ref, scenario, selectedCharacter,
-                          mode: 'text'),
-                    ),
-                  ),
-                ],
+              child: DuoButton.primary(
+                text: 'Start Practice',
+                icon: Icons.mic_rounded,
+                width: double.infinity,
+                onTap: () => _startPractice(
+                    context, ref, scenario, selectedCharacter),
               ),
             ),
           ],
@@ -232,26 +219,15 @@ class ScenarioDetailScreen extends ConsumerWidget {
   }
 
   void _startPractice(BuildContext context, WidgetRef ref, Scenario scenario,
-      AICharacter character, {String mode = 'voice'}) {
-    final usageService = ref.read(usageServiceProvider);
-    if (!usageService.canStartSession()) {
-      context.push('/paywall');
-      return;
-    }
-
-    usageService.recordSession();
-
-    final route = mode == 'text'
-        ? '/text-chat/${Uri.encodeComponent(scenario.category)}'
-        : '/conversation/${Uri.encodeComponent(scenario.category)}';
-
+      AICharacter character) {
     context.push(
-      route,
+      '/conversation/${Uri.encodeComponent(scenario.category)}',
       extra: {
         'scenarioId': scenario.id,
         'scenarioTitle': scenario.title,
         'scenarioPrompt': scenario.systemPrompt,
         'durationMinutes': scenario.durationMinutes,
+        'userRole': scenario.userRole,
         'characterName': character.name,
         'characterVoice': character.voiceName,
         'characterPersonality': character.personality,
@@ -260,7 +236,7 @@ class ScenarioDetailScreen extends ConsumerWidget {
   }
 }
 
-class _CharacterPicker extends StatelessWidget {
+class _CharacterPicker extends StatefulWidget {
   final String category;
   final AICharacter selectedCharacter;
   final void Function(AICharacter) onSelect;
@@ -272,15 +248,18 @@ class _CharacterPicker extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
-    final recommended = CharacterRepository.getForCategory(category);
-    final allCharacters = CharacterRepository.characters;
+  State<_CharacterPicker> createState() => _CharacterPickerState();
+}
 
-    // Show recommended first, then others
-    final ordered = [
-      ...recommended,
-      ...allCharacters.where((c) => !recommended.contains(c)),
-    ];
+class _CharacterPickerState extends State<_CharacterPicker> {
+  bool _showAll = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final recommended = CharacterRepository.getForCategory(widget.category);
+    final others = CharacterRepository.characters
+        .where((c) => !recommended.contains(c))
+        .toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -294,105 +273,105 @@ class _CharacterPicker extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        SizedBox(
-          height: 100,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: ordered.length,
-            itemBuilder: (context, index) {
-              final character = ordered[index];
-              final isSelected = character.id == selectedCharacter.id;
-              final isRecommended = recommended.contains(character);
 
-              return Tappable(
-                onTap: () => onSelect(character),
-                child: Container(
-                  width: 80,
-                  margin: const EdgeInsets.only(right: 10),
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? character.color.withValues(alpha: 0.22)
-                        : AppColors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color:
-                          isSelected ? character.color : const Color(0xFFE5E5E5),
-                      width: 2,
-                    ),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      ClipOval(
-                        child: Image.asset(
-                          character.imagePath,
-                          width: 36,
-                          height: 36,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: character.color.withValues(alpha: 0.2),
-                              shape: BoxShape.circle,
-                            ),
-                            child: Center(
-                              child: Text(
-                                character.avatarEmoji,
-                                style: AppTypography.titleMedium(
-                                  color: character.color,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        character.name,
-                        style: AppTypography.labelSmall(
-                          color: isSelected
-                              ? character.color
-                              : context.textPrimary,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      if (isRecommended && index < recommended.length)
-                        Text(
-                          'Best fit',
-                          style: AppTypography.labelSmall(
-                            color: context.textTertiary,
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
+        // Recommended section
+        Row(
+          children: [
+            Icon(Icons.star_rounded, size: 16, color: AppColors.gold),
+            const SizedBox(width: 4),
+            Text(
+              'Recommended',
+              style: AppTypography.labelMedium(color: AppColors.gold),
+            ),
+          ],
         ),
         const SizedBox(height: 8),
+        SizedBox(
+          height: 108,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: recommended.length,
+            itemBuilder: (context, index) => _CharacterCard(
+              character: recommended[index],
+              isSelected: recommended[index].id == widget.selectedCharacter.id,
+              onTap: () => widget.onSelect(recommended[index]),
+              badge: 'Best fit',
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+
+        // All Characters toggle
+        Tappable(
+          onTap: () => setState(() => _showAll = !_showAll),
+          child: Row(
+            children: [
+              Text(
+                'All Characters',
+                style: AppTypography.labelMedium(),
+              ),
+              const SizedBox(width: 4),
+              Text(
+                '(${others.length})',
+                style: AppTypography.labelSmall(color: context.textTertiary),
+              ),
+              const Spacer(),
+              AnimatedRotation(
+                turns: _showAll ? 0.5 : 0,
+                duration: const Duration(milliseconds: 200),
+                child: Icon(
+                  Icons.keyboard_arrow_down_rounded,
+                  size: 20,
+                  color: context.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        // Expandable all-characters grid
+        AnimatedCrossFade(
+          firstChild: const SizedBox.shrink(),
+          secondChild: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: SizedBox(
+              height: 108,
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: others.length,
+                itemBuilder: (context, index) => _CharacterCard(
+                  character: others[index],
+                  isSelected: others[index].id == widget.selectedCharacter.id,
+                  onTap: () => widget.onSelect(others[index]),
+                ),
+              ),
+            ),
+          ),
+          crossFadeState:
+              _showAll ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+          duration: const Duration(milliseconds: 250),
+        ),
+        const SizedBox(height: 8),
+
         // Selected character description
         Container(
           width: double.infinity,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: selectedCharacter.color.withValues(alpha: 0.08),
+            color: widget.selectedCharacter.color.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
             children: [
               ClipOval(
                 child: Image.asset(
-                  selectedCharacter.imagePath,
+                  widget.selectedCharacter.imagePath,
                   width: 24,
                   height: 24,
                   fit: BoxFit.cover,
                   errorBuilder: (_, __, ___) => Icon(
-                    selectedCharacter.icon,
-                    color: selectedCharacter.color,
+                    widget.selectedCharacter.icon,
+                    color: widget.selectedCharacter.color,
                     size: 20,
                   ),
                 ),
@@ -403,13 +382,13 @@ class _CharacterPicker extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      selectedCharacter.name,
+                      widget.selectedCharacter.name,
                       style: AppTypography.labelMedium(
-                        color: selectedCharacter.color,
+                        color: widget.selectedCharacter.color,
                       ),
                     ),
                     Text(
-                      selectedCharacter.description,
+                      widget.selectedCharacter.description,
                       style: AppTypography.bodySmall(
                         color: context.textSecondary,
                       ),
@@ -421,6 +400,87 @@ class _CharacterPicker extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _CharacterCard extends StatelessWidget {
+  final AICharacter character;
+  final bool isSelected;
+  final VoidCallback onTap;
+  final String? badge;
+
+  const _CharacterCard({
+    required this.character,
+    required this.isSelected,
+    required this.onTap,
+    this.badge,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Tappable(
+      onTap: onTap,
+      child: Container(
+        width: 88,
+        margin: const EdgeInsets.only(right: 10),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? character.color.withValues(alpha: 0.22)
+              : AppColors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: isSelected ? character.color : const Color(0xFFE5E5E5),
+            width: 2,
+          ),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ClipOval(
+              child: Image.asset(
+                character.imagePath,
+                width: 44,
+                height: 44,
+                fit: BoxFit.cover,
+                errorBuilder: (_, __, ___) => Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: character.color.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Center(
+                    child: Text(
+                      character.avatarEmoji,
+                      style: AppTypography.titleLarge(
+                        color: character.color,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              character.name,
+              style: AppTypography.labelSmall(
+                color: isSelected ? character.color : context.textPrimary,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            if (badge != null)
+              Text(
+                badge!,
+                style: AppTypography.labelSmall(
+                  color: context.textTertiary,
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

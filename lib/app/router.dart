@@ -28,6 +28,9 @@ import 'package:speech_coach/features/speaker_dna/presentation/screens/speaker_d
 import 'package:speech_coach/features/filler_challenge/presentation/screens/filler_challenge_screen.dart';
 import 'package:speech_coach/features/filler_challenge/presentation/screens/filler_result_screen.dart';
 import 'package:speech_coach/features/voice_wrapped/presentation/screens/voice_wrapped_screen.dart';
+import 'package:speech_coach/features/assessment/presentation/screens/assessment_screen.dart';
+import 'package:speech_coach/features/assessment/presentation/screens/plan_summary_screen.dart';
+import 'package:speech_coach/features/assessment/presentation/providers/assessment_provider.dart';
 import 'package:speech_coach/shared/widgets/bottom_nav_bar.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -46,6 +49,16 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       if (isLoggedIn && isAuthRoute && state.matchedLocation != '/splash') {
         return '/home';
+      }
+
+      // Redirect to assessment if not completed (skip for assessment/plan-summary/splash/auth routes)
+      final isAssessmentRoute = state.matchedLocation == '/assessment' ||
+          state.matchedLocation == '/plan-summary';
+      if (isLoggedIn && !isAuthRoute && !isAssessmentRoute) {
+        final hasAssessment = ref.read(hasAssessmentProvider);
+        if (!hasAssessment) {
+          return '/assessment';
+        }
       }
 
       return null;
@@ -70,6 +83,42 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/register',
         builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
+        path: '/assessment',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          child: const AssessmentScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(1, 0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              )),
+              child: child,
+            );
+          },
+        ),
+      ),
+      GoRoute(
+        path: '/plan-summary',
+        pageBuilder: (context, state) => CustomTransitionPage(
+          child: const PlanSummaryScreen(),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return SlideTransition(
+              position: Tween<Offset>(
+                begin: const Offset(0, 1),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              )),
+              child: child,
+            );
+          },
+        ),
       ),
       ShellRoute(
         builder: (context, state, child) {
@@ -474,6 +523,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               scenarioTitle: extra?['scenarioTitle'] as String?,
               scenarioPrompt: extra?['scenarioPrompt'] as String?,
               durationMinutes: extra?['durationMinutes'] as int?,
+              userRole: extra?['userRole'] as String?,
               characterName: extra?['characterName'] as String?,
               characterVoice: extra?['characterVoice'] as String?,
               characterPersonality: extra?['characterPersonality'] as String?,

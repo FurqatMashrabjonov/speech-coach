@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_widget_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg_dark"
+    android:orientation="vertical"
+    android:padding="14dp">
+
+    <!-- Header row -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="10dp">
+
+        <TextView
+            android:id="@+id/activity_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Activity"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/activity_streak"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🔥 0"
+            android:textColor="#E8793A"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <!-- Grid: 7 rows (Mon-Sun) × 5 columns (weeks) -->
+    <!-- Row 0: Mon -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:layout_marginBottom="3dp">
+        <TextView android:layout_width="24dp" android:layout_height="match_parent" android:text="M" android:textColor="#9E9AAF" android:textSize="10sp" android:gravity="center_vertical" />
+        <View android:id="@+id/cell_0" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_1" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_2" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_3" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_4" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/widget_cell_empty" />
+    </LinearLayout>
+
+    <!-- Row 1: Tue -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:layout_marginBottom="3dp">
+        <TextView android:layout_width="24dp" android:layout_height="match_parent" android:text="T" android:textColor="#9E9AAF" android:textSize="10sp" android:gravity="center_vertical" />
+        <View android:id="@+id/cell_5" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_6" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_7" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_8" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_9" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/widget_cell_empty" />
+    </LinearLayout>
+
+    <!-- Row 2: Wed -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:layout_marginBottom="3dp">
+        <TextView android:layout_width="24dp" android:layout_height="match_parent" android:text="W" android:textColor="#9E9AAF" android:textSize="10sp" android:gravity="center_vertical" />
+        <View android:id="@+id/cell_10" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_11" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_12" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_13" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_14" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/widget_cell_empty" />
+    </LinearLayout>
+
+    <!-- Row 3: Thu -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:layout_marginBottom="3dp">
+        <TextView android:layout_width="24dp" android:layout_height="match_parent" android:text="T" android:textColor="#9E9AAF" android:textSize="10sp" android:gravity="center_vertical" />
+        <View android:id="@+id/cell_15" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_16" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_17" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_18" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_19" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/widget_cell_empty" />
+    </LinearLayout>
+
+    <!-- Row 4: Fri -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:layout_marginBottom="3dp">
+        <TextView android:layout_width="24dp" android:layout_height="match_parent" android:text="F" android:textColor="#9E9AAF" android:textSize="10sp" android:gravity="center_vertical" />
+        <View android:id="@+id/cell_20" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_21" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_22" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_23" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_24" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/widget_cell_empty" />
+    </LinearLayout>
+
+    <!-- Row 5: Sat -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:layout_marginBottom="3dp">
+        <TextView android:layout_width="24dp" android:layout_height="match_parent" android:text="S" android:textColor="#9E9AAF" android:textSize="10sp" android:gravity="center_vertical" />
+        <View android:id="@+id/cell_25" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_26" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_27" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_28" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_29" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/widget_cell_empty" />
+    </LinearLayout>
+
+    <!-- Row 6: Sun -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+        <TextView android:layout_width="24dp" android:layout_height="match_parent" android:text="S" android:textColor="#9E9AAF" android:textSize="10sp" android:gravity="center_vertical" />
+        <View android:id="@+id/cell_30" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_31" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_32" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_33" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:layout_marginEnd="3dp" android:background="@drawable/widget_cell_empty" />
+        <View android:id="@+id/cell_34" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:background="@drawable/widget_cell_empty" />
+    </LinearLayout>
+
+    <!-- Footer: legend -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end|center_vertical"
+        android:layout_marginTop="8dp">
+
+        <TextView
+            android:id="@+id/activity_sessions"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="0 sessions"
+            android:textColor="#9E9AAF"
+            android:textSize="10sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Less"
+            android:textColor="#9E9AAF"
+            android:textSize="9sp"
+            android:layout_marginEnd="4dp" />
+
+        <View android:layout_width="12dp" android:layout_height="12dp" android:layout_marginEnd="2dp" android:background="@drawable/widget_cell_empty" />
+        <View android:layout_width="12dp" android:layout_height="12dp" android:layout_marginEnd="2dp" android:background="@drawable/widget_cell_low" />
+        <View android:layout_width="12dp" android:layout_height="12dp" android:layout_marginEnd="2dp" android:background="@drawable/widget_cell_med" />
+        <View android:layout_width="12dp" android:layout_height="12dp" android:layout_marginEnd="4dp" android:background="@drawable/widget_cell_high" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="More"
+            android:textColor="#9E9AAF"
+            android:textSize="9sp" />
+    </LinearLayout>
+
+</LinearLayout>

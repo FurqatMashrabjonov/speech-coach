@@ -37,9 +37,10 @@ class SpeakerDNARepository {
           .doc(uid)
           .collection('data')
           .doc('speaker_dna')
-          .set(dna.toMap());
+          .set(dna.toMap())
+          .timeout(const Duration(seconds: 5));
     } catch (e) {
-      debugPrint('SpeakerDNA remote save error: $e');
+      debugPrint('SpeakerDNA remote save failed (non-critical): $e');
     }
   }
 }

@@ -276,6 +276,8 @@ class _Particle extends StatelessWidget {
       AppColors.accent,
     ];
 
+    final isCircle = random.nextBool();
+
     return Positioned(
       left: 0,
       right: 0,
@@ -286,9 +288,8 @@ class _Particle extends StatelessWidget {
           height: size,
           decoration: BoxDecoration(
             color: colors[index % colors.length],
-            shape: random.nextBool() ? BoxShape.circle : BoxShape.rectangle,
-            borderRadius:
-                random.nextBool() ? null : BorderRadius.circular(size * 0.2),
+            shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
+            borderRadius: isCircle ? null : BorderRadius.circular(size * 0.2),
           ),
         )
             .animate()

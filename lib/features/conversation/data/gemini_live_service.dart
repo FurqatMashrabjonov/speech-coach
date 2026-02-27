@@ -113,6 +113,8 @@ CRITICAL RULES — follow these at all times:
         durationMinutes: durationMinutes,
       );
 
+      debugPrint('GeminiLiveService: connecting with voice="${voiceName ?? "default"}"');
+
       final liveModel = FirebaseAI.googleAI().liveGenerativeModel(
         model: 'gemini-2.5-flash-native-audio-preview-12-2025',
         systemInstruction: Content.text(systemInstruction),

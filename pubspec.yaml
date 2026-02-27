@@ -83,5 +83,6 @@ flutter:
     - assets/images/mascot/
     - assets/images/characters/
     - assets/images/categories/
+    - assets/images/scenarios/
     - assets/icons/
     - assets/animations/

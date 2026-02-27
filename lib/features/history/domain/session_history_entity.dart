@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 class SessionHistoryEntry {
   final String id;
   final String scenarioId;
@@ -48,6 +46,7 @@ class SessionHistoryEntry {
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
       'scenarioId': scenarioId,
       'scenarioTitle': scenarioTitle,
       'category': category,
@@ -62,16 +61,17 @@ class SessionHistoryEntry {
       'transcript': transcript,
       'durationSeconds': durationSeconds,
       'xpEarned': xpEarned,
-      'createdAt': Timestamp.fromDate(createdAt),
+      'createdAt': createdAt.toIso8601String(),
       'feedbackStatus': feedbackStatus,
       'scenarioPrompt': scenarioPrompt,
-      if (feedbackGeneratedBy != null) 'feedbackGeneratedBy': feedbackGeneratedBy,
+      if (feedbackGeneratedBy != null)
+        'feedbackGeneratedBy': feedbackGeneratedBy,
     };
   }
 
-  factory SessionHistoryEntry.fromMap(String id, Map<String, dynamic> map) {
+  factory SessionHistoryEntry.fromMap(Map<String, dynamic> map) {
     return SessionHistoryEntry(
-      id: id,
+      id: map['id'] as String? ?? '',
       scenarioId: map['scenarioId'] as String? ?? '',
       scenarioTitle: map['scenarioTitle'] as String? ?? '',
       category: map['category'] as String? ?? '',
@@ -90,17 +90,48 @@ class SessionHistoryEntry {
       transcript: map['transcript'] as String? ?? '',
       durationSeconds: (map['durationSeconds'] as num?)?.toInt() ?? 0,
       xpEarned: (map['xpEarned'] as num?)?.toInt(),
-      createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      createdAt: map['createdAt'] is String
+          ? DateTime.tryParse(map['createdAt'] as String) ?? DateTime.now()
+          : DateTime.now(),
       feedbackStatus: map['feedbackStatus'] as String? ?? 'completed',
       scenarioPrompt: map['scenarioPrompt'] as String? ?? '',
       feedbackGeneratedBy: map['feedbackGeneratedBy'] as String?,
     );
   }
 
-  factory SessionHistoryEntry.fromFirestore(DocumentSnapshot doc) {
-    return SessionHistoryEntry.fromMap(
-      doc.id,
-      doc.data() as Map<String, dynamic>,
+  SessionHistoryEntry copyWith({
+    int? overallScore,
+    int? clarity,
+    int? confidence,
+    int? engagement,
+    int? relevance,
+    String? summary,
+    List<String>? strengths,
+    List<String>? improvements,
+    int? xpEarned,
+    String? feedbackStatus,
+    String? feedbackGeneratedBy,
+  }) {
+    return SessionHistoryEntry(
+      id: id,
+      scenarioId: scenarioId,
+      scenarioTitle: scenarioTitle,
+      category: category,
+      overallScore: overallScore ?? this.overallScore,
+      clarity: clarity ?? this.clarity,
+      confidence: confidence ?? this.confidence,
+      engagement: engagement ?? this.engagement,
+      relevance: relevance ?? this.relevance,
+      summary: summary ?? this.summary,
+      strengths: strengths ?? this.strengths,
+      improvements: improvements ?? this.improvements,
+      transcript: transcript,
+      durationSeconds: durationSeconds,
+      xpEarned: xpEarned ?? this.xpEarned,
+      createdAt: createdAt,
+      feedbackStatus: feedbackStatus ?? this.feedbackStatus,
+      scenarioPrompt: scenarioPrompt,
+      feedbackGeneratedBy: feedbackGeneratedBy ?? this.feedbackGeneratedBy,
     );
   }
 }

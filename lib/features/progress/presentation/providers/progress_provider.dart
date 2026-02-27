@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:speech_coach/features/feedback/domain/feedback_entity.dart';
 import 'package:speech_coach/features/notifications/data/notification_service.dart';
@@ -22,24 +23,32 @@ class ProgressNotifier extends StateNotifier<UserProgress> {
   }
 
   Future<void> _loadAndSync() async {
-    // Load local first (fast)
+    // Load local first (fast — always works)
     final local = _repository.load();
     state = local;
 
-    // Then try to merge with cloud
+    // Then try to merge with cloud (with timeout so it doesn't hang)
     try {
-      final remote = await _remoteRepository.load();
+      final remote = await _remoteRepository
+          .load()
+          .timeout(const Duration(seconds: 5));
       if (remote != null) {
         final merged = ProgressRemoteRepository.merge(local, remote);
         state = merged;
         await _repository.save(merged);
-        await _remoteRepository.save(merged);
+        // Push merged back to cloud in background
+        _remoteRepository.save(merged).timeout(
+          const Duration(seconds: 5),
+        ).catchError((_) {});
       } else {
-        // No remote data yet — push local to cloud
-        await _remoteRepository.save(local);
+        // No remote data yet — push local to cloud in background
+        _remoteRepository.save(local).timeout(
+          const Duration(seconds: 5),
+        ).catchError((_) {});
       }
     } catch (_) {
-      // Offline — just use local
+      // Offline or Firestore unavailable — just use local
+      debugPrint('ProgressNotifier: cloud sync skipped (offline/error)');
     }
   }
 
@@ -47,6 +56,8 @@ class ProgressNotifier extends StateNotifier<UserProgress> {
     final xp = feedback.xpEarned;
     final newTotalXp = state.totalXp + xp;
     final (newLevel, newLevelTitle) = UserProgress.calculateLevel(newTotalXp);
+    debugPrint('ProgressNotifier.addSession: +$xp XP (total: $newTotalXp), '
+        'level: $newLevel ($newLevelTitle), score: ${feedback.overallScore}');
 
     // Calculate streak (with streak freeze support)
     final now = DateTime.now();
@@ -77,6 +88,10 @@ class ProgressNotifier extends StateNotifier<UserProgress> {
       newStreak = 1;
     }
 
+    debugPrint('ProgressNotifier.addSession: streak=$newStreak '
+        '(was ${state.streak}), longest=${state.longestStreak}, '
+        'sessions=${state.totalSessions + 1}');
+
     final record = SessionRecord(
       scenarioId: feedback.scenarioId,
       category: feedback.category,
@@ -101,7 +116,7 @@ class ProgressNotifier extends StateNotifier<UserProgress> {
     if (newStreak >= 10 && !newBadges.contains('10_day_streak')) {
       newBadges.add('10_day_streak');
     }
-    if (feedback.clarity == 10 && !newBadges.contains('perfect_clarity')) {
+    if (feedback.clarity >= 100 && !newBadges.contains('perfect_clarity')) {
       newBadges.add('perfect_clarity');
     }
     if (feedback.overallScore >= 90 && !newBadges.contains('star_performer')) {
@@ -144,8 +159,13 @@ class ProgressNotifier extends StateNotifier<UserProgress> {
 
     await _repository.save(state);
 
-    // Sync to Firestore
-    await _remoteRepository.save(state);
+    // Sync to Firestore in background (non-blocking — local save above is the source of truth)
+    _remoteRepository.save(state).timeout(
+      const Duration(seconds: 5),
+      onTimeout: () => debugPrint('ProgressNotifier: Firestore sync timed out (non-critical)'),
+    ).catchError((e) {
+      debugPrint('ProgressNotifier: Firestore sync failed (non-critical): $e');
+    });
 
     // Update home screen widgets
     WidgetService.updateWidgetData(state);
@@ -165,7 +185,9 @@ class ProgressNotifier extends StateNotifier<UserProgress> {
       streakFreezes: state.streakFreezes + 1,
     );
     await _repository.save(state);
-    await _remoteRepository.save(state);
+    _remoteRepository.save(state).timeout(
+      const Duration(seconds: 5),
+    ).catchError((_) {});
   }
 
   /// Returns true if daily goal was just completed on this session

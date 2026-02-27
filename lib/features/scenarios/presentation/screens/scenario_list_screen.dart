@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:speech_coach/app/theme/app_colors.dart';
+import 'package:speech_coach/app/theme/app_images.dart';
 import 'package:speech_coach/app/theme/app_typography.dart';
 import 'package:speech_coach/core/extensions/context_extensions.dart';
 import 'package:speech_coach/features/scenarios/domain/scenario_entity.dart';
@@ -17,6 +19,7 @@ class ScenarioListScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final scenarios = ref.watch(scenariosByCategoryProvider(category));
+    final categoryImage = AppImages.categoryImageMap[category];
 
     return Scaffold(
       body: SafeArea(
@@ -30,7 +33,15 @@ class ScenarioListScreen extends ConsumerWidget {
                 children: [
                   Tappable(
                     onTap: () => context.pop(),
-                    child: const Icon(Icons.arrow_back_rounded, size: 24),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: context.surface,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.arrow_back_rounded, size: 22),
+                    ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -47,25 +58,43 @@ class ScenarioListScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
+                  // Category image in header
+                  if (categoryImage != null)
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.asset(
+                        categoryImage,
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
+                      ),
+                    ),
                 ],
               ),
             ),
             const SizedBox(height: 8),
 
-            // Scenario list
+            // Scenario grid
             Expanded(
-              child: ListView.builder(
+              child: GridView.builder(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  crossAxisSpacing: 12,
+                  mainAxisSpacing: 12,
+                  childAspectRatio: 0.72,
+                ),
                 itemCount: scenarios.length,
                 itemBuilder: (context, index) {
                   final scenario = scenarios[index];
                   return _ScenarioCard(scenario: scenario)
                       .animate()
                       .fadeIn(
-                        delay: Duration(milliseconds: 50 * index),
+                        delay: Duration(milliseconds: 60 * index),
                         duration: 400.ms,
                       )
-                      .slideX(begin: 0.05);
+                      .slideY(begin: 0.06);
                 },
               ),
             ),
@@ -87,50 +116,29 @@ class ScenarioListSkeleton extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 16),
-          // Header
           const SkeletonLine(width: 160, height: 24),
           const SizedBox(height: 6),
           const SkeletonLine(width: 100, height: 14),
           const SizedBox(height: 20),
-          // Scenario cards
-          for (int i = 0; i < 5; i++) ...[
+          for (int i = 0; i < 2; i++) ...[
             Row(
               children: [
-                Skeleton(
-                  width: 48,
-                  height: 48,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                const SizedBox(width: 14),
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SkeletonLine(width: 180, height: 16),
-                      const SizedBox(height: 6),
-                      const SkeletonLine(height: 12),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          Skeleton(
-                            width: 60,
-                            height: 20,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          const SizedBox(width: 8),
-                          Skeleton(
-                            width: 60,
-                            height: 20,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ],
-                      ),
-                    ],
+                  child: Skeleton(
+                    height: 200,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Skeleton(
+                    height: 200,
+                    borderRadius: BorderRadius.circular(20),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
           ],
         ],
       ),
@@ -143,117 +151,130 @@ class _ScenarioCard extends StatelessWidget {
 
   const _ScenarioCard({required this.scenario});
 
+  static Color _difficultyColor(String difficulty) {
+    switch (difficulty) {
+      case 'Easy':
+        return AppColors.success;
+      case 'Medium':
+        return AppColors.warning;
+      case 'Hard':
+        return AppColors.error;
+      default:
+        return AppColors.primary;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final diffColor = _difficultyColor(scenario.difficulty);
+
     return Tappable(
       onTap: () {
         context.push(
           '/scenario/${Uri.encodeComponent(scenario.id)}',
         );
       },
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minHeight: 80),
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Theme.of(context).cardTheme.color ?? context.card,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: const Color(0xFFE5E5E5),
-              width: 2,
-            ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: scenario.categoryColor.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: const Color(0xFFE5E5E5),
+            width: 2,
           ),
-          child: Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-              decoration: BoxDecoration(
-                color: scenario.categoryColor.withValues(alpha: 0.22),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(
-                scenario.icon,
-                color: scenario.categoryColor,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 14),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Image
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    scenario.title,
-                    style: AppTypography.titleMedium(),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    scenario.description,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppTypography.bodySmall(
-                      color: context.textSecondary,
+              flex: 3,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: scenario.categoryColor.withValues(alpha: 0.15),
+                      width: 1.5,
                     ),
                   ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      _Tag(
-                        label: '${scenario.durationMinutes} min',
-                        icon: Icons.timer_outlined,
-                      ),
-                      const SizedBox(width: 8),
-                      _Tag(
-                        label: scenario.difficulty,
-                        icon: Icons.signal_cellular_alt_rounded,
-                      ),
-                    ],
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(13),
+                    child: scenario.imagePath != null
+                        ? Image.asset(
+                            scenario.imagePath!,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) => _buildImageFallback(),
+                          )
+                        : _buildImageFallback(),
                   ),
-                ],
+                ),
               ),
             ),
-            const SizedBox(width: 8),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: context.textTertiary,
+            // Text + tag
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 4, 12, 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      scenario.title,
+                      style: AppTypography.titleMedium(),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        Text(
+                          '${scenario.durationMinutes}m',
+                          style: AppTypography.labelSmall(
+                            color: context.textTertiary,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 6),
+                          child: Text(
+                            '·',
+                            style: AppTypography.labelSmall(
+                              color: context.textTertiary,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          scenario.difficulty,
+                          style: AppTypography.labelSmall(
+                            color: diffColor,
+                          ).copyWith(fontWeight: FontWeight.w700),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildImageFallback() {
+    return Container(
+      color: scenario.categoryColor.withValues(alpha: 0.1),
+      child: Center(
+        child: Icon(
+          scenario.icon,
+          color: scenario.categoryColor,
+          size: 36,
         ),
       ),
     );
   }
 }
 
-class _Tag extends StatelessWidget {
-  final String label;
-  final IconData icon;
-
-  const _Tag({required this.label, required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: context.surface,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: context.textTertiary),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: AppTypography.labelSmall(
-              color: context.textSecondary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

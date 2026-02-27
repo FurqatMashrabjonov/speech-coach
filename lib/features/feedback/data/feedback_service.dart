@@ -74,6 +74,29 @@ class ConversationFeedbackService {
     required String scenarioId,
     required int durationSeconds,
   }) async {
+    // Guard: if transcript is too short, return a gentle fallback
+    final userLines = transcript
+        .split('\n')
+        .where((l) => l.startsWith('User:') && l.trim().length > 6)
+        .length;
+    if (transcript.trim().isEmpty || userLines == 0) {
+      debugPrint('FeedbackService: transcript empty or no user speech — returning fallback');
+      return ConversationFeedback(
+        clarity: 50,
+        confidence: 50,
+        engagement: 50,
+        relevance: 50,
+        overallScore: 50,
+        summary: 'We couldn\'t detect enough speech to analyze. Try speaking more in your next session!',
+        strengths: ['You showed up to practice — that\'s a great start!'],
+        improvements: ['Speak more during the conversation so we can give detailed feedback'],
+        createdAt: DateTime.now(),
+        scenarioId: scenarioId,
+        category: category,
+        durationSeconds: durationSeconds,
+      );
+    }
+
     final rubric = _categoryRubrics[category] ?? _categoryRubrics['Conversations']!;
 
     final prompt = '''
@@ -105,11 +128,13 @@ Analyze the speaker's performance and return ONLY a valid JSON object (no markdo
 IMPORTANT: All scores (clarity, confidence, engagement, relevance) must be on a 0-100 scale, NOT 1-10.
 Be encouraging but honest. Provide specific, actionable feedback.''';
 
+    debugPrint('FeedbackService: sending ${prompt.length} char prompt to Gemini...');
     final response = await model.generateContent([
       Content.text(prompt),
     ]);
 
     final text = response.text;
+    debugPrint('FeedbackService: received response (${text?.length ?? 0} chars)');
     if (text == null || text.isEmpty) {
       throw Exception('Empty response from Gemini');
     }
@@ -140,10 +165,22 @@ Be encouraging but honest. Provide specific, actionable feedback.''';
 
       final json = jsonDecode(cleaned) as Map<String, dynamic>;
 
-      // Migration guard: if AI returned 1-10 scale scores, scale to 0-100
-      for (final key in ['clarity', 'confidence', 'engagement', 'relevance']) {
-        if (json[key] != null && (json[key] as num).toInt() <= 10) {
+      // Migration guard: if AI returned 1-10 scale scores, scale to 0-100.
+      // Only apply if ALL four subscores are ≤ 10 (to avoid corrupting
+      // legitimate low scores on the 0-100 scale).
+      final subscoreKeys = ['clarity', 'confidence', 'engagement', 'relevance'];
+      final allLowScale = subscoreKeys.every(
+        (key) => json[key] != null && (json[key] as num).toInt() <= 10,
+      );
+      if (allLowScale) {
+        debugPrint('FeedbackService: detected 1-10 scale, converting to 0-100');
+        for (final key in subscoreKeys) {
           json[key] = ((json[key] as num).toInt() * 10);
+        }
+        // Also scale overallScore if it was on 1-10 scale
+        if (json['overallScore'] != null &&
+            (json['overallScore'] as num).toInt() <= 10) {
+          json['overallScore'] = ((json['overallScore'] as num).toInt() * 10);
         }
       }
 
@@ -155,10 +192,10 @@ Be encouraging but honest. Provide specific, actionable feedback.''';
     } catch (e) {
       debugPrint('Failed to parse feedback response: $e\nRaw: $text');
       return ConversationFeedback(
-        clarity: 5,
-        confidence: 5,
-        engagement: 5,
-        relevance: 5,
+        clarity: 50,
+        confidence: 50,
+        engagement: 50,
+        relevance: 50,
         overallScore: 50,
         summary: 'We had trouble analyzing your conversation. Please try again.',
         strengths: ['Keep practicing!'],

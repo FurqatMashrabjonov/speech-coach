@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:speech_coach/app/constants/app_constants.dart';
@@ -82,19 +83,32 @@ class AuthRemoteDatasource {
   }
 
   Future<void> saveUserProfile(UserEntity user) async {
-    await _firestore
-        .collection(AppConstants.usersCollection)
-        .doc(user.uid)
-        .set(user.toMap(), SetOptions(merge: true));
+    try {
+      await _firestore
+          .collection(AppConstants.usersCollection)
+          .doc(user.uid)
+          .set(user.toMap(), SetOptions(merge: true))
+          .timeout(const Duration(seconds: 5));
+    } catch (e) {
+      // Firestore unavailable — non-critical, auth still works
+      debugPrint('AuthRemoteDatasource: saveUserProfile failed (non-critical): $e');
+    }
   }
 
   Future<UserEntity?> getUserProfile(String uid) async {
-    final doc = await _firestore
-        .collection(AppConstants.usersCollection)
-        .doc(uid)
-        .get();
+    try {
+      final doc = await _firestore
+          .collection(AppConstants.usersCollection)
+          .doc(uid)
+          .get()
+          .timeout(const Duration(seconds: 5));
 
-    if (!doc.exists || doc.data() == null) return null;
-    return UserEntity.fromMap(doc.data()!);
+      if (!doc.exists || doc.data() == null) return null;
+      return UserEntity.fromMap(doc.data()!);
+    } catch (e) {
+      // Firestore unavailable — return null, caller will fall back to Auth data
+      debugPrint('AuthRemoteDatasource: getUserProfile failed (non-critical): $e');
+      return null;
+    }
   }
 }

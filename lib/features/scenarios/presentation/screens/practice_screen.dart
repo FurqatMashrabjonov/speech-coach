@@ -6,6 +6,7 @@ import 'package:speech_coach/app/theme/app_colors.dart';
 import 'package:speech_coach/app/theme/app_typography.dart';
 import 'package:speech_coach/core/extensions/context_extensions.dart';
 import 'package:speech_coach/features/daily_goal/presentation/providers/daily_goal_provider.dart';
+import 'package:speech_coach/app/theme/app_images.dart';
 import 'package:speech_coach/shared/widgets/duo_button.dart';
 import 'package:speech_coach/shared/widgets/tappable.dart';
 
@@ -95,7 +96,7 @@ class PracticeScreen extends ConsumerWidget {
                   crossAxisCount: 2,
                   crossAxisSpacing: 12,
                   mainAxisSpacing: 12,
-                  childAspectRatio: 1.15,
+                  childAspectRatio: 0.78,
                 ),
                 itemCount: _categories.length,
                 itemBuilder: (context, index) {
@@ -228,43 +229,83 @@ class _CategoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final imagePath = AppImages.categoryImageMap[name];
+
     return Tappable(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(16),
+          borderRadius: BorderRadius.circular(20),
           border: Border.all(color: const Color(0xFFE5E5E5), width: 2),
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                borderRadius: BorderRadius.circular(12),
+            // Big image area
+            Expanded(
+              flex: 3,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: imagePath != null
+                      ? Image.asset(
+                          imagePath,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => _buildIconFallback(),
+                        )
+                      : _buildIconFallback(),
+                ),
               ),
-              child: Icon(icon, color: AppColors.primary, size: 24),
             ),
-            const Spacer(),
-            Text(
-              name,
-              style: AppTypography.labelLarge(),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-            Text(
-              '$count scenarios',
-              style: AppTypography.labelSmall(
-                color: context.textTertiary,
+            // Text area
+            Expanded(
+              flex: 2,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 4, 14, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      name,
+                      style: AppTypography.titleMedium(),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.play_circle_outline_rounded,
+                          size: 14,
+                          color: context.textTertiary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          '$count scenarios',
+                          style: AppTypography.labelSmall(
+                            color: context.textTertiary,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildIconFallback() {
+    return Container(
+      color: AppColors.white.withValues(alpha: 0.6),
+      child: Center(
+        child: Icon(icon, color: AppColors.primary, size: 40),
       ),
     );
   }

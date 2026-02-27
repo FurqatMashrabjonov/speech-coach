@@ -74,6 +74,7 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<UserEntity> _getUserOrCreate(UserCredential credential) async {
     final user = credential.user!;
 
+    // Try Firestore profile, but don't block sign-in if it fails
     var profile = await _datasource.getUserProfile(user.uid);
     if (profile == null) {
       profile = UserEntity(
@@ -83,7 +84,8 @@ class AuthRepositoryImpl implements AuthRepository {
         photoUrl: user.photoURL,
         createdAt: DateTime.now(),
       );
-      await _datasource.saveUserProfile(profile);
+      // Save in background — don't block sign-in
+      _datasource.saveUserProfile(profile);
     }
 
     return profile;

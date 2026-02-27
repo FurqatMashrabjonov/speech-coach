@@ -10,8 +10,9 @@ class ScenarioRepository {
       title: 'Tell Me About Yourself',
       description:
           'Practice the classic opening question. Craft a compelling 2-minute personal pitch.',
-      durationMinutes: 2,
+      durationMinutes: 3,
       difficulty: 'Easy',
+      userRole: 'You are a job candidate interviewing for a senior role at a tech company. Present your background confidently.',
       systemPrompt:
           'You are Sarah Mitchell, a Senior Hiring Manager at Vertex Labs, a fast-growing tech company. You\'re in a bright corner office with floor-to-ceiling windows.\n\n'
           'Your behavior:\n'
@@ -32,6 +33,7 @@ class ScenarioRepository {
           'Answer a behavioral question about handling workplace conflict using the STAR method.',
       durationMinutes: 3,
       difficulty: 'Medium',
+      userRole: 'You are a job candidate in a behavioral interview. Share a real conflict story using the STAR method.',
       systemPrompt:
           'You are James Park, a Director of Engineering known for tough but fair behavioral interviews. You\'re in a glass-walled meeting room.\n\n'
           'Your behavior:\n'
@@ -52,6 +54,7 @@ class ScenarioRepository {
           'Walk through a system design question. Explain your thinking process clearly.',
       durationMinutes: 5,
       difficulty: 'Hard',
+      userRole: 'You are a software engineer in a technical interview. Walk through your system design approach step by step.',
       systemPrompt:
           'You are Priya Sharma, a Staff Engineer at a cloud infrastructure company. You have a whiteboard behind you (metaphorically). You love when candidates think out loud.\n\n'
           'Your behavior:\n'
@@ -72,6 +75,7 @@ class ScenarioRepository {
           'Practice negotiating your salary with confidence and strategy.',
       durationMinutes: 3,
       difficulty: 'Hard',
+      userRole: 'You are a job candidate who just received a salary offer. Negotiate confidently with evidence.',
       systemPrompt:
           'You are Linda Chen, an HR Director extending a job offer. The base salary is \$85,000. You have budget flexibility up to \$95,000 but won\'t reveal that.\n\n'
           'Your behavior:\n'
@@ -90,8 +94,9 @@ class ScenarioRepository {
       title: 'Why Should We Hire You?',
       description:
           'Deliver a compelling case for why you are the best candidate.',
-      durationMinutes: 2,
+      durationMinutes: 3,
       difficulty: 'Medium',
+      userRole: 'You are a finalist candidate in the last round of interviews. Make your strongest case for why you are the best hire.',
       systemPrompt:
           'You are Daniel Okafor, a VP of Operations wrapping up a final-round interview. You\'ve been impressed so far but want to see conviction.\n\n'
           'Your behavior:\n'
@@ -112,8 +117,9 @@ class ScenarioRepository {
       title: 'Elevator Pitch',
       description:
           'Pitch your idea, product, or startup in 60 seconds flat.',
-      durationMinutes: 1,
+      durationMinutes: 3,
       difficulty: 'Easy',
+      userRole: 'You are an entrepreneur pitching your idea to an investor in an elevator. Be concise and compelling.',
       systemPrompt:
           'You are Maria Santos, a venture capitalist at Apex Ventures. You\'re in an actual elevator heading to the 40th floor — the speaker has about 60 seconds.\n\n'
           'Your behavior:\n'
@@ -134,6 +140,7 @@ class ScenarioRepository {
           'Present Q4 results to stakeholders with clarity and confidence.',
       durationMinutes: 5,
       difficulty: 'Hard',
+      userRole: 'You are presenting Q4 results to the executive team. Back up your claims with data and clear insights.',
       systemPrompt:
           'You are Catherine Wu, CFO and a numbers-driven executive. You\'re in a boardroom with the quarterly report in front of you.\n\n'
           'Your behavior:\n'
@@ -154,6 +161,7 @@ class ScenarioRepository {
           'Demo a product feature to potential customers or stakeholders.',
       durationMinutes: 3,
       difficulty: 'Medium',
+      userRole: 'You are a sales engineer demoing your product to a potential enterprise customer. Focus on their pain points.',
       systemPrompt:
           'You are Tom Bradley, Head of Procurement at a mid-size enterprise. You\'ve seen dozens of demos this month and your BS detector is finely tuned.\n\n'
           'Your behavior:\n'
@@ -174,6 +182,7 @@ class ScenarioRepository {
           'Give a team update that is clear, motivating, and action-oriented.',
       durationMinutes: 3,
       difficulty: 'Easy',
+      userRole: 'You are a team lead giving a weekly update at an all-hands meeting. Be clear, motivating, and action-oriented.',
       systemPrompt:
           'You are a team member at the weekly all-hands meeting. You\'re sitting in the second row with your laptop open. You care about clarity and whether this affects your work.\n\n'
           'Your behavior:\n'
@@ -194,6 +203,7 @@ class ScenarioRepository {
           'Present your startup to investors — problem, solution, market, traction.',
       durationMinutes: 5,
       difficulty: 'Hard',
+      userRole: 'You are a startup founder pitching to venture capitalists. Cover the problem, solution, market, and traction.',
       systemPrompt:
           'You are Robert Kim, Managing Partner at Horizon Capital. You\'ve funded 50+ startups and heard thousands of pitches. You\'re in a conference room with two associates.\n\n'
           'Your behavior:\n'
@@ -216,6 +226,7 @@ class ScenarioRepository {
           'Give a heartfelt, funny, and memorable wedding toast.',
       durationMinutes: 3,
       difficulty: 'Easy',
+      userRole: 'You are the best man/maid of honor giving a wedding toast. Be heartfelt, funny, and memorable.',
       systemPrompt:
           'You are Emily, the bride\'s college roommate, sitting at the head table. The room is full of 150 guests with champagne glasses raised.\n\n'
           'Your behavior:\n'
@@ -234,8 +245,9 @@ class ScenarioRepository {
       title: 'Acceptance Speech',
       description:
           'Accept an award with grace, gratitude, and memorable delivery.',
-      durationMinutes: 2,
+      durationMinutes: 3,
       difficulty: 'Easy',
+      userRole: 'You are accepting a professional award at a gala. Show gratitude and deliver a memorable speech.',
       systemPrompt:
           'You are a fellow nominee sitting in the front row at an awards gala. The spotlight is on the speaker. The audience is 300+ people in formal attire.\n\n'
           'Your behavior:\n'
@@ -256,6 +268,7 @@ class ScenarioRepository {
           'Inspire an audience with a powerful motivational message.',
       durationMinutes: 5,
       difficulty: 'Hard',
+      userRole: 'You are a keynote speaker at a personal development conference. Inspire the audience with your message.',
       systemPrompt:
           'You are Derek, a 35-year-old marketing manager in the audience at a personal development conference. You came skeptical but open-minded. You\'re in row 5 of a 500-seat auditorium.\n\n'
           'Your behavior:\n'
@@ -276,6 +289,7 @@ class ScenarioRepository {
           'Deliver a TED-style talk on a topic you are passionate about.',
       durationMinutes: 5,
       difficulty: 'Hard',
+      userRole: 'You are delivering a TED-style talk on a topic you are passionate about. Present original ideas backed by evidence.',
       systemPrompt:
           'You are Dr. Lisa Huang, a neuroscience professor and regular TED attendee. You\'re in the front row with a notepad. You expect original ideas backed by evidence.\n\n'
           'Your behavior:\n'
@@ -296,6 +310,7 @@ class ScenarioRepository {
           'Give life advice to graduates in a moving commencement speech.',
       durationMinutes: 5,
       difficulty: 'Medium',
+      userRole: 'You are giving a commencement address to graduating students. Share life wisdom that resonates.',
       systemPrompt:
           'You are a graduating senior in cap and gown, sitting in the hot sun with 2,000 classmates. You\'re excited but also ready for this to be over. The speaker needs to earn your attention.\n\n'
           'Your behavior:\n'
@@ -318,6 +333,7 @@ class ScenarioRepository {
           'Debate whether AI should replace human teachers in education.',
       durationMinutes: 5,
       difficulty: 'Hard',
+      userRole: 'You are arguing FOR AI replacing teachers in education. Present evidence-based arguments and counter objections.',
       systemPrompt:
           'You are Professor Alan Whitfield, a 25-year veteran educator and debate moderator. You are arguing AGAINST AI replacing teachers.\n\n'
           'Your behavior:\n'
@@ -339,6 +355,7 @@ class ScenarioRepository {
           'Debate the merits of remote work versus traditional office work.',
       durationMinutes: 5,
       difficulty: 'Medium',
+      userRole: 'You are arguing FOR remote work over office work. Present your case with data and real examples.',
       systemPrompt:
           'You are Sandra Bell, an HR executive who strongly believes in office culture. You\'re arguing FOR office work.\n\n'
           'Your behavior:\n'
@@ -359,6 +376,7 @@ class ScenarioRepository {
           'Debate whether social media does more harm than good for society.',
       durationMinutes: 5,
       difficulty: 'Medium',
+      userRole: 'You are arguing that social media IS harmful to society. Present research and compelling arguments.',
       systemPrompt:
           'You are Dr. Maya Patel, a digital communications researcher. You\'re arguing that social media is NOT harmful on balance.\n\n'
           'Your behavior:\n'
@@ -379,6 +397,7 @@ class ScenarioRepository {
           'Debate whether governments should implement universal basic income.',
       durationMinutes: 5,
       difficulty: 'Hard',
+      userRole: 'You are arguing FOR universal basic income. Address funding, implementation, and economic concerns.',
       systemPrompt:
           'You are Mark Sullivan, an economics professor who is skeptical of UBI. You argue with data and economic theory.\n\n'
           'Your behavior:\n'
@@ -399,6 +418,7 @@ class ScenarioRepository {
           'Debate whether governments should increase space exploration spending.',
       durationMinutes: 5,
       difficulty: 'Medium',
+      userRole: 'You are arguing FOR increased space exploration funding. Justify the investment with tangible benefits.',
       systemPrompt:
           'You are Congresswoman Rita Flores, a fiscal conservative on the budget committee. You argue AGAINST increased space funding.\n\n'
           'Your behavior:\n'
@@ -421,6 +441,7 @@ class ScenarioRepository {
           'Practice making small talk at a professional networking event.',
       durationMinutes: 3,
       difficulty: 'Easy',
+      userRole: 'You are at a tech networking mixer. Introduce yourself and find genuine common ground with a stranger.',
       systemPrompt:
           'You are Maya Rodriguez, a product manager at a fintech startup. You\'re at a tech networking mixer, holding a glass of wine. You\'re friendly but selective about who you spend time with.\n\n'
           'Your behavior:\n'
@@ -441,6 +462,7 @@ class ScenarioRepository {
           'Practice asking someone out in a confident but respectful way.',
       durationMinutes: 3,
       difficulty: 'Medium',
+      userRole: 'You are at a coffee shop and want to ask someone you have been noticing out on a date. Be confident but respectful.',
       systemPrompt:
           'You are Jordan, a graphic designer you often see at the same coffee shop. You always sit by the window with your sketchbook. Today the speaker comes up to talk.\n\n'
           'Your behavior:\n'
@@ -461,6 +483,7 @@ class ScenarioRepository {
           'Practice delivering a sincere apology and making amends.',
       durationMinutes: 3,
       difficulty: 'Medium',
+      userRole: 'You forgot your close friend\'s birthday. Meet up with them, apologize sincerely, and make amends.',
       systemPrompt:
           'You are Taylor, the speaker\'s close friend who is hurt because they completely forgot your birthday last week. You\'re at a cafe and they asked to meet up.\n\n'
           'Your behavior:\n'
@@ -481,6 +504,7 @@ class ScenarioRepository {
           'Navigate the nerve-wracking first meeting with your partner\'s parents.',
       durationMinutes: 3,
       difficulty: 'Hard',
+      userRole: 'You are meeting your partner\'s father for the first time at a family dinner. Be genuine and make a good impression.',
       systemPrompt:
           'You are Richard, the protective but fair father of the speaker\'s partner. You\'re sitting at the dining table in your home. Your spouse made dinner.\n\n'
           'Your behavior:\n'
@@ -501,6 +525,7 @@ class ScenarioRepository {
           'Practice giving constructive criticism to a colleague or friend.',
       durationMinutes: 3,
       difficulty: 'Hard',
+      userRole: 'You need to give constructive feedback to a colleague who has been missing deadlines. Be specific and empathetic.',
       systemPrompt:
           'You are Sam, a colleague who has been missing deadlines on a shared project. You don\'t realize how much it\'s affecting the team. You\'re in a meeting room.\n\n'
           'Your behavior:\n'
@@ -523,6 +548,7 @@ class ScenarioRepository {
           'Tell a vivid story from your childhood that shaped who you are.',
       durationMinutes: 3,
       difficulty: 'Easy',
+      userRole: 'You are sharing a vivid childhood memory with a close friend. Use sensory details and emotion.',
       systemPrompt:
           'You are Nadia, a warm and curious friend sitting across from the speaker at a cozy cafe. You love hearing personal stories.\n\n'
           'Your behavior:\n'
@@ -543,6 +569,7 @@ class ScenarioRepository {
           'Tell the story of your proudest achievement with passion and detail.',
       durationMinutes: 3,
       difficulty: 'Easy',
+      userRole: 'You are telling a colleague about your proudest achievement. Share the journey with passion and detail.',
       systemPrompt:
           'You are Carlos, an enthusiastic colleague at a team offsite, bonding over drinks. You genuinely want to hear about their achievement.\n\n'
           'Your behavior:\n'
@@ -563,6 +590,7 @@ class ScenarioRepository {
           'Share a hilarious personal story that will make your listener laugh.',
       durationMinutes: 3,
       difficulty: 'Medium',
+      userRole: 'You are telling a hilarious personal story at a dinner party. Build tension and deliver the punchline.',
       systemPrompt:
           'You are Kenji, a friend at a dinner party who loves a good laugh. You\'re the type to wheeze-laugh and slap the table.\n\n'
           'Your behavior:\n'
@@ -583,6 +611,7 @@ class ScenarioRepository {
           'Share a story about a mistake that taught you a valuable lesson.',
       durationMinutes: 3,
       difficulty: 'Medium',
+      userRole: 'You are sharing a story about a mistake that taught you a valuable lesson. Be honest and reflective.',
       systemPrompt:
           'You are Diana, a thoughtful mentor-type friend. You\'re on a long walk together. You listen deeply and ask reflective questions.\n\n'
           'Your behavior:\n'
@@ -603,6 +632,7 @@ class ScenarioRepository {
           'Tell an exciting story from a trip or travel experience.',
       durationMinutes: 3,
       difficulty: 'Easy',
+      userRole: 'You are swapping travel stories at a hostel. Tell an exciting adventure with vivid details.',
       systemPrompt:
           'You are Marco, a fellow travel enthusiast at a hostel common room. You\'ve been to 30+ countries and love swapping stories.\n\n'
           'Your behavior:\n'
@@ -623,8 +653,9 @@ class ScenarioRepository {
       title: 'Order Food by Phone',
       description:
           'Call a restaurant and place a takeout order confidently.',
-      durationMinutes: 2,
+      durationMinutes: 3,
       difficulty: 'Easy',
+      userRole: 'You are calling a restaurant to place a takeout order. Know what you want and speak clearly.',
       systemPrompt:
           'You are Mike, a server at Luigi\'s Italian Kitchen. It\'s Friday evening and the restaurant is busy — you can hear kitchen noise in the background.\n\n'
           'Your behavior:\n'
@@ -644,8 +675,9 @@ class ScenarioRepository {
       title: 'Call the Doctor\'s Office',
       description:
           'Schedule or reschedule a doctor appointment over the phone.',
-      durationMinutes: 2,
+      durationMinutes: 3,
       difficulty: 'Easy',
+      userRole: 'You are calling a doctor\'s office to schedule an appointment. Have your information ready.',
       systemPrompt:
           'You are Nurse Angela at Riverside Medical Group. You\'re answering phones at the front desk. You\'re professional, patient, and efficient.\n\n'
           'Your behavior:\n'
@@ -664,8 +696,9 @@ class ScenarioRepository {
       title: 'Call in Sick to Work',
       description:
           'Call your boss to let them know you can\'t come in today.',
-      durationMinutes: 2,
+      durationMinutes: 3,
       difficulty: 'Medium',
+      userRole: 'You are calling your boss to let them know you cannot come in today. Be professional and prepared.',
       systemPrompt:
           'You are Greg, a team lead who is understanding but needs to manage the team. You\'re surprised by the call but not annoyed.\n\n'
           'Your behavior:\n'
@@ -684,8 +717,9 @@ class ScenarioRepository {
       title: 'Make a Restaurant Reservation',
       description:
           'Call a restaurant to make a dinner reservation for a group.',
-      durationMinutes: 2,
+      durationMinutes: 3,
       difficulty: 'Easy',
+      userRole: 'You are calling a restaurant to make a dinner reservation for a group. Have your details ready.',
       systemPrompt:
           'You are Sophie, the host at The Oak Table, an upscale restaurant. You\'re friendly and professional, speaking with a calm, pleasant tone.\n\n'
           'Your behavior:\n'
@@ -706,6 +740,7 @@ class ScenarioRepository {
           'Call customer service to return a product and get a refund.',
       durationMinutes: 3,
       difficulty: 'Medium',
+      userRole: 'You are calling customer service to return a product and get a refund. Be polite but firm.',
       systemPrompt:
           'You are Customer Service Rep Dana at TechMart. You\'re helpful but need to follow procedure. You pull up their account on your screen.\n\n'
           'Your behavior:\n'
@@ -728,6 +763,7 @@ class ScenarioRepository {
           'Practice keeping a fun, natural conversation on a first date.',
       durationMinutes: 3,
       difficulty: 'Medium',
+      userRole: 'You are on a first date at a cozy cafe. Be genuine, ask questions, and keep the conversation flowing naturally.',
       systemPrompt:
           'You are Riley, a 27-year-old UX designer who loves live music and cooking. You\'re at a cozy cafe for a first date, sitting across from the speaker. You\'re a little nervous but excited.\n\n'
           'Your behavior:\n'
@@ -747,8 +783,9 @@ class ScenarioRepository {
       title: 'Ask Someone Out',
       description:
           'Practice building up to asking someone on a date in a natural way.',
-      durationMinutes: 2,
+      durationMinutes: 3,
       difficulty: 'Medium',
+      userRole: 'You are at a friend\'s birthday party chatting with someone you find attractive. Build up to asking them out naturally.',
       systemPrompt:
           'You are Mia, someone the speaker has been chatting with at a friend\'s birthday party. You\'re standing near the drinks table, open and friendly.\n\n'
           'Your behavior:\n'
@@ -768,8 +805,9 @@ class ScenarioRepository {
       title: 'Speed Dating Round',
       description:
           'Make a great impression in a 2-minute speed dating round.',
-      durationMinutes: 2,
+      durationMinutes: 3,
       difficulty: 'Hard',
+      userRole: 'You are at a speed dating event with 2 minutes per round. Make a memorable impression quickly.',
       systemPrompt:
           'You are Priya, a 30-year-old startup founder who\'s doing speed dating for the first time. You\'re quick-witted and direct. You appreciate humor and authenticity.\n\n'
           'Your behavior:\n'
@@ -791,6 +829,7 @@ class ScenarioRepository {
           'Practice the natural introduction when friends set you up.',
       durationMinutes: 3,
       difficulty: 'Easy',
+      userRole: 'You are meeting someone your mutual friend set you up with at a casual brunch. Be warm and find common ground.',
       systemPrompt:
           'You are Casey, a 26-year-old elementary school teacher. Your friend Sarah set this up because she thought you\'d click. You\'re meeting at a casual brunch spot.\n\n'
           'Your behavior:\n'
@@ -812,6 +851,7 @@ class ScenarioRepository {
           'Reach out to a friend you haven\'t talked to in a while.',
       durationMinutes: 3,
       difficulty: 'Easy',
+      userRole: 'You are reaching out to a college friend you haven\'t talked to in over a year. Reconnect naturally.',
       systemPrompt:
           'You are Danny, the speaker\'s friend from college. You haven\'t talked in over a year. You\'ve been through some changes — new job, new city, started running marathons.\n\n'
           'Your behavior:\n'
@@ -835,6 +875,7 @@ class ScenarioRepository {
           'Build your case and confidently ask your manager for a raise.',
       durationMinutes: 3,
       difficulty: 'Hard',
+      userRole: 'You are meeting with your manager to ask for a raise. Present your case with specific evidence and confidence.',
       systemPrompt:
           'You are Patricia Hayes, a fair but budget-conscious manager. You\'re in your office for a one-on-one meeting. You respect the employee but need to see their case.\n\n'
           'Your behavior:\n'
@@ -856,6 +897,7 @@ class ScenarioRepository {
           'Practice saying no and setting healthy boundaries respectfully.',
       durationMinutes: 3,
       difficulty: 'Medium',
+      userRole: 'Your friend keeps asking for big favors without reciprocating. Set healthy boundaries firmly but kindly.',
       systemPrompt:
           'You are Nicole, a close friend who has a habit of asking for big favors and not reciprocating. Today you just asked the speaker to help you move... again. This is the third time this year.\n\n'
           'Your behavior:\n'
@@ -877,6 +919,7 @@ class ScenarioRepository {
           'Address an issue with your roommate without making things awkward.',
       durationMinutes: 3,
       difficulty: 'Medium',
+      userRole: 'Your roommate has been leaving dishes and playing loud music. Address the issues without making things awkward.',
       systemPrompt:
           'You are Jake, a roommate who has been leaving dishes piled up and playing loud music past midnight. You don\'t think it\'s a big deal, but you\'re not unreasonable.\n\n'
           'Your behavior:\n'
@@ -896,8 +939,9 @@ class ScenarioRepository {
       title: 'Say No to Extra Work',
       description:
           'Practice declining additional work when you\'re already at capacity.',
-      durationMinutes: 2,
+      durationMinutes: 3,
       difficulty: 'Medium',
+      userRole: 'A colleague is trying to offload extra work on you when you are already at capacity. Decline firmly but professionally.',
       systemPrompt:
           'You are Karen, a well-meaning but persistent colleague who is trying to offload a project. You genuinely need help but don\'t realize the speaker is already maxed out.\n\n'
           'Your behavior:\n'
@@ -919,6 +963,7 @@ class ScenarioRepository {
           'Practice receiving harsh feedback without getting defensive.',
       durationMinutes: 3,
       difficulty: 'Hard',
+      userRole: 'Your senior colleague is giving you blunt feedback on your report. Receive it gracefully without getting defensive.',
       systemPrompt:
           'You are Director Lisa, a senior colleague giving blunt feedback on the speaker\'s recent project report. Some of it is fair, some is harsh. You don\'t sugarcoat.\n\n'
           'Your behavior:\n'
@@ -942,6 +987,7 @@ class ScenarioRepository {
           'Navigate small talk at a party where you don\'t know many people.',
       durationMinutes: 3,
       difficulty: 'Easy',
+      userRole: 'You are at a house party where you do not know many people. Approach a stranger and make conversation.',
       systemPrompt:
           'You are Aiden, a 29-year-old software developer at a friend\'s house party. You\'re standing near the snack table with a drink, friendly and open to conversation.\n\n'
           'Your behavior:\n'
@@ -961,8 +1007,9 @@ class ScenarioRepository {
       title: 'Networking Introduction',
       description:
           'Introduce yourself at a professional networking event confidently.',
-      durationMinutes: 2,
+      durationMinutes: 3,
       difficulty: 'Medium',
+      userRole: 'You are at an industry conference mixer. Introduce yourself to a senior executive confidently and memorably.',
       systemPrompt:
           'You are Victoria Chang, Director of Marketing at a Fortune 500 company. You\'re at an industry conference mixer. You\'re polished, direct, and value your time.\n\n'
           'Your behavior:\n'
@@ -983,6 +1030,7 @@ class ScenarioRepository {
           'Contribute to group conversation at a dinner party.',
       durationMinutes: 3,
       difficulty: 'Medium',
+      userRole: 'You are a guest at a dinner party. Contribute to the group conversation and share interesting stories.',
       systemPrompt:
           'You are Rosa, a warm and lively dinner party host. You\'ve cooked a Mediterranean spread. There are 6 guests around a candlelit table.\n\n'
           'Your behavior:\n'
@@ -1002,8 +1050,9 @@ class ScenarioRepository {
       title: 'Chat With a Neighbor',
       description:
           'Practice friendly conversation with a neighbor you just met.',
-      durationMinutes: 2,
+      durationMinutes: 3,
       difficulty: 'Easy',
+      userRole: 'Your new neighbor is introducing themselves. Have a friendly conversation and be welcoming.',
       systemPrompt:
           'You are Linda, a friendly 50-year-old who just moved in next door. You\'re outside watering your garden when you spot the speaker getting their mail.\n\n'
           'Your behavior:\n'
@@ -1023,8 +1072,9 @@ class ScenarioRepository {
       title: 'Waiting Room Conversation',
       description:
           'Start and maintain a pleasant conversation with a stranger.',
-      durationMinutes: 2,
+      durationMinutes: 3,
       difficulty: 'Easy',
+      userRole: 'You are in a dentist\'s waiting room. Start and maintain a pleasant conversation with a stranger.',
       systemPrompt:
           'You are Gene, a 45-year-old electrician sitting in a dentist\'s waiting room. You\'re the type who chats with strangers to pass the time. You have a dad-joke sense of humor.\n\n'
           'Your behavior:\n'

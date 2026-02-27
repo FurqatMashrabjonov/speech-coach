@@ -1,25 +1,46 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'dart:convert';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:speech_coach/features/history/domain/session_history_entity.dart';
+import 'package:speech_coach/shared/providers/user_provider.dart';
 
 class SessionHistoryRepository {
-  final FirebaseFirestore _firestore;
-  final FirebaseAuth _auth;
+  static const _key = 'session_history';
+  final SharedPreferences _prefs;
 
-  SessionHistoryRepository({
-    FirebaseFirestore? firestore,
-    FirebaseAuth? auth,
-  })  : _firestore = firestore ?? FirebaseFirestore.instance,
-        _auth = auth ?? FirebaseAuth.instance;
+  SessionHistoryRepository(this._prefs);
 
-  CollectionReference<Map<String, dynamic>> get _sessionsRef {
-    final uid = _auth.currentUser!.uid;
-    return _firestore.collection('users').doc(uid).collection('sessions');
+  List<SessionHistoryEntry> _loadAll() {
+    final json = _prefs.getString(_key);
+    if (json == null) return [];
+    try {
+      final list = jsonDecode(json) as List;
+      return list
+          .map((e) => SessionHistoryEntry.fromMap(e as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      debugPrint('SessionHistoryRepository: failed to load: $e');
+      return [];
+    }
+  }
+
+  Future<void> _saveAll(List<SessionHistoryEntry> entries) async {
+    final json = jsonEncode(entries.map((e) => e.toMap()).toList());
+    await _prefs.setString(_key, json);
   }
 
   Future<void> saveSession(SessionHistoryEntry entry) async {
-    await _sessionsRef.doc(entry.id).set(entry.toMap());
+    final entries = _loadAll();
+    // Replace if exists (update), otherwise add
+    final idx = entries.indexWhere((e) => e.id == entry.id);
+    if (idx >= 0) {
+      entries[idx] = entry;
+    } else {
+      entries.add(entry);
+    }
+    await _saveAll(entries);
   }
 
   Future<String> savePendingSession({
@@ -42,7 +63,7 @@ class SessionHistoryRepository {
       feedbackStatus: 'pending',
       scenarioPrompt: scenarioPrompt,
     );
-    await _sessionsRef.doc(id).set(entry.toMap());
+    await saveSession(entry);
     return id;
   }
 
@@ -58,43 +79,54 @@ class SessionHistoryRepository {
     required List<String> improvements,
     required int xpEarned,
   }) async {
-    await _sessionsRef.doc(sessionId).update({
-      'overallScore': overallScore,
-      'clarity': clarity,
-      'confidence': confidence,
-      'engagement': engagement,
-      'relevance': relevance,
-      'summary': summary,
-      'strengths': strengths,
-      'improvements': improvements,
-      'xpEarned': xpEarned,
-      'feedbackStatus': 'completed',
-      'feedbackGeneratedBy': 'client',
-    });
+    final entries = _loadAll();
+    final idx = entries.indexWhere((e) => e.id == sessionId);
+    if (idx >= 0) {
+      entries[idx] = entries[idx].copyWith(
+        overallScore: overallScore,
+        clarity: clarity,
+        confidence: confidence,
+        engagement: engagement,
+        relevance: relevance,
+        summary: summary,
+        strengths: strengths,
+        improvements: improvements,
+        xpEarned: xpEarned,
+        feedbackStatus: 'completed',
+        feedbackGeneratedBy: 'client',
+      );
+      await _saveAll(entries);
+    } else {
+      debugPrint('SessionHistoryRepository: session $sessionId not found for feedback update');
+    }
   }
 
   Future<List<SessionHistoryEntry>> getSessions({int limit = 50}) async {
-    final snapshot = await _sessionsRef
-        .orderBy('createdAt', descending: true)
-        .limit(limit)
-        .get();
-
-    return snapshot.docs
-        .map((doc) => SessionHistoryEntry.fromFirestore(doc))
-        .toList();
+    final entries = _loadAll();
+    // Sort by createdAt descending (newest first)
+    entries.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    return entries.take(limit).toList();
   }
 
   Future<SessionHistoryEntry?> getSession(String id) async {
-    final doc = await _sessionsRef.doc(id).get();
-    if (!doc.exists) return null;
-    return SessionHistoryEntry.fromFirestore(doc);
+    final entries = _loadAll();
+    try {
+      return entries.firstWhere((e) => e.id == id);
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<void> deleteSession(String id) async {
-    await _sessionsRef.doc(id).delete();
+    final entries = _loadAll();
+    entries.removeWhere((e) => e.id == id);
+    await _saveAll(entries);
   }
 }
 
 final sessionHistoryRepositoryProvider = Provider<SessionHistoryRepository>(
-  (ref) => SessionHistoryRepository(),
+  (ref) {
+    final prefs = ref.read(sharedPreferencesProvider);
+    return SessionHistoryRepository(prefs);
+  },
 );
